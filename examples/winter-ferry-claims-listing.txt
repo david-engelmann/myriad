@@ -1,0 +1,5 @@
+question, How does a small harbour town keep its ferry link alive through the winter
+claim boat crew, branches 3, open 2, taken 0, abandoned 1
+claim harbour office, branches 4, open 1, taken 3, abandoned 0
+claim tide watch, branches 3, open 0, taken 2, abandoned 1
+unclaimed, branches 16, open 13, taken 1, abandoned 2

@@ -22,20 +22,36 @@ def _holds_unpaired_surrogate(text):
     return False
 
 
+def _holds_line_break(text):
+    """Return whether a string holds a newline or a carriage return.
+
+    The loader names such a value as malformed under FIX-MY-6, so a
+    skeleton built on one could never load clean, and the helper
+    refuses it before building, under FIX-MY-8.
+    """
+    return "\n" in text or "\r" in text
+
+
 def fork_skeleton(question, prompts):
     """Build an exploration skeleton from a question and prompts.
 
     The skeleton holds one root branch per prompt, every branch in
     state open, with ids in the form b01, b02, and onward in prompt
     order. Raises ValueError on an empty question, on a question or
-    a prompt holding an unpaired surrogate, on a prompt that is not
-    a string, on an empty prompt, and on two prompts that are the
-    same, because no sound skeleton exists for those inputs.
+    a prompt holding an unpaired surrogate, on a question or a
+    prompt holding a newline or a carriage return, on a prompt
+    that is not a string, on an empty prompt, and on two prompts
+    that are the same, because no sound skeleton exists for those
+    inputs.
     """
     if not isinstance(question, str) or question == "":
         raise ValueError("the question must be a non empty string")
     if _holds_unpaired_surrogate(question):
         raise ValueError("the question holds an unpaired surrogate")
+    if _holds_line_break(question):
+        raise ValueError(
+            "the question holds a newline or a carriage return"
+        )
     branches = []
     seen = set()
     for index, prompt in enumerate(prompts, start=1):
@@ -45,6 +61,10 @@ def fork_skeleton(question, prompts):
             raise ValueError("each prompt must be a non empty string")
         if _holds_unpaired_surrogate(prompt):
             raise ValueError("each prompt must hold no unpaired surrogate")
+        if _holds_line_break(prompt):
+            raise ValueError(
+                "each prompt must hold no newline or carriage return"
+            )
         if prompt in seen:
             raise ValueError(f"two prompts are the same, {prompt}")
         seen.add(prompt)

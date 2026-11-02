@@ -1,0 +1,37 @@
+question, How does a small harbour town keep its ferry link alive through the winter
+taken
+  claim harbour office
+    service-weekend, finding, A weekend only pattern breaks the Thursday hospital run
+    money-grant, finding, The lifeline routes grant opens for bids in September
+    night-lights, finding, Two pier lights fall short and are already on the works list
+  claim tide watch
+    vessel, finding, The spare vessel needs heated fuel lines fitted before November
+    vessel-fuel, finding, The additive dosing already on the shelf covers both boats
+  unclaimed
+    weekend-hospital, finding, The freight boat already covers Thursdays under its own contract
+abandoned
+  claim boat crew
+    ferry-house, reason, The ferry house roof failed its survey in October
+  claim tide watch
+    vessel-ramp, reason, The ramp survey is booked for spring and cannot move
+  unclaimed
+    demand, reason, The harbour survey settled the January counts last year
+    fares-passes, reason, The fare audit ruled out a resident pass after last winter
+open
+  service, prompt, What service pattern keeps the link alive through the winter
+  crew, prompt, Who crews the boat when the summer crew leaves
+  money, prompt, Where does the winter money come from
+  service-night, prompt, Should the last sailing move earlier in midwinter
+  service-weather, prompt, Which weather calls cancel a sailing
+  crew-roster, prompt, What roster covers sickness in a crew of four
+  crew-housing, prompt, Where do relief crew sleep on the island
+  money-fares, prompt, Should winter fares differ from summer fares
+  money-freight, prompt, Can freight contracts carry the quiet months
+  weather-harbour, prompt, What does the harbour office need to call a cancellation
+  roster-swap, prompt, Can skippers swap runs with the freight boat crew
+  fuel-storage, prompt, Where does treated fuel sit between deliveries
+  grant-match, prompt, What match funding does the lifeline grant demand
+  harbour-radio, prompt, Which radio check opens the morning call
+  match-council, prompt, Will the council underwrite the match share
+  swap-licences, prompt, Do the licences allow skippers to swap boats
+branches 26, open 16, taken 6, abandoned 4

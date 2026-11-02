@@ -1,0 +1,181 @@
+{
+  "question": "How does a small harbour town keep its ferry link alive through the winter",
+  "branches": [
+    {
+      "id": "service",
+      "parent": null,
+      "prompt": "What service pattern keeps the link alive through the winter",
+      "state": "open"
+    },
+    {
+      "id": "vessel",
+      "parent": null,
+      "prompt": "What does the vessel need before the cold sets in",
+      "state": "taken",
+      "finding": "The spare vessel needs heated fuel lines fitted before November",
+      "claim": "tide watch"
+    },
+    {
+      "id": "crew",
+      "parent": null,
+      "prompt": "Who crews the boat when the summer crew leaves",
+      "state": "open",
+      "claim": "boat crew"
+    },
+    {
+      "id": "money",
+      "parent": null,
+      "prompt": "Where does the winter money come from",
+      "state": "open"
+    },
+    {
+      "id": "demand",
+      "parent": null,
+      "prompt": "Who actually rides the ferry in January",
+      "state": "abandoned",
+      "reason": "The harbour survey settled the January counts last year"
+    },
+    {
+      "id": "service-night",
+      "parent": "service",
+      "prompt": "Should the last sailing move earlier in midwinter",
+      "state": "open"
+    },
+    {
+      "id": "service-weekend",
+      "parent": "service",
+      "prompt": "Does a weekend only pattern hold the link",
+      "state": "taken",
+      "finding": "A weekend only pattern breaks the Thursday hospital run",
+      "claim": "harbour office"
+    },
+    {
+      "id": "service-weather",
+      "parent": "service",
+      "prompt": "Which weather calls cancel a sailing",
+      "state": "open"
+    },
+    {
+      "id": "vessel-fuel",
+      "parent": "vessel",
+      "prompt": "What fuel treatment stops winter gelling",
+      "state": "taken",
+      "finding": "The additive dosing already on the shelf covers both boats",
+      "claim": "tide watch"
+    },
+    {
+      "id": "vessel-ramp",
+      "parent": "vessel",
+      "prompt": "Can the ramp take ice loading at low tide",
+      "state": "abandoned",
+      "reason": "The ramp survey is booked for spring and cannot move",
+      "claim": "tide watch"
+    },
+    {
+      "id": "crew-roster",
+      "parent": "crew",
+      "prompt": "What roster covers sickness in a crew of four",
+      "state": "open",
+      "claim": "boat crew"
+    },
+    {
+      "id": "crew-housing",
+      "parent": "crew",
+      "prompt": "Where do relief crew sleep on the island",
+      "state": "open"
+    },
+    {
+      "id": "money-fares",
+      "parent": "money",
+      "prompt": "Should winter fares differ from summer fares",
+      "state": "open"
+    },
+    {
+      "id": "money-grant",
+      "parent": "money",
+      "prompt": "Which grant windows open before the season",
+      "state": "taken",
+      "finding": "The lifeline routes grant opens for bids in September",
+      "claim": "harbour office"
+    },
+    {
+      "id": "money-freight",
+      "parent": "money",
+      "prompt": "Can freight contracts carry the quiet months",
+      "state": "open"
+    },
+    {
+      "id": "weather-harbour",
+      "parent": "service-weather",
+      "prompt": "What does the harbour office need to call a cancellation",
+      "state": "open"
+    },
+    {
+      "id": "roster-swap",
+      "parent": "crew-roster",
+      "prompt": "Can skippers swap runs with the freight boat crew",
+      "state": "open"
+    },
+    {
+      "id": "fares-passes",
+      "parent": "money-fares",
+      "prompt": "Would a winter resident pass steady the income",
+      "state": "abandoned",
+      "reason": "The fare audit ruled out a resident pass after last winter"
+    },
+    {
+      "id": "fuel-storage",
+      "parent": "vessel-fuel",
+      "prompt": "Where does treated fuel sit between deliveries",
+      "state": "open"
+    },
+    {
+      "id": "night-lights",
+      "parent": "service-night",
+      "prompt": "Do the pier lights meet the night sailing rules",
+      "state": "taken",
+      "finding": "Two pier lights fall short and are already on the works list",
+      "claim": "harbour office"
+    },
+    {
+      "id": "grant-match",
+      "parent": "money-grant",
+      "prompt": "What match funding does the lifeline grant demand",
+      "state": "open",
+      "claim": "harbour office"
+    },
+    {
+      "id": "ferry-house",
+      "parent": "crew-housing",
+      "prompt": "Can the old ferry house take relief crew again",
+      "state": "abandoned",
+      "reason": "The ferry house roof failed its survey in October",
+      "claim": "boat crew"
+    },
+    {
+      "id": "harbour-radio",
+      "parent": "weather-harbour",
+      "prompt": "Which radio check opens the morning call",
+      "state": "open"
+    },
+    {
+      "id": "weekend-hospital",
+      "parent": "service-weekend",
+      "prompt": "What covers the Thursday hospital run",
+      "state": "taken",
+      "finding": "The freight boat already covers Thursdays under its own contract"
+    },
+    {
+      "id": "match-council",
+      "parent": "grant-match",
+      "prompt": "Will the council underwrite the match share",
+      "state": "open"
+    },
+    {
+      "id": "swap-licences",
+      "parent": "roster-swap",
+      "prompt": "Do the licences allow skippers to swap boats",
+      "state": "open"
+    }
+  ]
+}
