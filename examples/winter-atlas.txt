@@ -1,0 +1,33 @@
+atlas, Winter questions for a small harbour
+entry ferry link
+question, How does the harbour keep a ferry sailing through the winter
+berth (open) Where does the ferry tie up when the harbour ices over
+  claimed by boat crew
+  crew-rest (open) Where does the crew rest between sailings
+fuel (taken) What fuel does the boat burn in the cold months
+  claimed by boat crew
+  finding, The boat burns winter grade diesel from the harbour tank
+  fuel-store (taken) Where is the winter diesel stored ashore
+    claimed by harbour office
+    finding, Two heated tanks stand behind the harbour office
+timetable (open) How often does the boat sail in January
+  night (abandoned) Does the boat sail after dark in midwinter
+    reason, The harbour bylaw settles the sailing hours already
+branches 6, open 3, taken 2, abandoned 1
+claim boat crew, branches 2, open 1, taken 1, abandoned 0
+claim harbour office, branches 1, open 0, taken 1, abandoned 0
+unclaimed, branches 3, open 2, taken 0, abandoned 1
+entry lifeboat cover
+question, Who answers a call for help on the water in winter
+call (open) How does a call for help reach the lifeboat crew
+  launch (taken) How does the boat get down the slipway on ice
+    finding, The slipway is gritted and the tractor is kept fuelled
+    sea (open) What seas can the boat go out in
+      back (abandoned) How does the crew get word back to shore
+        reason, The radio drill in the spring log already answers this
+branches 4, open 2, taken 1, abandoned 1
+unclaimed, branches 4, open 2, taken 1, abandoned 1
+entry harbour lights
+question, Which harbour lights stay lit through the winter nights
+branches 0, open 0, taken 0, abandoned 0
+atlas counts, entries 3, branches 10, open 5, taken 3, abandoned 2

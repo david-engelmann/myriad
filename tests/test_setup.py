@@ -38,6 +38,31 @@ def test_readme_reports_the_round_two_contract_status():
     )
     assert expected in text.splitlines()
 
+def test_readme_reports_the_round_three_contract_status():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    expected = (
+        "- Contract, MY-7 and MY-8 now stand in full form in "
+        "CONTRACT.md under the Round 3 obligations, and their "
+        "standing is not claimed here, as Round 3 has not closed."
+    )
+    assert expected in text.splitlines()
+
+def test_readme_reports_the_slice_four_standing():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    expected = (
+        "- Slice 4 is built and in review. It carries the atlas "
+        "loader that loads a file of labelled explorations only "
+        "whole and names the entry standing behind every defect, "
+        "and the atlas rendering that walks the entries in file "
+        "order with each section holding the map and the claim "
+        "lines of its exploration and the closing counts read over "
+        "the union of every entry, with a synthetic example atlas "
+        "of three explorations of differing shapes and its golden "
+        "rendering under examples."
+    )
+    assert expected in text.splitlines()
+    assert text.count("built and in review") == 1
+
 
 def test_ci_runs_the_same_gate_as_the_local_gate():
     text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")

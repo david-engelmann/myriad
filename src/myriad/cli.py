@@ -1,17 +1,19 @@
 """The myriad command line surface.
 
-Four commands read explorations from local files. The map command
-prints the explorable map of the tree, the check command prints
-the branch counts read from the tree, the claims command prints
-the claims listing of the tree, and the census command prints the
-territory census of the tree. Each command prints the defects of
-a malformed exploration and exits with status one. Nothing here
-touches the network.
+Five commands read explorations and atlases from local files. The
+map command prints the explorable map of the tree, the check
+command prints the branch counts read from the tree, the claims
+command prints the claims listing of the tree, the census command
+prints the territory census of the tree, and the atlas command
+prints the rendering of an atlas of explorations. Each command
+prints the defects of a malformed file and exits with status
+one. Nothing here touches the network.
 """
 
 import argparse
 import sys
 
+from myriad.atlas import load_atlas_file, render_atlas
 from myriad.explorations import (
     count_by_state,
     load_exploration_file,
@@ -70,6 +72,25 @@ def _command_census(args):
     return 0
 
 
+def _load_atlas_or_print_defects(path):
+    atlas, defects = load_atlas_file(path)
+    if defects:
+        print("invalid atlas")
+        for defect in defects:
+            print(f"defect {defect}")
+        return None
+    return atlas
+
+
+def _command_atlas(args):
+    atlas = _load_atlas_or_print_defects(args.file)
+    if atlas is None:
+        return 1
+    for line in render_atlas(atlas):
+        print(line)
+    return 0
+
+
 def main(argv=None):
     """Run the myriad command line and return the exit status."""
     parser = argparse.ArgumentParser(
@@ -95,6 +116,11 @@ def main(argv=None):
     )
     census_parser.add_argument("file")
     census_parser.set_defaults(handler=_command_census)
+    atlas_parser = commands.add_parser(
+        "atlas", help="print the rendering of an atlas of trees"
+    )
+    atlas_parser.add_argument("file")
+    atlas_parser.set_defaults(handler=_command_atlas)
     args = parser.parse_args(argv)
     return args.handler(args)
 
