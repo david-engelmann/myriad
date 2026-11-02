@@ -84,3 +84,67 @@ The loader resolves each parent chain once for the whole exploration, sharing th
 ### FIX-MY-5, amending MY-4
 
 The fork helper refuses a question or a prompt holding an unpaired surrogate with the same ValueError it raises for its other unsound inputs. MY-1 names such a string as malformed, and the loads clean promise of MY-4 holds only when the helper refuses every input no sound skeleton exists for. This amendment closes the red team Minor finding and the spec fidelity condition on the fork boundary. Test, tests/test_fork.py.
+
+## Round 2 obligations, full form
+
+This section states the obligations the third slice is held to, in full form from the start. The stub section and the first slice sections stay standing above. Where this section and an earlier text disagree, this section governs.
+
+### The exploration shape, Round 2 extension
+
+A branch object may hold one more field beyond the fields the first slice shape names. The field claim holds a non empty string, the label of the fork that claimed the branch. The field is optional in every state, and a branch holding no claim field is the same branch the first slice shape describes. Fields the contract does not name are still ignored, and the exploration the loader returns carries the claim only on a branch whose input carried one. Test, tests/test_claims.py.
+
+### MY-5 full form, the dibs claim on a branch
+
+The claim a branch may carry is the dibs claim the repo annex names, and this obligation discharges the later obligation the annex and MY-4 full form recorded. The sentence in MY-4 full form that the dibs claim stays a later obligation speaks for the first slice and stays standing as its record. From this round the claim is part of the branch shape, and a branch in any slice may carry one.
+
+The loader reads the claim field under the same reading it gives every other optional text field of a branch. A claim of the wrong kind draws branch and the index and field claim has the wrong type. An empty claim draws branch and the index and field claim is empty. A claim holding an unpaired surrogate draws branch and the index and field claim holds an unpaired surrogate. A claim that draws a defect makes the exploration malformed, as any field defect does, and the loader keeps naming fields after it. A claim is allowed in all three states and never interacts with the finding and reason rules of the state the branch stands in. Test, tests/test_claims.py.
+
+Two branches may carry the same claim label, and one label may span branches in different states and in different parts of the tree. A claim names which fork owns the exploration work on a branch, and it says nothing about the worth of the branch. No rendering in this repo reads a claim as a judgement on the branch it stands on.
+
+The map renders a claimed branch on its branch line, with the prompt followed by a comma and the words claimed by and the claim label. A branch carrying no claim renders exactly the branch line the first slice rendered, and the map of an exploration carrying no claims anywhere is byte identical to the map the first slice rendered. The counts line of the map is unchanged. Test, tests/test_claims.py and tests/test_map.py.
+
+The render_claims function in the myriad.explorations module takes a loaded exploration and returns the claims listing as a list of lines, and the listing is a pure function of the exploration. The first line names the question, in the form question, and the question text. Then one line stands for each claim label the exploration carries, with the labels in alphabetical order of the label text, in the form claim and the label and branches and the count of branches carrying that label and open and the open count among them and taken and the taken count among them and abandoned and the abandoned count among them. Then, when at least one branch carries no claim, one last line stands in the form unclaimed and branches and the count of branches carrying no claim and open and the open count among them and taken and the taken count among them and abandoned and the abandoned count among them. The listing of an exploration with no branches is the question line alone. Test, tests/test_claims.py.
+
+The fork helper builds skeletons whose branches carry no claim field, and a skeleton loads and lists as an exploration of unclaimed branches. Test, tests/test_claims.py.
+
+### MY-6 full form, the territory census
+
+The render_census function in the myriad.explorations module takes a loaded exploration and returns the territory census as a list of lines, and the census is a pure function of the exploration. The first line names the question, in the form question, and the question text.
+
+The taken section stands next, and it stands only when the exploration holds at least one branch in state taken. The section opens with the line taken. Inside it, the taken branches stand grouped under the claim label each one carries, with the labels in alphabetical order of the label text, and each group opens with a line of two spaces and the word claim and the claim label. Each branch in a group stands on its own line of four spaces, in the form the branch id and finding and the finding text in full, and the branches inside a group stand in the order they appear in the branches list. Taken branches carrying no claim stand in one last group inside the section, and that group opens with a line of two spaces and the word unclaimed.
+
+The abandoned section follows, in the same shape with the word reason in place of the word finding, and it stands only when the exploration holds at least one branch in state abandoned.
+
+The open section stands last, and it stands only when the exploration holds at least one branch in state open. The section opens with the line open, and each open branch stands on its own line of two spaces, in the form the branch id and prompt and the prompt text, in the order the open branches appear in the branches list, with no grouping by claim.
+
+The census closes with the counts line in the same form the map closes with. The census and the map read their counts from the same count_by_state function, so the two renderings of one exploration always agree on the counts they state. An exploration with no branches renders the question line and the counts line and no section. Test, tests/test_census.py.
+
+### The command line surface, Round 2 extension
+
+The myriad.cli module gains two commands beside map and check. The claims command takes one file holding an exploration and prints the claims listing, and the census command takes one file holding an exploration and prints the census. Each prints the defects of a malformed exploration and exits with status one, exactly as the map command does, and a sound file exits with status zero. Test, tests/test_cli_round2.py.
+
+## Round 2 repair amendments
+
+This section records the repairs the Round 2 reviews required. Each amendment names the obligation it amends and the finding it closes, and every earlier text stays standing. Where an amendment and an earlier text disagree, the amendment governs.
+
+### FIX-MY-6, amending MY-1 and MY-5
+
+Every rendering in this repo prints one field to a line, so a text value holding a line break forges the structure of the printed output and can print a line the tool never computed. A question holding a newline or a carriage return draws field question holds a newline or a carriage return. A prompt, a finding, a reason, or a claim holding a newline or a carriage return draws branch and the index and field and the field name and holds a newline or a carriage return. The rule is one rule across the loader, stated once here for every field it covers, and a value that draws the defect makes the exploration malformed, as any field defect does, and the loader keeps naming fields after it. This amendment closes the Round 2 red team finding that a claim or a finding holding a newline printed a forged counts line inside the renderings. Test, tests/test_round2_repairs.py.
+
+### FIX-MY-7, amending MY-5
+
+The map renders a claimed branch with its claim as a bracketed tag standing immediately before the prompt text, in the form an opening square bracket and the claim label and a closing square bracket and the prompt, so the branch line reads the indent and the branch id and the state word in parentheses and the bracketed tag and the prompt. The form MY-5 first stated, the prompt followed by a comma and the words claimed by and the claim label, is retired. Under that form an unclaimed branch whose prompt ended in the words claimed by and a label rendered in the same shape as a claimed branch, and the map alone could not tell the two apart. A branch carrying no claim renders exactly the branch line the first slice rendered, as MY-5 already states. The claims listing and the census keep the forms MY-5 and MY-6 state, because the listing names each label on a line of its own and the census groups branches under a heading line, so in those renderings a claim never stands inside a prompt and is never read as part of one. This amendment closes the Round 2 red team finding on the ambiguous claimed branch line. Test, tests/test_round2_repairs.py and tests/test_claims.py.
+
+The alphabetical order MY-5 and MY-6 state is the order of the label text itself, character by character, so a label opening with a capital letter stands before a label carrying the same letters in lowercase, and the listing and both census sections read that order the same way.
+
+### FIX-MY-8, amending MY-4
+
+The fork helper refuses every input no sound skeleton exists for, and FIX-MY-5 stated that principle for a question or a prompt holding an unpaired surrogate. A question or a prompt holding a newline or a carriage return is an input of the same kind, because FIX-MY-6 names such a value malformed and no skeleton built on it loads clean under the loader. The fork helper refuses a question or a prompt holding a newline or a carriage return with the same ValueError it raises for its other unsound inputs. This amendment closes the Round 2 re-review finding that the helper built skeletons the loader refuses. Test, tests/test_round2_repairs.py.
+
+### FIX-MY-9, amending FIX-MY-6
+
+FIX-MY-6 named the fields its line break rule covers, and the branch id and the branch parent were not in its list. Both fields reach print all the same. The map opens every branch line with the branch id and the census prints branch ids in the same place, and a defect the loader draws names a parent inside its own text when the parent does not exist. The rule of FIX-MY-6 extends to the branch id and the branch parent. An id holding a newline or a carriage return draws branch and the index and field id holds a newline or a carriage return, and a parent holding a newline or a carriage return draws branch and the index and field parent holds a newline or a carriage return, each in the phrase shape FIX-MY-6 states. This amendment closes the Round 2 re-review finding that an id holding a line break forged lines in the printed renderings. Test, tests/test_round2_repairs.py.
+
+### FIX-MY-10, amending FIX-MY-7
+
+The bracketed tag FIX-MY-7 stated stands inside the branch line, and the text the loader admits can itself hold brackets. A prompt opening with a bracketed word renders in the shape of the tag itself, and a claim label holding brackets blurs the edge of the tag, so the map alone can again fail to tell a claimed branch from an unclaimed one. The bracketed tag is retired. The map renders a claimed branch with the branch line in the untagged form MY-2 states, the branch id and the state word in parentheses and the prompt, and the claim stands on one more line of the branch, immediately under the branch line and before any finding or reason line the branch carries, at the indent the finding and reason lines use, in the form claimed by and the claim label, the words MY-5 first used. A branch carrying no claim renders exactly the branch line the first slice rendered and no claim line. With every field the renderings print refusing line breaks under FIX-MY-6 as FIX-MY-9 extends it, no field text can forge the claim line or split it, so the claim line is a structural line of the rendering that only a carried claim produces. The claims listing stays the authoritative count of claims, because it groups branches by the loaded claim field and never by the shape of a line. The claims listing and the census keep the forms MY-5 and MY-6 state. This amendment closes the Round 2 re-review finding on the bracketed tag. Test, tests/test_round2_repairs.py and tests/test_claims.py.

@@ -1,0 +1,48 @@
+question, How does a small harbour town keep its ferry link alive through the winter
+service (open) What service pattern keeps the link alive through the winter
+  service-night (open) Should the last sailing move earlier in midwinter
+    night-lights (taken) Do the pier lights meet the night sailing rules
+      claimed by harbour office
+      finding, Two pier lights fall short and are already on the works list
+  service-weekend (taken) Does a weekend only pattern hold the link
+    claimed by harbour office
+    finding, A weekend only pattern breaks the Thursday hospital run
+    weekend-hospital (taken) What covers the Thursday hospital run
+      finding, The freight boat already covers Thursdays under its own contract
+  service-weather (open) Which weather calls cancel a sailing
+    weather-harbour (open) What does the harbour office need to call a cancellation
+      harbour-radio (open) Which radio check opens the morning call
+vessel (taken) What does the vessel need before the cold sets in
+  claimed by tide watch
+  finding, The spare vessel needs heated fuel lines fitted before November
+  vessel-fuel (taken) What fuel treatment stops winter gelling
+    claimed by tide watch
+    finding, The additive dosing already on the shelf covers both boats
+    fuel-storage (open) Where does treated fuel sit between deliveries
+  vessel-ramp (abandoned) Can the ramp take ice loading at low tide
+    claimed by tide watch
+    reason, The ramp survey is booked for spring and cannot move
+crew (open) Who crews the boat when the summer crew leaves
+  claimed by boat crew
+  crew-roster (open) What roster covers sickness in a crew of four
+    claimed by boat crew
+    roster-swap (open) Can skippers swap runs with the freight boat crew
+      swap-licences (open) Do the licences allow skippers to swap boats
+  crew-housing (open) Where do relief crew sleep on the island
+    ferry-house (abandoned) Can the old ferry house take relief crew again
+      claimed by boat crew
+      reason, The ferry house roof failed its survey in October
+money (open) Where does the winter money come from
+  money-fares (open) Should winter fares differ from summer fares
+    fares-passes (abandoned) Would a winter resident pass steady the income
+      reason, The fare audit ruled out a resident pass after last winter
+  money-grant (taken) Which grant windows open before the season
+    claimed by harbour office
+    finding, The lifeline routes grant opens for bids in September
+    grant-match (open) What match funding does the lifeline grant demand
+      claimed by harbour office
+      match-council (open) Will the council underwrite the match share
+  money-freight (open) Can freight contracts carry the quiet months
+demand (abandoned) Who actually rides the ferry in January
+  reason, The harbour survey settled the January counts last year
+branches 26, open 16, taken 6, abandoned 4

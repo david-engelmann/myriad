@@ -3,7 +3,7 @@
 Every function in this module is a pure function of its inputs, and
 the loader never raises on malformed content. The obligations this
 module carries are MY-1 to MY-3 in CONTRACT.md, in the full form
-section.
+section, and MY-5 and MY-6 in the Round 2 section.
 """
 
 import json
@@ -26,12 +26,26 @@ def _holds_unpaired_surrogate(text):
     return False
 
 
-def _check_branch_text(entry, index, name, defects, required):
+def _holds_line_break(text):
+    """Return whether a string holds a newline or a carriage return.
+
+    Every rendering prints one field to a line, so a text value
+    holding a line break forges the structure of the printed
+    output, and the loader names it as a defect under FIX-MY-6
+    instead of letting it reach the printer.
+    """
+    return "\n" in text or "\r" in text
+
+
+def _check_branch_text(entry, index, name, defects, required,
+                       rendered=False):
     """Validate one text field of a branch and return its value.
 
     Returns None when the field is absent and not required, and also
     returns None when the field drew a defect, so the caller can tell
-    a clean value from a defective one by the defect count.
+    a clean value from a defective one by the defect count. A field
+    whose value reaches a rendering is also checked for a line
+    break, under FIX-MY-6.
     """
     if name not in entry:
         if required:
@@ -49,6 +63,12 @@ def _check_branch_text(entry, index, name, defects, required):
             f"branch {index} field {name} holds an unpaired surrogate"
         )
         return None
+    if rendered and _holds_line_break(value):
+        defects.append(
+            f"branch {index} field {name} holds a newline "
+            "or a carriage return"
+        )
+        return None
     return value
 
 
@@ -64,7 +84,8 @@ def _load_branch(entry, index, defects):
         defects.append(f"branch {index} is not an object")
         return {"clean": None, "id": None, "parent": None,
                 "parent_seen": False, "prompt": None, "state": None}
-    branch_id = _check_branch_text(entry, index, "id", defects, True)
+    branch_id = _check_branch_text(entry, index, "id", defects, True,
+                                   rendered=True)
     parent = None
     parent_seen = False
     if "parent" not in entry:
@@ -72,11 +93,13 @@ def _load_branch(entry, index, defects):
     elif entry["parent"] is None:
         parent_seen = True
     elif isinstance(entry["parent"], str):
-        parent = _check_branch_text(entry, index, "parent", defects, True)
+        parent = _check_branch_text(entry, index, "parent", defects, True,
+                                    rendered=True)
         parent_seen = parent is not None
     else:
         defects.append(f"branch {index} field parent has the wrong type")
-    prompt = _check_branch_text(entry, index, "prompt", defects, True)
+    prompt = _check_branch_text(entry, index, "prompt", defects, True,
+                                rendered=True)
     state = None
     if "state" not in entry:
         defects.append(f"branch {index} is missing field state")
@@ -86,8 +109,12 @@ def _load_branch(entry, index, defects):
         defects.append(f"branch {index} field state is not a known state")
     else:
         state = entry["state"]
-    finding = _check_branch_text(entry, index, "finding", defects, False)
-    reason = _check_branch_text(entry, index, "reason", defects, False)
+    claim = _check_branch_text(entry, index, "claim", defects, False,
+                               rendered=True)
+    finding = _check_branch_text(entry, index, "finding", defects, False,
+                                 rendered=True)
+    reason = _check_branch_text(entry, index, "reason", defects, False,
+                                rendered=True)
     if state == "taken":
         if "finding" not in entry:
             defects.append(f"branch {index} is missing field finding")
@@ -120,6 +147,8 @@ def _load_branch(entry, index, defects):
             "prompt": prompt,
             "state": state,
         }
+        if "claim" in entry:
+            clean["claim"] = claim
         if state == "taken":
             clean["finding"] = finding
         elif state == "abandoned":
@@ -279,6 +308,10 @@ def load_exploration_text(text):
         defects.append("field question is empty")
     elif _holds_unpaired_surrogate(data["question"]):
         defects.append("field question holds an unpaired surrogate")
+    elif _holds_line_break(data["question"]):
+        defects.append(
+            "field question holds a newline or a carriage return"
+        )
     else:
         question = data["question"]
     records = []
@@ -308,13 +341,30 @@ def load_exploration_file(path):
     return load_exploration_text(text)
 
 
-def count_by_state(exploration):
-    """Return the total and the count in each state, from the tree."""
+def _count_branches(branches):
+    """Return the total and the count in each state, for a branch list."""
     counts = {"total": 0, "open": 0, "taken": 0, "abandoned": 0}
-    for branch in exploration["branches"]:
+    for branch in branches:
         counts["total"] += 1
         counts[branch["state"]] += 1
     return counts
+
+
+def count_by_state(exploration):
+    """Return the total and the count in each state, from the tree."""
+    return _count_branches(exploration["branches"])
+
+
+def _format_counts(counts):
+    """Return the counts line for a counts mapping, in its one form.
+
+    The map, the census, and the claims listing all close or count
+    with this line, so the form stands here and nowhere else.
+    """
+    return (
+        f"branches {counts['total']}, open {counts['open']}, "
+        f"taken {counts['taken']}, abandoned {counts['abandoned']}"
+    )
 
 
 def render_map(exploration):
@@ -343,15 +393,97 @@ def render_map(exploration):
         lines.append(
             f"{indent}{branch['id']} ({branch['state']}) {branch['prompt']}"
         )
+        if "claim" in branch:
+            lines.append(f"{indent}  claimed by {branch['claim']}")
         if branch["state"] == "taken":
             lines.append(f"{indent}  finding, {branch['finding']}")
         elif branch["state"] == "abandoned":
             lines.append(f"{indent}  reason, {branch['reason']}")
         for child in reversed(children.get(branch["id"], [])):
             stack.append((child, depth + 1))
-    counts = count_by_state(exploration)
-    lines.append(
-        f"branches {counts['total']}, open {counts['open']}, "
-        f"taken {counts['taken']}, abandoned {counts['abandoned']}"
-    )
+    lines.append(_format_counts(count_by_state(exploration)))
+    return lines
+
+
+def _group_by_claim(branches):
+    """Group branches by claim label, in branches order within a group.
+
+    Returns a pair of a mapping from claim label to the branches
+    carrying it, each list in the order the branches appear in the
+    input, and the list of branches carrying no claim.
+    """
+    claimed = {}
+    unclaimed = []
+    for branch in branches:
+        if "claim" in branch:
+            claimed.setdefault(branch["claim"], []).append(branch)
+        else:
+            unclaimed.append(branch)
+    return claimed, unclaimed
+
+
+def render_claims(exploration):
+    """Return the claims listing lines for one exploration.
+
+    One line stands for each claim label, with the labels in
+    alphabetical order of the label text, and a last line counts the
+    branches carrying no claim when any do. The listing is a pure
+    function of the exploration.
+    """
+    lines = [f"question, {exploration['question']}"]
+    claimed, unclaimed = _group_by_claim(exploration["branches"])
+    for label in sorted(claimed):
+        counts = _format_counts(_count_branches(claimed[label]))
+        lines.append(f"claim {label}, {counts}")
+    if unclaimed:
+        counts = _format_counts(_count_branches(unclaimed))
+        lines.append(f"unclaimed, {counts}")
+    return lines
+
+
+def _census_state_section(lines, branches, state, field):
+    """Append one grouped section of the census to the line list.
+
+    The branches in the given state stand grouped under their claim
+    labels in alphabetical order, with the branches carrying no
+    claim in a last group. Each branch renders the text of the named
+    field, the finding of a taken branch or the reason of an
+    abandoned one, in full.
+    """
+    selected = [branch for branch in branches if branch["state"] == state]
+    if not selected:
+        return
+    lines.append(state)
+    claimed, unclaimed = _group_by_claim(selected)
+    for label in sorted(claimed):
+        lines.append(f"  claim {label}")
+        for branch in claimed[label]:
+            lines.append(f"    {branch['id']}, {field}, {branch[field]}")
+    if unclaimed:
+        lines.append("  unclaimed")
+        for branch in unclaimed:
+            lines.append(f"    {branch['id']}, {field}, {branch[field]}")
+
+
+def render_census(exploration):
+    """Return the territory census lines for one exploration.
+
+    The census reads the map back by state. Taken branches stand
+    with their findings and abandoned branches with their reasons,
+    each grouped under the claim label the branch carries, and the
+    open branches stand last with their prompts. The closing counts
+    line reads its numbers from the same count the map reads.
+    """
+    branches = exploration["branches"]
+    lines = [f"question, {exploration['question']}"]
+    _census_state_section(lines, branches, "taken", "finding")
+    _census_state_section(lines, branches, "abandoned", "reason")
+    open_branches = [
+        branch for branch in branches if branch["state"] == "open"
+    ]
+    if open_branches:
+        lines.append("open")
+        for branch in open_branches:
+            lines.append(f"  {branch['id']}, prompt, {branch['prompt']}")
+    lines.append(_format_counts(count_by_state(exploration)))
     return lines
