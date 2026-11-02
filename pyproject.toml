@@ -9,6 +9,9 @@ description = "One hard question forked a thousand ways, rendered as an explorab
 requires-python = ">=3.11"
 license = "MIT"
 
+[project.scripts]
+myriad = "myriad.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
