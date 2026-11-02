@@ -8,13 +8,13 @@ A single agent answers a hard question by walking one path and hoping it was the
 
 ## Status
 
-Seeded in October 2026. Setup has landed and the build has not started. Part of the Spectacle line in the 39 repo storefront perfection programme.
+Seeded in October 2026. Setup has landed and slice 2 is built and in review. Part of the Spectacle line in the 39 repo storefront perfection programme.
 
 ## Programme status
 
 - Closed perfection rounds, 0 of 100. A round counts only when a full cycle of work, audit, review, red team, and approval has closed. Seeding and setup are not rounds.
-- Contract, SETUP-1 to SETUP-4 met by the setup slice. The first slice obligations MY-1 to MY-4 stand in stub form in CONTRACT.md and are not yet met.
-- The first slice forks one question into tens of branches with the explorable map rendered and abandoned paths kept.
+- Contract, SETUP-1 to SETUP-4 met by the setup slice. The first slice obligations MY-1 to MY-4 now stand in full form in CONTRACT.md, and their standing is not claimed here, as no round has closed.
+- Slice 2 carries the exploration loader that names every malformed field and the structural defects of the tree, the explorable map with its counts read from the tree, the fork helper that builds an open skeleton from a list of prompts, and the map and check commands, with one synthetic example exploration of 26 branches and its golden map under examples. The first slice forks one question into tens of branches, and no branch declares a winner, because a map is not a vote.
 - Local gate, python3 scripts/codepoint_scan.py and python3 -m pytest tests -q. CI runs the same commands.
 
 ## Licence
