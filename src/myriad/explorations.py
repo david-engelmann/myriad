@@ -296,6 +296,18 @@ def load_exploration_text(text):
         data = json.loads(text)
     except (ValueError, RecursionError):
         return None, ["input is not valid JSON"]
+    return _load_exploration_data(data)
+
+
+def _load_exploration_data(data):
+    """Validate parsed JSON data as an exploration.
+
+    This is the validation the text and file loaders run once the
+    input is parsed, and the atlas loader runs it over the
+    exploration each entry embeds, so an embedded exploration is
+    held to exactly the rules an exploration on its own is held
+    to, under MY-7.
+    """
     if not isinstance(data, dict):
         return None, ["input is not a JSON object"]
     defects = []
