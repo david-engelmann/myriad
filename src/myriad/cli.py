@@ -1,19 +1,21 @@
 """The myriad command line surface.
 
-Five commands read explorations and atlases from local files. The
+Six commands read explorations and atlases from local files. The
 map command prints the explorable map of the tree, the check
 command prints the branch counts read from the tree, the claims
 command prints the claims listing of the tree, the census command
-prints the territory census of the tree, and the atlas command
-prints the rendering of an atlas of explorations. Each command
-prints the defects of a malformed file and exits with status
-one. Nothing here touches the network.
+prints the territory census of the tree, the atlas command
+prints the rendering of an atlas of explorations, and the index
+command prints the index reading of an atlas, one line per entry
+with the counts of its exploration. Each command prints the
+defects of a malformed file and exits with status one. Nothing
+here touches the network.
 """
 
 import argparse
 import sys
 
-from myriad.atlas import load_atlas_file, render_atlas
+from myriad.atlas import load_atlas_file, render_atlas, render_index
 from myriad.explorations import (
     count_by_state,
     load_exploration_file,
@@ -91,6 +93,15 @@ def _command_atlas(args):
     return 0
 
 
+def _command_index(args):
+    atlas = _load_atlas_or_print_defects(args.file)
+    if atlas is None:
+        return 1
+    for line in render_index(atlas):
+        print(line)
+    return 0
+
+
 def main(argv=None):
     """Run the myriad command line and return the exit status."""
     parser = argparse.ArgumentParser(
@@ -121,6 +132,11 @@ def main(argv=None):
     )
     atlas_parser.add_argument("file")
     atlas_parser.set_defaults(handler=_command_atlas)
+    index_parser = commands.add_parser(
+        "index", help="print the index of an atlas of trees"
+    )
+    index_parser.add_argument("file")
+    index_parser.set_defaults(handler=_command_index)
     args = parser.parse_args(argv)
     return args.handler(args)
 

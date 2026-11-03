@@ -8,7 +8,8 @@ the exploration loader runs, and the rendering is built from the
 map and the claims listing over the one counting path, so an
 atlas can never disagree with the renderings of its own entries.
 The obligations this module carries are MY-7 and MY-8 in
-CONTRACT.md, in the Round 3 section.
+CONTRACT.md, in the Round 3 section, and MY-9 in the Round 4
+section.
 """
 
 import json
@@ -195,6 +196,34 @@ def render_atlas(atlas):
         lines.append(f"entry {entry['label']}")
         lines.extend(render_map(exploration))
         lines.extend(render_claims(exploration)[1:])
+        union.extend(exploration["branches"])
+    counts = _format_counts(_count_branches(union))
+    lines.append(f"atlas counts, entries {len(atlas['entries'])}, {counts}")
+    return lines
+
+
+def render_index(atlas):
+    """Return the index reading lines for one atlas.
+
+    The first line is the title line of the atlas rendering and
+    the last line is its atlas counts line, and one line stands
+    for each entry between them, carrying the entry label, the
+    question of its exploration, and the counts of its
+    exploration counted over its branches alone. Every count is
+    read from the one counting path the map, the claims listing,
+    the census, and the atlas rendering read, so the counts of
+    the closing line always equal the sum of the counts of the
+    entry lines. The reading is a pure function of the atlas.
+    """
+    lines = [f"atlas, {atlas['title']}"]
+    union = []
+    for entry in atlas["entries"]:
+        exploration = entry["exploration"]
+        counts = _format_counts(_count_branches(exploration["branches"]))
+        lines.append(
+            f"entry {entry['label']}, question, "
+            f"{exploration['question']}, {counts}"
+        )
         union.extend(exploration["branches"])
     counts = _format_counts(_count_branches(union))
     lines.append(f"atlas counts, entries {len(atlas['entries'])}, {counts}")

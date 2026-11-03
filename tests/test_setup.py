@@ -62,7 +62,30 @@ def test_readme_reports_the_slice_four_standing():
         "rendering under examples."
     )
     assert expected in text.splitlines()
-    assert "built and in review" not in text
+    assert "Slice 4 is built and in review" not in text
+
+def test_readme_reports_the_round_four_contract_status():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    expected = (
+        "- Contract, MY-9 and MY-10 now stand in full form in "
+        "CONTRACT.md under the Round 4 obligations, and their "
+        "standing is not claimed here, as Round 4 has not closed."
+    )
+    assert expected in text.splitlines()
+
+def test_readme_reports_the_slice_five_standing():
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    expected = (
+        "- Slice 5 is built and in review. It carries the atlas "
+        "index that reads one atlas as a table of contents, one "
+        "line for each entry carrying its label, its question, and "
+        "the counts of its exploration alone, standing between the "
+        "title line and the atlas counts line of the atlas "
+        "rendering, with the golden index of the winter atlas "
+        "under examples."
+    )
+    assert expected in text.splitlines()
+    assert text.count("built and in review") == 1
 
 
 def test_ci_runs_the_same_gate_as_the_local_gate():

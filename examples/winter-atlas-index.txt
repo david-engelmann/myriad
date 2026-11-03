@@ -1,0 +1,5 @@
+atlas, Winter questions for a small harbour
+entry ferry link, question, How does the harbour keep a ferry sailing through the winter, branches 6, open 3, taken 2, abandoned 1
+entry lifeboat cover, question, Who answers a call for help on the water in winter, branches 4, open 2, taken 1, abandoned 1
+entry harbour lights, question, Which harbour lights stay lit through the winter nights, branches 0, open 0, taken 0, abandoned 0
+atlas counts, entries 3, branches 10, open 5, taken 3, abandoned 2
