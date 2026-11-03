@@ -10,7 +10,7 @@ def test_agents_carries_the_canonical_marker():
 
 def test_readme_states_the_closed_round_count():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert re.search(r"Closed perfection rounds, 3 of 100", text)
+    assert re.search(r"Closed perfection rounds, 4 of 100", text)
 
 def test_contract_carries_the_setup_obligations():
     text = (ROOT / "CONTRACT.md").read_text(encoding="utf-8")
@@ -76,7 +76,7 @@ def test_readme_reports_the_round_four_contract_status():
 def test_readme_reports_the_slice_five_standing():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     expected = (
-        "- Slice 5 is built and in review. It carries the atlas "
+        "- Slice 5 has landed. It carries the atlas "
         "index that reads one atlas as a table of contents, one "
         "line for each entry carrying its label, its question, and "
         "the counts of its exploration alone, standing between the "
@@ -85,7 +85,8 @@ def test_readme_reports_the_slice_five_standing():
         "under examples."
     )
     assert expected in text.splitlines()
-    assert text.count("built and in review") == 1
+    assert text.count("built and in review") == 0
+    assert text.count("has landed") == 5
 
 
 def test_ci_runs_the_same_gate_as_the_local_gate():
