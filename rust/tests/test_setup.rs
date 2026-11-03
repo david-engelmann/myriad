@@ -110,7 +110,11 @@ fn readme_reports_the_slice_five_standing() {
         under examples.";
     assert!(carries_line(&text, expected));
     assert_eq!(text.matches("built and in review").count(), 0);
-    assert_eq!(text.matches("has landed").count(), 5);
+    // The count stands at six, not five, as a mechanical
+    // consequence of the removal. The port status line below
+    // now also reads has landed, where it read built and in
+    // review while the port stood unmerged.
+    assert_eq!(text.matches("has landed").count(), 6);
 }
 
 #[test]
@@ -122,20 +126,23 @@ fn ci_runs_the_same_gate_as_the_local_gate() {
         .map(|line| line.split('#').next().unwrap_or(""))
         .collect::<Vec<_>>()
         .join("\n");
-    assert!(live.contains("python3 scripts/codepoint_scan.py"));
-    assert!(live.contains("python3 -m pytest tests -q"));
+    assert!(live.contains("cargo run --bin codepoint_scan"));
+    assert!(!live.contains("pytest"));
+    assert!(!live.contains("scripts/codepoint_scan.py"));
 }
 
 #[test]
 fn readme_reports_the_rust_port_status() {
     let text = read("README.md");
-    let line = "- The Rust port has been built and is in review. It carries \
-        the same behavior as the Python package, checked against the same goldens.";
+    let line = "- The Rust port has landed. It carries \
+        the same behavior as the Python package it replaces, checked \
+        against the same goldens, and the Python tree stands removed \
+        from the repo.";
     assert!(carries_line(&text, line));
 }
 
 #[test]
-fn ci_runs_the_cargo_gate_beside_the_python_gate() {
+fn ci_runs_the_cargo_gate() {
     let text = read(".github/workflows/ci.yml");
     let live: String = text
         .lines()
@@ -193,16 +200,17 @@ fn every_rust_test_file_is_named_in_the_cargo_manifest() {
     assert_eq!(named, on_disk);
 }
 
-// The gate line pin. The README gate line names both
-// gates, the Python gate and the cargo gate, as the CI
-// gate pin beside it already holds the workflow to both.
+// The gate line pin. The README gate line names the
+// whole gate from the removal on, the cargo gate and the
+// codepoint scan, as the CI gate pin beside it already
+// holds the workflow to the same commands.
 
 #[test]
-fn readme_names_both_gates_in_its_gate_line() {
+fn readme_names_the_gate_in_its_gate_line() {
     let text = read("README.md");
-    let expected = "- Local gate, python3 scripts/codepoint_scan.py and \
-        python3 -m pytest tests -q, and the cargo gate of cargo test, \
-        cargo clippy --all-targets -- -D warnings, and cargo fmt --check. \
+    let expected = "- Local gate, cargo test, \
+        cargo clippy --all-targets -- -D warnings, and cargo fmt --check, \
+        and the codepoint scan, cargo run --bin codepoint_scan. \
         CI runs the same commands.";
     assert!(carries_line(&text, expected));
 }

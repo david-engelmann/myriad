@@ -7,9 +7,15 @@
 //! and read them through the scan library the crate carries,
 //! which is the same scope read from the same side.
 //!
-//! The last pin is the PORT-9 addition. A dash standing in a
+//! One pin is the PORT-9 addition. A dash standing in a
 //! Rust file fails the scan, because the scan covers the
 //! .rs suffix from the port on.
+//!
+//! The last pin is the PORT-15 addition. A dash standing
+//! inside the cargo target directory passes the scan,
+//! because the gate builds into that directory before the
+//! suite runs and compiled artifacts are not files of the
+//! repo.
 
 mod common;
 
@@ -95,6 +101,22 @@ fn dashes_inside_an_ignored_directory_pass_the_scan() {
         "scan-ignored",
         ".venv/planted.md",
         &format!("{EM_DASH} and {EN_DASH}\n"),
+    );
+    let counts = scan_tree(&root);
+    assert!(!scan_failed(&counts));
+    assert_eq!(report_line(&counts), "codepoint scan U+2014=0 U+2013=0");
+}
+
+#[test]
+fn a_dash_inside_the_cargo_target_directory_does_not_count() {
+    // The build output directory is not repo content. CI builds
+    // into it before the test step runs, so a scan that opened
+    // it would read compiled artifacts as if they were files
+    // of the repo.
+    let root = plant(
+        "scan-target",
+        "target/debug/output",
+        &format!("built {EM_DASH} here\n"),
     );
     let counts = scan_tree(&root);
     assert!(!scan_failed(&counts));
