@@ -67,9 +67,9 @@ def test_readme_reports_the_slice_four_standing():
 def test_readme_reports_the_round_four_contract_status():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     expected = (
-        "- Contract, MY-9 and MY-10 now stand in full form in "
-        "CONTRACT.md under the Round 4 obligations, and their "
-        "standing is not claimed here, as Round 4 has not closed."
+        "- Contract, MY-9 and MY-10 met. They stand in full form in "
+        "CONTRACT.md, and Round 4 closed on the merged slice 5 after "
+        "three reviews approving with no findings."
     )
     assert expected in text.splitlines()
 

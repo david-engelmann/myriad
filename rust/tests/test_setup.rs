@@ -1,0 +1,208 @@
+//! Setup pins, translated from tests/test_setup.py. Each test
+//! can fail for a real reason against a repo that lost a setup
+//! file or let its status drift from its contract.
+//!
+//! Two pins stand at the end that the Python corpus does not
+//! carry. They pin the Rust port status line in the README
+//! and the cargo steps in the CI gate, the additions PORT-5
+//! and PORT-7 ask the port to make.
+
+mod common;
+
+use std::fs;
+
+use common::repo_root;
+
+fn read(relative: &str) -> String {
+    fs::read_to_string(repo_root().join(relative)).expect("a standing file")
+}
+
+fn carries_line(text: &str, expected: &str) -> bool {
+    text.lines().any(|line| line == expected)
+}
+
+#[test]
+fn agents_carries_the_canonical_marker() {
+    let text = read("AGENTS.md");
+    assert!(text.contains("<!-- repo annex below this line -->"));
+    assert!(text.contains("39 repo storefront perfection program"));
+}
+
+#[test]
+fn readme_states_the_closed_round_count() {
+    let text = read("README.md");
+    assert!(text.contains("Closed perfection rounds, 4 of 100"));
+}
+
+#[test]
+fn contract_carries_the_setup_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["SETUP-1", "SETUP-2", "SETUP-3", "SETUP-4", "MY-1"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn readme_reports_the_contract_status() {
+    let text = read("README.md");
+    let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
+        MY-1 to MY-4 stand in full form in CONTRACT.md with the Round 1 \
+        repair amendments, and Round 1 closed on the merged slice 2 after \
+        three reviews, a repair pass, and an approving re-review.";
+    assert!(carries_line(&text, expected));
+}
+
+#[test]
+fn readme_reports_the_round_two_contract_status() {
+    let text = read("README.md");
+    let expected = "- Contract, MY-5 and MY-6 met. \
+        They stand in full form in CONTRACT.md with the Round 2 \
+        repair amendments, and Round 2 closed on the merged slice 3 after \
+        three reviews, two repair passes, and two re-reviews, the second \
+        approving with no findings.";
+    assert!(carries_line(&text, expected));
+}
+
+#[test]
+fn readme_reports_the_round_three_contract_status() {
+    let text = read("README.md");
+    let expected = "- Contract, MY-7 and MY-8 met. They stand in full form in \
+        CONTRACT.md with the Round 3 repair amendments, and Round 3 \
+        closed on the merged slice 4 after three reviews, a repair \
+        pass, and an approving re-review.";
+    assert!(carries_line(&text, expected));
+}
+
+#[test]
+fn readme_reports_the_slice_four_standing() {
+    let text = read("README.md");
+    let expected = "- Slice 4 has landed. It carries the atlas \
+        loader that loads a file of labelled explorations only \
+        whole and names the entry standing behind every defect, \
+        and the atlas rendering that walks the entries in file \
+        order with each section holding the map and the claim \
+        lines of its exploration and the closing counts read over \
+        the union of every entry, with a synthetic example atlas \
+        of three explorations of differing shapes and its golden \
+        rendering under examples.";
+    assert!(carries_line(&text, expected));
+    assert!(!text.contains("Slice 4 is built and in review"));
+}
+
+#[test]
+fn readme_reports_the_round_four_contract_status() {
+    let text = read("README.md");
+    let expected = "- Contract, MY-9 and MY-10 met. They stand in full form in \
+        CONTRACT.md, and Round 4 closed on the merged slice 5 after \
+        three reviews approving with no findings.";
+    assert!(carries_line(&text, expected));
+}
+
+#[test]
+fn readme_reports_the_slice_five_standing() {
+    let text = read("README.md");
+    let expected = "- Slice 5 has landed. It carries the atlas \
+        index that reads one atlas as a table of contents, one \
+        line for each entry carrying its label, its question, and \
+        the counts of its exploration alone, standing between the \
+        title line and the atlas counts line of the atlas \
+        rendering, with the golden index of the winter atlas \
+        under examples.";
+    assert!(carries_line(&text, expected));
+    assert_eq!(text.matches("built and in review").count(), 0);
+    assert_eq!(text.matches("has landed").count(), 5);
+}
+
+#[test]
+fn ci_runs_the_same_gate_as_the_local_gate() {
+    let text = read(".github/workflows/ci.yml");
+    let live: String = text
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .map(|line| line.split('#').next().unwrap_or(""))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(live.contains("python3 scripts/codepoint_scan.py"));
+    assert!(live.contains("python3 -m pytest tests -q"));
+}
+
+#[test]
+fn readme_reports_the_rust_port_status() {
+    let text = read("README.md");
+    let line = "- The Rust port has been built and is in review. It carries \
+        the same behavior as the Python package, checked against the same goldens.";
+    assert!(carries_line(&text, line));
+}
+
+#[test]
+fn ci_runs_the_cargo_gate_beside_the_python_gate() {
+    let text = read(".github/workflows/ci.yml");
+    let live: String = text
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .map(|line| line.split('#').next().unwrap_or(""))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(live.contains("cargo test"));
+    assert!(live.contains("cargo clippy --all-targets -- -D warnings"));
+    assert!(live.contains("cargo fmt --check"));
+}
+
+// The manifest pin. The integration tests live beside the
+// library under rust/tests, outside the root level tests
+// directory cargo discovers, so each one is named in the
+// manifest with its path. This pin fails the moment a test
+// file stands in the tree without a manifest entry naming
+// it, or an entry names a file that does not stand, so no
+// test file can stand silently unrun.
+
+#[test]
+fn every_rust_test_file_is_named_in_the_cargo_manifest() {
+    let manifest = read("Cargo.toml");
+    let mut named: Vec<String> = Vec::new();
+    let mut in_test = false;
+    for line in manifest.lines() {
+        let trimmed = line.trim();
+        if trimmed == "[[test]]" {
+            in_test = true;
+            continue;
+        }
+        if trimmed.starts_with('[') {
+            in_test = false;
+            continue;
+        }
+        if in_test && trimmed.starts_with("name = ") {
+            named.push(
+                trimmed
+                    .trim_start_matches("name = ")
+                    .trim_matches('"')
+                    .to_string(),
+            );
+        }
+    }
+    let mut on_disk: Vec<String> = Vec::new();
+    for entry in fs::read_dir(repo_root().join("rust/tests")).expect("the test tree") {
+        let entry = entry.expect("a test tree entry");
+        let name = entry.file_name().to_string_lossy().into_owned();
+        if name.ends_with(".rs") {
+            on_disk.push(name.trim_end_matches(".rs").to_string());
+        }
+    }
+    named.sort();
+    on_disk.sort();
+    assert_eq!(named, on_disk);
+}
+
+// The gate line pin. The README gate line names both
+// gates, the Python gate and the cargo gate, as the CI
+// gate pin beside it already holds the workflow to both.
+
+#[test]
+fn readme_names_both_gates_in_its_gate_line() {
+    let text = read("README.md");
+    let expected = "- Local gate, python3 scripts/codepoint_scan.py and \
+        python3 -m pytest tests -q, and the cargo gate of cargo test, \
+        cargo clippy --all-targets -- -D warnings, and cargo fmt --check. \
+        CI runs the same commands.";
+    assert!(carries_line(&text, expected));
+}

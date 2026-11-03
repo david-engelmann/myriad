@@ -1,0 +1,98 @@
+[package]
+name = "myriad"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "rust/src/lib.rs"
+
+[[bin]]
+name = "myriad"
+path = "rust/src/main.rs"
+
+# The integration tests live beside the library under rust/tests, so
+# each one is named here with its path rather than discovered from a
+# root level tests directory, which belongs to the Python corpus.
+
+[[test]]
+name = "test_setup"
+path = "rust/tests/test_setup.rs"
+
+[[test]]
+name = "test_scan"
+path = "rust/tests/test_scan.rs"
+
+[[test]]
+name = "test_explorations"
+path = "rust/tests/test_explorations.rs"
+
+[[test]]
+name = "test_map"
+path = "rust/tests/test_map.rs"
+
+[[test]]
+name = "test_fork"
+path = "rust/tests/test_fork.rs"
+
+[[test]]
+name = "test_claims"
+path = "rust/tests/test_claims.rs"
+
+[[test]]
+name = "test_census"
+path = "rust/tests/test_census.rs"
+
+[[test]]
+name = "test_round2_repairs"
+path = "rust/tests/test_round2_repairs.rs"
+
+[[test]]
+name = "test_atlas"
+path = "rust/tests/test_atlas.rs"
+
+[[test]]
+name = "test_index"
+path = "rust/tests/test_index.rs"
+
+[[test]]
+name = "test_cli"
+path = "rust/tests/test_cli.rs"
+
+[[test]]
+name = "test_cli_round2"
+path = "rust/tests/test_cli_round2.rs"
+
+[[test]]
+name = "test_cli_round3"
+path = "rust/tests/test_cli_round3.rs"
+
+[[test]]
+name = "test_cli_round4"
+path = "rust/tests/test_cli_round4.rs"
+
+[[test]]
+name = "test_cli_widths"
+path = "rust/tests/test_cli_widths.rs"
+
+[[test]]
+name = "test_examples"
+path = "rust/tests/test_examples.rs"
+
+[[test]]
+name = "test_examples_round2"
+path = "rust/tests/test_examples_round2.rs"
+
+[[test]]
+name = "test_examples_round3"
+path = "rust/tests/test_examples_round3.rs"
+
+[[test]]
+name = "test_examples_round4"
+path = "rust/tests/test_examples_round4.rs"
+
+[[test]]
+name = "test_binary_surface"
+path = "rust/tests/test_binary_surface.rs"
+
+[dependencies]
+libc = "0.2"
