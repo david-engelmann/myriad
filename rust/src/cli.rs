@@ -1,7 +1,8 @@
 //! The command line, mirroring the Python argparse surface.
 //!
-//! The binary carries six commands over one file argument
-//! each. The dispatch mirrors the Python argparse run token
+//! The binary carries seven commands, six over one file
+//! argument each and the changelog over two. The dispatch
+//! mirrors the Python argparse run token
 //! for token, including the layouts of help and of errors, the
 //! width those layouts wrap at, and the exit statuses, as the
 //! probes of this repo confirmed against the Python 3.12
@@ -13,7 +14,7 @@
 
 use std::ffi::OsString;
 
-use crate::atlas::{load_atlas_text, render_atlas, render_index, Atlas};
+use crate::atlas::{load_atlas_text, render_atlas, render_changelog, render_index, Atlas};
 use crate::explorations::{
     count_by_state, load_exploration_text, render_census, render_claims, render_map, Exploration,
 };
@@ -717,9 +718,17 @@ fn format_action(action: &ActionInfo, help_position: usize, width: usize) -> Str
 // The dispatch, mirroring the Python argparse run over the
 // two parser shapes.
 
-const COMMANDS: [&str; 6] = ["map", "check", "claims", "census", "atlas", "index"];
-const CHOICES_DISPLAY: &str = "'map', 'check', 'claims', 'census', 'atlas', 'index'";
-const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index}";
+const COMMANDS: [&str; 7] = [
+    "map",
+    "check",
+    "claims",
+    "census",
+    "atlas",
+    "index",
+    "changelog",
+];
+const CHOICES_DISPLAY: &str = "'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog'";
+const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index,changelog}";
 
 fn help_action() -> ActionInfo {
     ActionInfo {
@@ -748,6 +757,7 @@ fn top_info() -> ParserInfo {
             ("census", "print the territory census of a tree"),
             ("atlas", "print the rendering of an atlas of trees"),
             ("index", "print the index of an atlas of trees"),
+            ("changelog", "print the changelog of two atlases"),
         ]
         .into_iter()
         .map(|(name, help)| (name.to_string(), help.to_string()))
@@ -755,16 +765,29 @@ fn top_info() -> ParserInfo {
     }
 }
 
+/// The positional names a subcommand takes, in the order
+/// its arguments stand.
+fn sub_positional_names(command: &str) -> &'static [&'static str] {
+    if command == "changelog" {
+        &["earlier", "later"]
+    } else {
+        &["file"]
+    }
+}
+
 fn sub_info(command: &str) -> ParserInfo {
     ParserInfo {
         prog: format!("myriad {command}"),
         description: None,
-        positionals: vec![ActionInfo {
-            invocation: "file".to_string(),
-            indent: 2,
-            help: None,
-            usage_part: "file".to_string(),
-        }],
+        positionals: sub_positional_names(command)
+            .iter()
+            .map(|name| ActionInfo {
+                invocation: name.to_string(),
+                indent: 2,
+                help: None,
+                usage_part: name.to_string(),
+            })
+            .collect(),
         optionals: vec![help_action()],
         subactions: Vec::new(),
     }
@@ -1002,8 +1025,9 @@ fn consume_optional(
 struct Level {
     /// The command token, at the top level.
     command: Option<PText>,
-    /// The file token, at a sub level.
-    file: Option<PText>,
+    /// The file tokens, at a sub level, one for a plain
+    /// command and two for the changelog.
+    files: Vec<PText>,
     /// The tokens the sub level hands back, at the top level.
     sub_tokens: Vec<PText>,
     /// Extra tokens in the order they were met.
@@ -1062,32 +1086,46 @@ fn top_consume_positionals(
 
 /// Consume positionals from an index at a sub level.
 ///
-/// The file action matches separators around one positional
-/// and strips the first separator from its values.
+/// The file actions match separators around their
+/// positionals and strip the first separator from their
+/// values. A plain command takes one positional and the
+/// changelog takes two, each standing after the separators
+/// that precede it.
 fn sub_consume_positionals(
     tokens: &[PText],
     classes: &[Class],
     start: usize,
     level: &mut Level,
+    names: &[&str],
     taken: &mut bool,
 ) -> usize {
     if *taken {
         return start;
     }
     let mut at = start;
+    let mut took = false;
+    while level.files.len() < names.len() {
+        let mut probe = at;
+        while probe < tokens.len() && classes[probe] == Class::Marker {
+            probe += 1;
+        }
+        if probe >= tokens.len() || classes[probe] != Class::Positional {
+            break;
+        }
+        level.files.push(tokens[probe].clone());
+        took = true;
+        at = probe + 1;
+    }
+    if !took {
+        return start;
+    }
+    if level.files.len() == names.len() {
+        *taken = true;
+    }
     while at < tokens.len() && classes[at] == Class::Marker {
         at += 1;
     }
-    if at >= tokens.len() || classes[at] != Class::Positional {
-        return start;
-    }
-    level.file = Some(tokens[at].clone());
-    *taken = true;
-    let mut end = at + 1;
-    while end < tokens.len() && classes[end] == Class::Marker {
-        end += 1;
-    }
-    end
+    at
 }
 
 /// Run one parser level's alternation loop.
@@ -1096,7 +1134,13 @@ fn sub_consume_positionals(
 /// caller chooses the positional consumer and the required
 /// name. A finished outcome (help or an error) returns at
 /// once, as the Python exits inside the parse.
-fn run_level(tokens: &[PText], info: &ParserInfo, width: usize, top: bool) -> LevelStep {
+fn run_level(
+    tokens: &[PText],
+    info: &ParserInfo,
+    width: usize,
+    top: bool,
+    names: &[&str],
+) -> LevelStep {
     let classes = classify_level(tokens);
     let option_indices: Vec<usize> = classes
         .iter()
@@ -1112,7 +1156,7 @@ fn run_level(tokens: &[PText], info: &ParserInfo, width: usize, top: bool) -> Le
     let max_option = option_indices.iter().max().copied();
     let mut level = Level {
         command: None,
-        file: None,
+        files: Vec::new(),
         sub_tokens: Vec::new(),
         extras: Vec::new(),
     };
@@ -1135,7 +1179,7 @@ fn run_level(tokens: &[PText], info: &ParserInfo, width: usize, top: bool) -> Le
                         Err(outcome) => return LevelStep::Done(outcome),
                     }
                 } else {
-                    sub_consume_positionals(tokens, &classes, start, &mut level, &mut taken)
+                    sub_consume_positionals(tokens, &classes, start, &mut level, names, &mut taken)
                 };
                 if end > start {
                     start = end;
@@ -1168,11 +1212,15 @@ fn run_level(tokens: &[PText], info: &ParserInfo, width: usize, top: bool) -> Le
             Err(outcome) => return LevelStep::Done(outcome),
         }
     } else {
-        sub_consume_positionals(tokens, &classes, start, &mut level, &mut taken)
+        sub_consume_positionals(tokens, &classes, start, &mut level, names, &mut taken)
     };
     level.extras.extend(tokens[stop..].iter().cloned());
     if !taken {
-        let name = if top { "command" } else { "file" };
+        let name = if top {
+            "command".to_string()
+        } else {
+            names[level.files.len()..].join(", ")
+        };
         return LevelStep::Done(error_outcome(
             info,
             width,
@@ -1217,6 +1265,44 @@ fn exploration_outcome(
             let mut stdout = vec!["invalid exploration".to_string()];
             for defect in &defects {
                 stdout.push(format!("defect {defect}"));
+            }
+            Outcome {
+                stdout,
+                stderr: Vec::new(),
+                code: 1,
+            }
+        }
+    }
+}
+
+/// Run the changelog command over its two files.
+///
+/// Both files load whole through the atlas loader before
+/// anything prints, the later file even when the earlier
+/// file draws defects, and a malformed pair prints the
+/// defects of both files under the word naming each file,
+/// as MY-12 states.
+fn run_changelog(
+    earlier_path: &PText,
+    later_path: &PText,
+    read_file: &dyn Fn(&PText) -> Option<String>,
+) -> Outcome {
+    let (earlier, earlier_defects) = load_atlas_arg(earlier_path, read_file);
+    let (later, later_defects) = load_atlas_arg(later_path, read_file);
+    match (earlier, later) {
+        (Some(earlier), Some(later)) => Outcome {
+            stdout: render_changelog(&earlier, &later)
+                .expect("loaded atlases satisfy the reading preconditions"),
+            stderr: Vec::new(),
+            code: 0,
+        },
+        _ => {
+            let mut stdout = vec!["invalid changelog".to_string()];
+            for defect in &earlier_defects {
+                stdout.push(format!("defect earlier, {defect}"));
+            }
+            for defect in &later_defects {
+                stdout.push(format!("defect later, {defect}"));
             }
             Outcome {
                 stdout,
@@ -1282,7 +1368,7 @@ fn run_command(
                 }
             }
         }
-        _ => unreachable!("the choice check admits only the six commands"),
+        _ => unreachable!("the choice check admits only the seven commands"),
     }
 }
 
@@ -1305,7 +1391,7 @@ pub fn dispatch_at_width(
     read_file: &dyn Fn(&PText) -> Option<String>,
 ) -> Outcome {
     let info = top_info();
-    let top = match run_level(argv, &info, width, true) {
+    let top = match run_level(argv, &info, width, true, &[]) {
         LevelStep::Done(outcome) => return outcome,
         LevelStep::Parsed(level) => level,
     };
@@ -1316,7 +1402,13 @@ pub fn dispatch_at_width(
         .expect("the choice check admitted the command");
     let sub = sub_info(command_name);
     let mut extras = top.extras.clone();
-    let parsed = match run_level(&top.sub_tokens, &sub, width, false) {
+    let parsed = match run_level(
+        &top.sub_tokens,
+        &sub,
+        width,
+        false,
+        sub_positional_names(command_name),
+    ) {
         LevelStep::Done(outcome) => return outcome,
         LevelStep::Parsed(level) => level,
     };
@@ -1325,7 +1417,10 @@ pub fn dispatch_at_width(
         let joined = extras.iter().map(stderr_text).collect::<Vec<_>>().join(" ");
         return error_outcome(&info, width, &format!("unrecognized arguments: {joined}"));
     }
-    let file = parsed.file.expect("the sub level holds a file");
+    if *command_name == "changelog" {
+        return run_changelog(&parsed.files[0], &parsed.files[1], read_file);
+    }
+    let file = parsed.files[0].clone();
     run_command(command_name, &file, read_file)
 }
 

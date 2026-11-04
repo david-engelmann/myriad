@@ -95,6 +95,18 @@ name = "test_examples_round4"
 path = "rust/tests/test_examples_round4.rs"
 
 [[test]]
+name = "test_changelog"
+path = "rust/tests/test_changelog.rs"
+
+[[test]]
+name = "test_cli_round5"
+path = "rust/tests/test_cli_round5.rs"
+
+[[test]]
+name = "test_examples_round5"
+path = "rust/tests/test_examples_round5.rs"
+
+[[test]]
 name = "test_binary_surface"
 path = "rust/tests/test_binary_surface.rs"
 

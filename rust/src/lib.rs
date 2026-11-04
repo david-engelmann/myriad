@@ -4,8 +4,9 @@
 //! The library carries the exploration loader and its
 //! readings (the indented tree map, the branch counts, the
 //! claims listing, and the territory census), the atlas
-//! loader and its readings (the atlas rendering and the
-//! atlas index), the fork helper that builds an exploration
+//! loader and its readings (the atlas rendering, the
+//! atlas index, and the atlas changelog), the fork helper
+//! that builds an exploration
 //! skeleton, the JSON reading the loaders rest on, mirroring
 //! the Python json semantics, and the codepoint scan. The
 //! binary is a thin shell over the command line module.

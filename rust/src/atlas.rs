@@ -3,15 +3,17 @@
 //! An atlas is a set of named explorations read together. The
 //! loader reads an atlas whole or not at all, every defect of
 //! every entry blocking the whole reading, and the readings
-//! print the atlas rendering and the atlas index. The loader
+//! print the atlas rendering, the atlas index, and the
+//! changelog of two atlases. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 use crate::explorations::{
     count_branches, count_by_state, format_counts, load_exploration_data, refuse_surrogate, Branch,
-    Exploration,
+    Exploration, State,
 };
 use crate::json::{parse_json, JsonValue};
 use crate::pytext::PText;
@@ -225,6 +227,259 @@ pub fn render_atlas(atlas: &Atlas) -> Result<Vec<String>, String> {
         "atlas counts, entries {}, {}",
         atlas.entries.len(),
         format_counts(&count_branches(&union))
+    ));
+    Ok(lines)
+}
+
+fn parent_word(parent: &Option<PText>) -> String {
+    match parent {
+        None => "root".to_string(),
+        Some(parent) => parent.to_string(),
+    }
+}
+
+fn claim_word(claim: &Option<PText>) -> String {
+    match claim {
+        None => "unclaimed".to_string(),
+        Some(claim) => claim.to_string(),
+    }
+}
+
+/// The lines of one matched branch pair, in the field
+/// order MY-11 states, and whether any line stands.
+///
+/// The pair is read for its id, its parents, its prompts,
+/// its claims, and, when its state stands the same in both
+/// readings, the finding or the reason that state carries,
+/// each pair in earlier then later order, and a field that
+/// breaks the loader preconditions draws the refusal
+/// MY-11 states in that reading order.
+fn changelog_branch(
+    earlier: &Branch,
+    later: &Branch,
+    lines: &mut Vec<String>,
+) -> Result<bool, String> {
+    refuse_surrogate(&earlier.id, "a branch id holds an unpaired surrogate")?;
+    if let Some(parent) = &earlier.parent {
+        refuse_surrogate(parent, "a branch parent holds an unpaired surrogate")?;
+    }
+    if let Some(parent) = &later.parent {
+        refuse_surrogate(parent, "a branch parent holds an unpaired surrogate")?;
+    }
+    refuse_surrogate(
+        &earlier.prompt,
+        "a branch prompt holds an unpaired surrogate",
+    )?;
+    refuse_surrogate(&later.prompt, "a branch prompt holds an unpaired surrogate")?;
+    if let Some(claim) = &earlier.claim {
+        refuse_surrogate(claim, "a claim holds an unpaired surrogate")?;
+    }
+    if let Some(claim) = &later.claim {
+        refuse_surrogate(claim, "a claim holds an unpaired surrogate")?;
+    }
+    let mut own: Vec<String> = Vec::new();
+    if earlier.state != later.state {
+        own.push(format!(
+            "  branch {}, state changed, {} to {}",
+            earlier.id,
+            earlier.state.name(),
+            later.state.name()
+        ));
+    }
+    if earlier.parent != later.parent {
+        own.push(format!(
+            "  branch {}, parent changed, {} to {}",
+            earlier.id,
+            parent_word(&earlier.parent),
+            parent_word(&later.parent)
+        ));
+    }
+    if earlier.prompt != later.prompt {
+        own.push(format!(
+            "  branch {}, prompt changed, {} to {}",
+            earlier.id, earlier.prompt, later.prompt
+        ));
+    }
+    if earlier.claim != later.claim {
+        own.push(format!(
+            "  branch {}, claim changed, {} to {}",
+            earlier.id,
+            claim_word(&earlier.claim),
+            claim_word(&later.claim)
+        ));
+    }
+    if earlier.state == later.state {
+        match earlier.state {
+            State::Taken => {
+                let before = earlier
+                    .finding
+                    .as_ref()
+                    .ok_or_else(|| "a taken branch holds no finding".to_string())?;
+                refuse_surrogate(before, "a finding holds an unpaired surrogate")?;
+                let after = later
+                    .finding
+                    .as_ref()
+                    .ok_or_else(|| "a taken branch holds no finding".to_string())?;
+                refuse_surrogate(after, "a finding holds an unpaired surrogate")?;
+                if before != after {
+                    own.push(format!(
+                        "  branch {}, finding changed, {} to {}",
+                        earlier.id, before, after
+                    ));
+                }
+            }
+            State::Abandoned => {
+                let before = earlier
+                    .reason
+                    .as_ref()
+                    .ok_or_else(|| "an abandoned branch holds no reason".to_string())?;
+                refuse_surrogate(before, "a reason holds an unpaired surrogate")?;
+                let after = later
+                    .reason
+                    .as_ref()
+                    .ok_or_else(|| "an abandoned branch holds no reason".to_string())?;
+                refuse_surrogate(after, "a reason holds an unpaired surrogate")?;
+                if before != after {
+                    own.push(format!(
+                        "  branch {}, reason changed, {} to {}",
+                        earlier.id, before, after
+                    ));
+                }
+            }
+            State::Open => {}
+        }
+    }
+    let changed = !own.is_empty();
+    lines.extend(own);
+    Ok(changed)
+}
+
+/// The branch lines of one matched entry, and the count
+/// of branches they name.
+///
+/// The lines stand in the order the branches stand in the
+/// earlier exploration, the matched and the departed
+/// branches among them, and the arrived branches stand
+/// after them in the order they stand in the later
+/// exploration.
+fn changelog_branches(
+    earlier: &Exploration,
+    later: &Exploration,
+    lines: &mut Vec<String>,
+) -> Result<usize, String> {
+    let later_by_id: HashMap<&PText, &Branch> = later
+        .branches
+        .iter()
+        .map(|branch| (&branch.id, branch))
+        .collect();
+    let earlier_ids: HashSet<&PText> = earlier.branches.iter().map(|branch| &branch.id).collect();
+    let mut changed = 0usize;
+    for branch in &earlier.branches {
+        match later_by_id.get(&branch.id) {
+            None => {
+                refuse_surrogate(&branch.id, "a branch id holds an unpaired surrogate")?;
+                lines.push(format!("  branch {}, departed", branch.id));
+                changed += 1;
+            }
+            Some(other) => {
+                if changelog_branch(branch, other, lines)? {
+                    changed += 1;
+                }
+            }
+        }
+    }
+    for branch in &later.branches {
+        if earlier_ids.contains(&branch.id) {
+            continue;
+        }
+        refuse_surrogate(&branch.id, "a branch id holds an unpaired surrogate")?;
+        lines.push(format!("  branch {}, arrived", branch.id));
+        changed += 1;
+    }
+    Ok(changed)
+}
+
+/// Render the changelog of two atlases, the later read
+/// against the earlier.
+///
+/// Entries match by label and branches inside a matched
+/// entry match by id. The reading names each entry that
+/// arrived or departed and each branch inside a matched
+/// entry that arrived, departed, or changed, and closes
+/// with the counts of the matching. A hand-built value
+/// that breaks the loader preconditions draws the refusal
+/// MY-11 states.
+pub fn render_changelog(earlier: &Atlas, later: &Atlas) -> Result<Vec<String>, String> {
+    refuse_surrogate(
+        &earlier.title,
+        "the atlas title holds an unpaired surrogate",
+    )?;
+    refuse_surrogate(&later.title, "the atlas title holds an unpaired surrogate")?;
+    let mut lines = vec![
+        format!("earlier atlas, {}", earlier.title),
+        format!("later atlas, {}", later.title),
+    ];
+    let later_by_label: HashMap<&PText, &AtlasEntry> = later
+        .entries
+        .iter()
+        .map(|entry| (&entry.label, entry))
+        .collect();
+    let earlier_labels: HashSet<&PText> =
+        earlier.entries.iter().map(|entry| &entry.label).collect();
+    let mut arrived = 0usize;
+    let mut departed = 0usize;
+    let mut matched = 0usize;
+    let mut changed_branches = 0usize;
+    for entry in &earlier.entries {
+        refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
+        match later_by_label.get(&entry.label) {
+            None => {
+                departed += 1;
+                lines.push(format!("entry {}, departed", entry.label));
+            }
+            Some(later_entry) => {
+                matched += 1;
+                let mut section: Vec<String> = Vec::new();
+                refuse_surrogate(
+                    &entry.exploration.question,
+                    "the question holds an unpaired surrogate",
+                )?;
+                refuse_surrogate(
+                    &later_entry.exploration.question,
+                    "the question holds an unpaired surrogate",
+                )?;
+                if entry.exploration.question != later_entry.exploration.question {
+                    section.push(format!(
+                        "  earlier question, {}",
+                        entry.exploration.question
+                    ));
+                    section.push(format!(
+                        "  later question, {}",
+                        later_entry.exploration.question
+                    ));
+                }
+                changed_branches +=
+                    changelog_branches(&entry.exploration, &later_entry.exploration, &mut section)?;
+                if section.is_empty() {
+                    lines.push(format!("entry {}, unchanged", entry.label));
+                } else {
+                    lines.push(format!("entry {}", entry.label));
+                    lines.extend(section);
+                }
+            }
+        }
+    }
+    for entry in &later.entries {
+        if earlier_labels.contains(&entry.label) {
+            continue;
+        }
+        refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
+        arrived += 1;
+        lines.push(format!("entry {}, arrived", entry.label));
+    }
+    lines.push(format!(
+        "changelog counts, entries arrived {arrived}, departed {departed}, \
+         matched {matched}, branches changed {changed_branches}"
     ));
     Ok(lines)
 }
