@@ -43,6 +43,14 @@ fn contract_carries_the_setup_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_five_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-11", "MY-12"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -109,12 +117,28 @@ fn readme_reports_the_slice_five_standing() {
         rendering, with the golden index of the winter atlas \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at one, not zero, as a mechanical
+    // consequence of the slice 6 status line above it in
+    // the README, which reads built and in review while
+    // the round 5 slice stands unmerged.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at six, not five, as a mechanical
     // consequence of the removal. The port status line below
     // now also reads has landed, where it read built and in
     // review while the port stood unmerged.
     assert_eq!(text.matches("has landed").count(), 6);
+}
+
+#[test]
+fn readme_reports_the_slice_six_standing() {
+    let text = read("README.md");
+    let expected = "- Slice 6 is built and in review. It carries the atlas \
+        changelog that reads two atlases against each other and \
+        names the entries and branches that arrived, departed, or \
+        changed between them, with the winter atlas and its \
+        stated successor and their golden changelog under \
+        examples.";
+    assert!(carries_line(&text, expected));
 }
 
 #[test]

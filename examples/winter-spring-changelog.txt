@@ -1,0 +1,17 @@
+earlier atlas, Winter questions for a small harbour
+later atlas, Spring questions for a small harbour
+entry ferry link
+  branch berth, state changed, open to taken
+  branch fuel, finding changed, The boat burns winter grade diesel from the harbour tank to The boat burns winter grade diesel drawn from the town depot
+  branch timetable, claim changed, unclaimed to harbour office
+  branch fuel-store, parent changed, fuel to timetable
+  branch night, departed
+  branch crew-rest, prompt changed, Where does the crew rest between sailings to Where does the crew rest between sailings in the thaw
+  branch ice-watch, arrived
+entry lifeboat cover
+  earlier question, Who answers a call for help on the water in winter
+  later question, Who answers a call for help on the water in the thaw
+  branch sea, state changed, open to abandoned
+entry harbour lights, departed
+entry ice report, arrived
+changelog counts, entries arrived 1, departed 1, matched 2, branches changed 8

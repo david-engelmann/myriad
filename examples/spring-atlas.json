@@ -1,0 +1,113 @@
+{
+  "title": "Spring questions for a small harbour",
+  "entries": [
+    {
+      "label": "ferry link",
+      "exploration": {
+        "question": "How does the harbour keep a ferry sailing through the winter",
+        "branches": [
+          {
+            "id": "berth",
+            "parent": null,
+            "prompt": "Where does the ferry tie up when the harbour ices over",
+            "state": "taken",
+            "finding": "The ferry ties up at the north pontoon when the harbour ices over",
+            "claim": "boat crew"
+          },
+          {
+            "id": "fuel",
+            "parent": null,
+            "prompt": "What fuel does the boat burn in the cold months",
+            "state": "taken",
+            "finding": "The boat burns winter grade diesel drawn from the town depot",
+            "claim": "boat crew"
+          },
+          {
+            "id": "timetable",
+            "parent": null,
+            "prompt": "How often does the boat sail in January",
+            "state": "open",
+            "claim": "harbour office"
+          },
+          {
+            "id": "fuel-store",
+            "parent": "timetable",
+            "prompt": "Where is the winter diesel stored ashore",
+            "state": "taken",
+            "finding": "Two heated tanks stand behind the harbour office",
+            "claim": "harbour office"
+          },
+          {
+            "id": "crew-rest",
+            "parent": "berth",
+            "prompt": "Where does the crew rest between sailings in the thaw",
+            "state": "open"
+          },
+          {
+            "id": "ice-watch",
+            "parent": "berth",
+            "prompt": "Who watches the ice at the harbour mouth",
+            "state": "open"
+          }
+        ]
+      }
+    },
+    {
+      "label": "lifeboat cover",
+      "exploration": {
+        "question": "Who answers a call for help on the water in the thaw",
+        "branches": [
+          {
+            "id": "call",
+            "parent": null,
+            "prompt": "How does a call for help reach the lifeboat crew",
+            "state": "open"
+          },
+          {
+            "id": "launch",
+            "parent": "call",
+            "prompt": "How does the boat get down the slipway on ice",
+            "state": "taken",
+            "finding": "The slipway is gritted and the tractor is kept fuelled"
+          },
+          {
+            "id": "sea",
+            "parent": "launch",
+            "prompt": "What seas can the boat go out in",
+            "state": "abandoned",
+            "reason": "The spring drill rota settles the outing limits"
+          },
+          {
+            "id": "back",
+            "parent": "sea",
+            "prompt": "How does the crew get word back to shore",
+            "state": "abandoned",
+            "reason": "The radio drill in the spring log already answers this"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ice report",
+      "exploration": {
+        "question": "How does the harbour report the ice each morning",
+        "branches": [
+          {
+            "id": "board",
+            "parent": null,
+            "prompt": "Where is the morning ice report posted",
+            "state": "open"
+          },
+          {
+            "id": "gauge",
+            "parent": "board",
+            "prompt": "What does the ice gauge read at the pier head",
+            "state": "taken",
+            "finding": "The gauge at the pier head is read at first light",
+            "claim": "harbour office"
+          }
+        ]
+      }
+    }
+  ]
+}
