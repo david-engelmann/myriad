@@ -24,13 +24,21 @@ fn binary() -> &'static str {
 }
 
 /// A pipe write end whose reader is already gone, the
-/// pre-closed surface the pipe pins drive.
+/// pre-closed surface the pipe pins drive. The pipe is
+/// created with pipe2 under O_CLOEXEC, so the reader end
+/// is close on exec from the moment it exists and no
+/// child a sibling pin spawns can inherit it. Under a
+/// plain pipe the window between the pipe call and the
+/// close of the reader left that reader inheritable, and
+/// a sibling child holding it open kept the pipe alive,
+/// so the writer under test could finish its writes and
+/// leave by its own status instead of failing on them.
 #[cfg(unix)]
 fn closed_pipe() -> Stdio {
     use std::os::unix::io::FromRawFd;
     let mut fds = [0 as libc::c_int; 2];
     unsafe {
-        assert_eq!(libc::pipe(fds.as_mut_ptr()), 0);
+        assert_eq!(libc::pipe2(fds.as_mut_ptr(), libc::O_CLOEXEC), 0);
         libc::close(fds[0]);
         Stdio::from(std::fs::File::from_raw_fd(fds[1]))
     }
