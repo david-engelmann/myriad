@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 5 of 100"));
+    assert!(text.contains("Closed perfection rounds, 6 of 100"));
 }
 
 #[test]
@@ -131,29 +131,33 @@ fn readme_reports_the_slice_five_standing() {
     // the round 5 slice stood unmerged, until the Round 5
     // closure landed slice 6 and the count returned to
     // zero. It stands at one again as the named mechanical
-    // consequence of the slice 7 status line, which reads
-    // built and in review while Round 6 is built, and it
-    // returns to zero when the Round 6 closure lands
-    // slice 7.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at seven, not six, as a mechanical
-    // consequence of the Round 5 closure. The slice 6 line
+    // consequence of the slice 7 status line, which read
+    // built and in review while Round 6 was built, until
+    // the Round 6 closure landed slice 7 and the count
+    // returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at eight, not seven, as a mechanical
+    // consequence of the Round 6 closure. The slice 7 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 7);
+    assert_eq!(text.matches("has landed").count(), 8);
 }
 
 #[test]
-fn readme_reports_the_round_six_slice() {
+fn readme_reports_the_round_six_status() {
     let text = read("README.md");
-    let expected = "- Slice 7 is built and in review. It carries the atlas \
+    let standing = "- Contract, MY-13 and MY-14 met. They stand in full form in \
+        CONTRACT.md, and Round 6 closed on the merged slice 7 after \
+        three reviews approving with no findings.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 7 has landed. It carries the atlas \
         lineage that reads a chain of atlases as the changelogs of its \
         steps composed and closes a longer chain with the summed counts \
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 5 of 100"));
+    assert!(text.contains("Closed perfection rounds, 6 of 100"));
 }
 
 #[test]
