@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 6 of 100"));
+    assert!(text.contains("Closed perfection rounds, 7 of 100"));
 }
 
 #[test]
@@ -144,16 +144,16 @@ fn readme_reports_the_slice_five_standing() {
     // the Round 6 closure landed slice 7 and the count
     // returned to zero. It stands at one again as the
     // named mechanical consequence of the slice 8 status
-    // line, which reads built and in review while Round 7
-    // is built, until the Round 7 closure lands slice 8
-    // and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at eight, not seven, as a mechanical
-    // consequence of the Round 6 closure. The slice 7 line
+    // line, which read built and in review while Round 7
+    // was built, until the Round 7 closure landed slice 8
+    // and the count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at nine, not eight, as a mechanical
+    // consequence of the Round 7 closure. The slice 8 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 8);
+    assert_eq!(text.matches("has landed").count(), 9);
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 6 of 100"));
+    assert!(text.contains("Closed perfection rounds, 7 of 100"));
 }
 
 #[test]
@@ -189,9 +189,13 @@ fn readme_reports_the_round_five_standing() {
 }
 
 #[test]
-fn readme_reports_the_round_seven_slice() {
+fn readme_reports_the_round_seven_status() {
     let text = read("README.md");
-    let expected = "- Slice 8 is built and in review. It carries the returns \
+    let standing = "- Contract, MY-15 and MY-16 met. They stand in full \
+        form in CONTRACT.md, and Round 7 closed on the merged \
+        slice 8 after three reviews approving with no findings.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 8 has landed. It carries the returns \
         reading that joins the presences of the entries of a chain \
         across the whole chain and names each entry that stands again \
         after an absence, with the golden returns of the winter, \
