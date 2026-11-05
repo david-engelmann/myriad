@@ -1,6 +1,6 @@
 //! The command line, mirroring the Python argparse surface.
 //!
-//! The binary carries eight commands, seven over one file
+//! The binary carries nine commands, eight over one file
 //! argument each and the changelog over two. The dispatch
 //! mirrors the Python argparse run token
 //! for token, including the layouts of help and of errors, the
@@ -16,7 +16,7 @@ use std::ffi::OsString;
 
 use crate::atlas::{
     load_atlas_text, load_lineage_text, render_atlas, render_changelog, render_index,
-    render_lineage, Atlas, Lineage,
+    render_lineage, render_returns, Atlas, Lineage,
 };
 use crate::explorations::{
     count_by_state, load_exploration_text, render_census, render_claims, render_map, Exploration,
@@ -721,7 +721,7 @@ fn format_action(action: &ActionInfo, help_position: usize, width: usize) -> Str
 // The dispatch, mirroring the Python argparse run over the
 // two parser shapes.
 
-const COMMANDS: [&str; 8] = [
+const COMMANDS: [&str; 9] = [
     "map",
     "check",
     "claims",
@@ -730,10 +730,11 @@ const COMMANDS: [&str; 8] = [
     "index",
     "changelog",
     "lineage",
+    "returns",
 ];
 const CHOICES_DISPLAY: &str =
-    "'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage'";
-const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index,changelog,lineage}";
+    "'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage', 'returns'";
+const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index,changelog,lineage,returns}";
 
 fn help_action() -> ActionInfo {
     ActionInfo {
@@ -764,6 +765,7 @@ fn top_info() -> ParserInfo {
             ("index", "print the index of an atlas of trees"),
             ("changelog", "print the changelog of two atlases"),
             ("lineage", "print the lineage of a chain of atlases"),
+            ("returns", "print the returns of a chain of atlases"),
         ]
         .into_iter()
         .map(|(name, help)| (name.to_string(), help.to_string()))
@@ -1384,12 +1386,17 @@ fn run_command(
                 }
             }
         }
-        "lineage" => {
+        "lineage" | "returns" => {
             let loaded = load_lineage_arg(file, read_file);
             match loaded {
                 (Some(lineage), _) => Outcome {
-                    stdout: render_lineage(&lineage)
-                        .expect("a loaded lineage satisfies the reading preconditions"),
+                    stdout: if command == "lineage" {
+                        render_lineage(&lineage)
+                            .expect("a loaded lineage satisfies the reading preconditions")
+                    } else {
+                        render_returns(&lineage)
+                            .expect("a loaded lineage satisfies the reading preconditions")
+                    },
                     stderr: Vec::new(),
                     code: 0,
                 },
@@ -1406,7 +1413,7 @@ fn run_command(
                 }
             }
         }
-        _ => unreachable!("the choice check admits only the eight commands"),
+        _ => unreachable!("the choice check admits only the nine commands"),
     }
 }
 

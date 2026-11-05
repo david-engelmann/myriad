@@ -6,7 +6,8 @@
 //! claims listing, and the territory census), the atlas
 //! loader and its readings (the atlas rendering, the
 //! atlas index, and the atlas changelog), the lineage
-//! loader and its reading over a chain of atlases, the
+//! loader and its readings over a chain of atlases, the
+//! lineage reading and the returns reading, the
 //! fork helper
 //! that builds an exploration
 //! skeleton, the JSON reading the loaders rest on, mirroring
