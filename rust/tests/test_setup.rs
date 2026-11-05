@@ -51,6 +51,14 @@ fn contract_carries_the_round_five_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_six_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-13", "MY-14"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -122,14 +130,30 @@ fn readme_reports_the_slice_five_standing() {
     // the README, which read built and in review while
     // the round 5 slice stood unmerged, until the Round 5
     // closure landed slice 6 and the count returned to
-    // zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // zero. It stands at one again as the named mechanical
+    // consequence of the slice 7 status line, which reads
+    // built and in review while Round 6 is built, and it
+    // returns to zero when the Round 6 closure lands
+    // slice 7.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at seven, not six, as a mechanical
     // consequence of the Round 5 closure. The slice 6 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
     assert_eq!(text.matches("has landed").count(), 7);
+}
+
+#[test]
+fn readme_reports_the_round_six_slice() {
+    let text = read("README.md");
+    let expected = "- Slice 7 is built and in review. It carries the atlas \
+        lineage that reads a chain of atlases as the changelogs of its \
+        steps composed and closes a longer chain with the summed counts \
+        of its steps, with the winter atlas, its spring successor, and \
+        the summer successor and their golden lineage under examples.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 5 of 100"));
 }
 
 #[test]

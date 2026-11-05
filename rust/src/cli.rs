@@ -1,6 +1,6 @@
 //! The command line, mirroring the Python argparse surface.
 //!
-//! The binary carries seven commands, six over one file
+//! The binary carries eight commands, seven over one file
 //! argument each and the changelog over two. The dispatch
 //! mirrors the Python argparse run token
 //! for token, including the layouts of help and of errors, the
@@ -14,7 +14,10 @@
 
 use std::ffi::OsString;
 
-use crate::atlas::{load_atlas_text, render_atlas, render_changelog, render_index, Atlas};
+use crate::atlas::{
+    load_atlas_text, load_lineage_text, render_atlas, render_changelog, render_index,
+    render_lineage, Atlas, Lineage,
+};
 use crate::explorations::{
     count_by_state, load_exploration_text, render_census, render_claims, render_map, Exploration,
 };
@@ -718,7 +721,7 @@ fn format_action(action: &ActionInfo, help_position: usize, width: usize) -> Str
 // The dispatch, mirroring the Python argparse run over the
 // two parser shapes.
 
-const COMMANDS: [&str; 7] = [
+const COMMANDS: [&str; 8] = [
     "map",
     "check",
     "claims",
@@ -726,9 +729,11 @@ const COMMANDS: [&str; 7] = [
     "atlas",
     "index",
     "changelog",
+    "lineage",
 ];
-const CHOICES_DISPLAY: &str = "'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog'";
-const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index,changelog}";
+const CHOICES_DISPLAY: &str =
+    "'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage'";
+const CHOICES_HEADER: &str = "{map,check,claims,census,atlas,index,changelog,lineage}";
 
 fn help_action() -> ActionInfo {
     ActionInfo {
@@ -758,6 +763,7 @@ fn top_info() -> ParserInfo {
             ("atlas", "print the rendering of an atlas of trees"),
             ("index", "print the index of an atlas of trees"),
             ("changelog", "print the changelog of two atlases"),
+            ("lineage", "print the lineage of a chain of atlases"),
         ]
         .into_iter()
         .map(|(name, help)| (name.to_string(), help.to_string()))
@@ -1250,6 +1256,16 @@ fn load_atlas_arg(
     }
 }
 
+fn load_lineage_arg(
+    path: &PText,
+    read_file: &dyn Fn(&PText) -> Option<String>,
+) -> (Option<Lineage>, Vec<String>) {
+    match read_file(path) {
+        None => (None, vec!["file cannot be read".to_string()]),
+        Some(text) => load_lineage_text(&text),
+    }
+}
+
 fn exploration_outcome(
     loaded: (Option<Exploration>, Vec<String>),
     render: fn(&Exploration) -> Result<Vec<String>, String>,
@@ -1368,7 +1384,29 @@ fn run_command(
                 }
             }
         }
-        _ => unreachable!("the choice check admits only the seven commands"),
+        "lineage" => {
+            let loaded = load_lineage_arg(file, read_file);
+            match loaded {
+                (Some(lineage), _) => Outcome {
+                    stdout: render_lineage(&lineage)
+                        .expect("a loaded lineage satisfies the reading preconditions"),
+                    stderr: Vec::new(),
+                    code: 0,
+                },
+                (None, defects) => {
+                    let mut stdout = vec!["invalid lineage".to_string()];
+                    for defect in &defects {
+                        stdout.push(format!("defect {defect}"));
+                    }
+                    Outcome {
+                        stdout,
+                        stderr: Vec::new(),
+                        code: 1,
+                    }
+                }
+            }
+        }
+        _ => unreachable!("the choice check admits only the eight commands"),
     }
 }
 
