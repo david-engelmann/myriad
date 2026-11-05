@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 4 of 100"));
+    assert!(text.contains("Closed perfection rounds, 5 of 100"));
 }
 
 #[test]
@@ -117,22 +117,29 @@ fn readme_reports_the_slice_five_standing() {
         rendering, with the golden index of the winter atlas \
         under examples.";
     assert!(carries_line(&text, expected));
-    // The count stands at one, not zero, as a mechanical
+    // The count stood at one, not zero, as a mechanical
     // consequence of the slice 6 status line above it in
-    // the README, which reads built and in review while
-    // the round 5 slice stands unmerged.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at six, not five, as a mechanical
-    // consequence of the removal. The port status line below
-    // now also reads has landed, where it read built and in
-    // review while the port stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 6);
+    // the README, which read built and in review while
+    // the round 5 slice stood unmerged, until the Round 5
+    // closure landed slice 6 and the count returned to
+    // zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at seven, not six, as a mechanical
+    // consequence of the Round 5 closure. The slice 6 line
+    // now also reads has landed, beside the port status
+    // line below, where it read built and in review while
+    // the slice stood unmerged.
+    assert_eq!(text.matches("has landed").count(), 7);
 }
 
 #[test]
-fn readme_reports_the_slice_six_standing() {
+fn readme_reports_the_round_five_standing() {
     let text = read("README.md");
-    let expected = "- Slice 6 is built and in review. It carries the atlas \
+    let standing = "- Contract, MY-11 and MY-12 met. They stand in full form in \
+        CONTRACT.md, and Round 5 closed on the merged slice 6 after \
+        three reviews, a repair pass, and an approving re-review.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 6 has landed. It carries the atlas \
         changelog that reads two atlases against each other and \
         names the entries and branches that arrived, departed, or \
         changed between them, with the winter atlas and its \
