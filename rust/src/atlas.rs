@@ -4,7 +4,10 @@
 //! loader reads an atlas whole or not at all, every defect of
 //! every entry blocking the whole reading, and the readings
 //! print the atlas rendering, the atlas index, and the
-//! changelog of two atlases. The loader
+//! changelog of two atlases. A lineage is a chain of atlases
+//! read in order, its loader reads the chain whole or not at
+//! all, and its reading is the changelogs of its steps
+//! composed. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -34,6 +37,14 @@ pub struct Atlas {
     pub title: PText,
     /// The entries in the order the file lists them.
     pub entries: Vec<AtlasEntry>,
+}
+
+/// A loaded lineage, an ordered chain of atlases.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Lineage {
+    /// The atlases of the chain in the order the chain
+    /// reads them, the first atlas the earliest.
+    pub atlases: Vec<Atlas>,
 }
 
 fn check_label(entry: &JsonValue, index: usize, defects: &mut Vec<String>) -> Option<PText> {
@@ -201,6 +212,60 @@ pub fn load_atlas_file(path: &Path) -> (Option<Atlas>, Vec<String>) {
         Err(_) => return (None, vec!["file cannot be read".to_string()]),
     };
     load_atlas_text(&text)
+}
+
+fn load_lineage_data(data: &JsonValue) -> (Option<Lineage>, Vec<String>) {
+    if !data.is_object() {
+        return (None, vec!["input is not a JSON object".to_string()]);
+    }
+    let mut defects: Vec<String> = Vec::new();
+    let mut atlases: Vec<Atlas> = Vec::new();
+    match data.get("atlases") {
+        None => {
+            defects.push("missing field atlases".to_string());
+        }
+        Some(JsonValue::Arr(items)) => {
+            if items.len() < 2 {
+                defects.push("field atlases holds fewer than two atlases".to_string());
+            }
+            for (index, member) in items.iter().enumerate() {
+                let (atlas, member_defects) = load_atlas_data(member);
+                for defect in &member_defects {
+                    defects.push(format!("atlas {index}, {defect}"));
+                }
+                if let Some(atlas) = atlas {
+                    atlases.push(atlas);
+                }
+            }
+        }
+        Some(_) => {
+            defects.push("field atlases has the wrong type".to_string());
+        }
+    }
+    if !defects.is_empty() {
+        return (None, defects);
+    }
+    (Some(Lineage { atlases }), Vec::new())
+}
+
+/// Read and load one lineage from its JSON text.
+pub fn load_lineage_text(text: &str) -> (Option<Lineage>, Vec<String>) {
+    match parse_json(text) {
+        None => (None, vec!["input is not valid JSON".to_string()]),
+        Some(data) => load_lineage_data(&data),
+    }
+}
+
+/// Read and load one lineage from the file at a path.
+pub fn load_lineage_file(path: &Path) -> (Option<Lineage>, Vec<String>) {
+    let text = match std::fs::read(path) {
+        Ok(bytes) => match String::from_utf8(bytes) {
+            Ok(text) => text,
+            Err(_) => return (None, vec!["file cannot be read".to_string()]),
+        },
+        Err(_) => return (None, vec!["file cannot be read".to_string()]),
+    };
+    load_lineage_text(&text)
 }
 
 /// Render the atlas, each entry under its label.
@@ -399,17 +464,19 @@ fn changelog_branches(
     Ok(changed)
 }
 
-/// Render the changelog of two atlases, the later read
-/// against the earlier.
-///
-/// Entries match by label and branches inside a matched
-/// entry match by id. The reading names each entry that
-/// arrived or departed and each branch inside a matched
-/// entry that arrived, departed, or changed, and closes
-/// with the counts of the matching. A hand-built value
-/// that breaks the loader preconditions draws the refusal
-/// MY-11 states.
-pub fn render_changelog(earlier: &Atlas, later: &Atlas) -> Result<Vec<String>, String> {
+/// The counts one changelog closes with, read from the
+/// matching itself.
+struct StepCounts {
+    arrived: usize,
+    departed: usize,
+    matched: usize,
+    changed_branches: usize,
+}
+
+/// Render the changelog of two atlases and the counts it
+/// closes with, the one pass the changelog and the
+/// lineage readings both read.
+fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, StepCounts), String> {
     refuse_surrogate(
         &earlier.title,
         "the atlas title holds an unpaired surrogate",
@@ -481,6 +548,72 @@ pub fn render_changelog(earlier: &Atlas, later: &Atlas) -> Result<Vec<String>, S
         "changelog counts, entries arrived {arrived}, departed {departed}, \
          matched {matched}, branches changed {changed_branches}"
     ));
+    Ok((
+        lines,
+        StepCounts {
+            arrived,
+            departed,
+            matched,
+            changed_branches,
+        },
+    ))
+}
+
+/// Render the changelog of two atlases, the later read
+/// against the earlier.
+///
+/// Entries match by label and branches inside a matched
+/// entry match by id. The reading names each entry that
+/// arrived or departed and each branch inside a matched
+/// entry that arrived, departed, or changed, and closes
+/// with the counts of the matching. A hand-built value
+/// that breaks the loader preconditions draws the refusal
+/// MY-11 states.
+pub fn render_changelog(earlier: &Atlas, later: &Atlas) -> Result<Vec<String>, String> {
+    let (lines, _) = changelog_reading(earlier, later)?;
+    Ok(lines)
+}
+
+/// Render the lineage of a chain of atlases, the
+/// changelogs of its steps composed.
+///
+/// One step stands for each pair of atlases the chain
+/// holds in a row, and the lines of a step are the lines
+/// of the changelog reading of that pair, so a chain of
+/// exactly two atlases renders the changelog of the pair
+/// byte for byte. When the chain holds more than two
+/// atlases the reading closes with the lineage counts
+/// line, carrying the count of steps and the sums of the
+/// counts the steps close with, read from the step
+/// readings themselves. A hand-built lineage holding
+/// fewer than two atlases draws the refusal MY-13
+/// states, and a hand-built value inside a step draws
+/// the refusal of its step, the steps read in chain
+/// order.
+pub fn render_lineage(lineage: &Lineage) -> Result<Vec<String>, String> {
+    if lineage.atlases.len() < 2 {
+        return Err("the lineage holds fewer than two atlases".to_string());
+    }
+    let mut lines: Vec<String> = Vec::new();
+    let mut arrived = 0usize;
+    let mut departed = 0usize;
+    let mut matched = 0usize;
+    let mut changed_branches = 0usize;
+    for step in lineage.atlases.windows(2) {
+        let (step_lines, counts) = changelog_reading(&step[0], &step[1])?;
+        lines.extend(step_lines);
+        arrived += counts.arrived;
+        departed += counts.departed;
+        matched += counts.matched;
+        changed_branches += counts.changed_branches;
+    }
+    if lineage.atlases.len() > 2 {
+        lines.push(format!(
+            "lineage counts, steps {}, entries arrived {arrived}, departed {departed}, \
+             matched {matched}, branches changed {changed_branches}",
+            lineage.atlases.len() - 1
+        ));
+    }
     Ok(lines)
 }
 
