@@ -6,8 +6,9 @@
 //! print the atlas rendering, the atlas index, and the
 //! changelog of two atlases. A lineage is a chain of atlases
 //! read in order, its loader reads the chain whole or not at
-//! all, and its reading is the changelogs of its steps
-//! composed. The loader
+//! all, and its readings are the changelogs of its steps
+//! composed and the returns of the chain, the entries that
+//! stand again after an absence. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -614,6 +615,70 @@ pub fn render_lineage(lineage: &Lineage) -> Result<Vec<String>, String> {
             lineage.atlases.len() - 1
         ));
     }
+    Ok(lines)
+}
+
+/// Render the returns of a chain of atlases, the entries
+/// that stand again after an absence.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in. An entry returns at a
+/// step when it stands in the atlas the step leads to,
+/// does not stand in the atlas the step leads from, and
+/// stands in at least one atlas earlier than the atlas the
+/// step leads from, and one line stands for each return in
+/// chain order and then in the order the entries stand in
+/// the atlas the step leads to, closing with the returns
+/// counts line. A hand-built lineage holding fewer than
+/// two atlases draws the refusal MY-13 states, and a label
+/// holding an unpaired surrogate draws the refusal
+/// PORT-11 names for that field, the labels read in chain
+/// order, atlas order then entry order.
+pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
+    if lineage.atlases.len() < 2 {
+        return Err("the lineage holds fewer than two atlases".to_string());
+    }
+    let mut presence: Vec<HashSet<&PText>> = Vec::new();
+    for atlas in &lineage.atlases {
+        let mut labels: HashSet<&PText> = HashSet::new();
+        for entry in &atlas.entries {
+            refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
+            labels.insert(&entry.label);
+        }
+        presence.push(labels);
+    }
+    let mut lines: Vec<String> = Vec::new();
+    let mut returns = 0usize;
+    let mut returned: HashSet<&PText> = HashSet::new();
+    for target in 1..lineage.atlases.len() {
+        for entry in &lineage.atlases[target].entries {
+            if presence[target - 1].contains(&entry.label) {
+                continue;
+            }
+            let stood_earlier = presence[..target - 1]
+                .iter()
+                .any(|labels| labels.contains(&entry.label));
+            if !stood_earlier {
+                continue;
+            }
+            let mut absent = 0usize;
+            let mut at = target - 1;
+            while !presence[at].contains(&entry.label) {
+                absent += 1;
+                at -= 1;
+            }
+            lines.push(format!(
+                "entry {}, returned at step {}, absent {} atlases",
+                entry.label, target, absent
+            ));
+            returns += 1;
+            returned.insert(&entry.label);
+        }
+    }
+    lines.push(format!(
+        "returns counts, returns {returns}, entries returned {}",
+        returned.len()
+    ));
     Ok(lines)
 }
 

@@ -26,21 +26,21 @@ fn run(argv: &[&str], columns: usize) -> Outcome {
 const WIDTHS: [usize; 3] = [60, 80, 120];
 
 fn top_help(columns: usize) -> Vec<String> {
-    let usage: &[&str] = if columns == 60 {
+    let usage: &[&str] = if columns == 120 {
+        &["usage: myriad [-h] {map,check,claims,census,atlas,index,changelog,lineage,returns} ..."]
+    } else {
         &[
             "usage: myriad [-h]",
-            "              {map,check,claims,census,atlas,index,changelog,lineage}",
+            "              {map,check,claims,census,atlas,index,changelog,lineage,returns}",
             "              ...",
         ]
-    } else {
-        &["usage: myriad [-h] {map,check,claims,census,atlas,index,changelog,lineage} ..."]
     };
     let mut lines: Vec<String> = usage.iter().map(|line| line.to_string()).collect();
     lines.push(String::new());
     lines.push("Fork one hard question into branches and map them.".to_string());
     lines.push(String::new());
     lines.push("positional arguments:".to_string());
-    lines.push("  {map,check,claims,census,atlas,index,changelog,lineage}".to_string());
+    lines.push("  {map,check,claims,census,atlas,index,changelog,lineage,returns}".to_string());
     lines.push("    map                 print the map of a tree".to_string());
     lines.push("    check               print the branch counts of a tree".to_string());
     lines.push("    claims              print the claims listing of a tree".to_string());
@@ -54,12 +54,15 @@ fn top_help(columns: usize) -> Vec<String> {
         lines.push("    changelog           print the changelog of two atlases".to_string());
         lines.push("    lineage             print the lineage of a chain of".to_string());
         lines.push("                        atlases".to_string());
+        lines.push("    returns             print the returns of a chain of".to_string());
+        lines.push("                        atlases".to_string());
     } else {
         lines.push("    census              print the territory census of a tree".to_string());
         lines.push("    atlas               print the rendering of an atlas of trees".to_string());
         lines.push("    index               print the index of an atlas of trees".to_string());
         lines.push("    changelog           print the changelog of two atlases".to_string());
         lines.push("    lineage             print the lineage of a chain of atlases".to_string());
+        lines.push("    returns             print the returns of a chain of atlases".to_string());
     }
     lines.push(String::new());
     lines.push("options:".to_string());
@@ -68,15 +71,15 @@ fn top_help(columns: usize) -> Vec<String> {
 }
 
 fn top_usage_lines(columns: usize) -> Vec<String> {
-    if columns == 60 {
+    if columns == 120 {
         common::strings(&[
-            "usage: myriad [-h]",
-            "              {map,check,claims,census,atlas,index,changelog,lineage}",
-            "              ...",
+            "usage: myriad [-h] {map,check,claims,census,atlas,index,changelog,lineage,returns} ...",
         ])
     } else {
         common::strings(&[
-            "usage: myriad [-h] {map,check,claims,census,atlas,index,changelog,lineage} ...",
+            "usage: myriad [-h]",
+            "              {map,check,claims,census,atlas,index,changelog,lineage,returns}",
+            "              ...",
         ])
     }
 }
@@ -135,7 +138,7 @@ fn the_invalid_choice_error_stands_at_sixty_eighty_and_one_twenty() {
         let mut expected = top_usage_lines(columns);
         expected.push(
             "myriad: error: argument command: invalid choice: 'bogus' \
-             (choose from 'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage')"
+             (choose from 'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage', 'returns')"
                 .to_string(),
         );
         assert_eq!(outcome.stderr, expected, "columns {columns}");
