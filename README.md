@@ -1,14 +1,20 @@
 # myriad
 
-One hard question, a thousand subagents down every plausible branch, and an explorable map of everything they found.
+Myriad is a Rust library and command line tool that reads recorded explorations of a question and atlases of explorations and prints readings over them.
 
 ## What this is
 
-A single agent answers a hard question by walking one path and hoping it was the right one. Myriad refuses to hope. It forks the question into a thousand subagents, sends them down every plausible branch of the answer, and renders the whole storm as a map you can walk. Paths taken light up. Paths abandoned stay visible with the reasons they died. The answer you get is not a paragraph. It is a territory.
+Myriad reads recorded JSON files and prints readings over them. It works offline and makes no live calls, and the same file always prints the same lines. The library also carries a fork helper that builds an exploration skeleton from a question and a list of prompts, one root branch per prompt with every branch in state open, so recorded exploration files can be prepared without a model.
+
+An exploration file holds one question and a list of branches that form a tree. Each branch holds an id, a parent that is null for a root branch or the id of another branch, a prompt, and a state of open, taken, or abandoned. A taken branch holds a finding, an abandoned branch holds a reason, and an open branch holds neither. A branch in any state may hold a claim, the label of the fork that claimed the branch. An atlas file holds a title and a list of entries, and each entry holds a label and one exploration embedded whole. A lineage file holds two or more atlases embedded whole in chain order.
+
+Each file loads whole or not at all. A malformed file yields no reading, and its loader names every malformed field and structural defect it finds, among them a duplicate branch id, a parent that names no branch, a cycle in a parent chain, and a duplicate entry label in an atlas.
+
+The myriad command prints the readings. The map, check, claims, and census commands each take one exploration file and print the map of the branches with their counts, the branch counts alone, the claims listing that groups the branches by claim label, and the census that reads the branches back by state with their findings, reasons, and prompts. The atlas and index commands each take one atlas file and print the atlas rendering, one section for each entry, and the index, one line for each entry with the counts of its exploration. The changelog command takes two atlas files, an earlier and a later, and prints the entries and branches that arrived, departed, or changed between them. The lineage and returns commands each take one lineage file and print the changelog of each step of the chain composed in order and the entries that stand again in the chain after an absence. A command over a malformed file prints an invalid line and then one defect line for each defect and exits with status one. A sound file exits with status zero. The examples directory holds synthetic files of each kind beside the golden output of the real commands over them.
 
 ## Status
 
-Seeded in October 2026. Setup has landed and Rounds 1 to 5 have closed, with all five slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
+Seeded in October 2026. Setup has landed and Rounds 1 to 7 have closed, with all slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
 
 ## Programme status
 
