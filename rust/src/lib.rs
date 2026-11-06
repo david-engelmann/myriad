@@ -7,7 +7,8 @@
 //! loader and its readings (the atlas rendering, the
 //! atlas index, and the atlas changelog), the lineage
 //! loader and its readings over a chain of atlases, the
-//! lineage reading and the returns reading, the
+//! lineage reading and the returns reading and the
+//! standing reading, the
 //! fork helper
 //! that builds an exploration
 //! skeleton, the JSON reading the loaders rest on, mirroring

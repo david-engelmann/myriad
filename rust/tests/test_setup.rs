@@ -67,6 +67,14 @@ fn contract_carries_the_round_seven_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_eight_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-17", "MY-18"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -146,8 +154,12 @@ fn readme_reports_the_slice_five_standing() {
     // named mechanical consequence of the slice 8 status
     // line, which read built and in review while Round 7
     // was built, until the Round 7 closure landed slice 8
-    // and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // and the count returned to zero. It stands at one
+    // again as the named mechanical consequence of the
+    // slice 9 status line, which reads built and in review
+    // while Round 8 is built, until the Round 8 closure
+    // lands slice 9 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at nine, not eight, as a mechanical
     // consequence of the Round 7 closure. The slice 8 line
     // now also reads has landed, beside the port status
@@ -200,6 +212,19 @@ fn readme_reports_the_round_seven_status() {
         across the whole chain and names each entry that stands again \
         after an absence, with the golden returns of the winter, \
         spring, and summer chain under examples.";
+    assert!(carries_line(&text, expected));
+}
+
+#[test]
+fn readme_reports_the_round_eight_slice() {
+    let text = read("README.md");
+    let expected = "- Slice 9 is built and in review. It carries the standing \
+        reading that reads the presence of every entry of a chain in \
+        every atlas of the chain and names the first atlas each entry \
+        stands in, the last atlas it stands in, the count of atlases \
+        it stands in, and whether it stands at the close, with the \
+        golden standing of the winter, spring, and summer chain \
+        under examples.";
     assert!(carries_line(&text, expected));
 }
 

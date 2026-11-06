@@ -8,7 +8,8 @@
 //! read in order, its loader reads the chain whole or not at
 //! all, and its readings are the changelogs of its steps
 //! composed and the returns of the chain, the entries that
-//! stand again after an absence. The loader
+//! stand again after an absence, and the standing of the
+//! chain, where in the chain each entry stands. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -618,6 +619,33 @@ pub fn render_lineage(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// Read the presence of a chain of atlases once, each
+/// label against the atlases it stands in.
+///
+/// A hand-built lineage holding fewer than two atlases
+/// draws the refusal MY-13 states, and a label holding
+/// an unpaired surrogate draws the refusal PORT-11 names
+/// for that field, the labels read in chain order, atlas
+/// order then entry order. The returns reading and the
+/// standing reading both read presence through this one
+/// pass, so the refusal text, the refusal order, and the
+/// per-atlas label sets stand in one home.
+fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
+    if lineage.atlases.len() < 2 {
+        return Err("the lineage holds fewer than two atlases".to_string());
+    }
+    let mut presence: Vec<HashSet<&PText>> = Vec::new();
+    for atlas in &lineage.atlases {
+        let mut labels: HashSet<&PText> = HashSet::new();
+        for entry in &atlas.entries {
+            refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
+            labels.insert(&entry.label);
+        }
+        presence.push(labels);
+    }
+    Ok(presence)
+}
+
 /// Render the returns of a chain of atlases, the entries
 /// that stand again after an absence.
 ///
@@ -635,18 +663,7 @@ pub fn render_lineage(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// PORT-11 names for that field, the labels read in chain
 /// order, atlas order then entry order.
 pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
-    if lineage.atlases.len() < 2 {
-        return Err("the lineage holds fewer than two atlases".to_string());
-    }
-    let mut presence: Vec<HashSet<&PText>> = Vec::new();
-    for atlas in &lineage.atlases {
-        let mut labels: HashSet<&PText> = HashSet::new();
-        for entry in &atlas.entries {
-            refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
-            labels.insert(&entry.label);
-        }
-        presence.push(labels);
-    }
+    let presence = presence_of(lineage)?;
     let mut lines: Vec<String> = Vec::new();
     let mut returns = 0usize;
     let mut returned: HashSet<&PText> = HashSet::new();
@@ -678,6 +695,78 @@ pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     lines.push(format!(
         "returns counts, returns {returns}, entries returned {}",
         returned.len()
+    ));
+    Ok(lines)
+}
+
+/// Render the standing of a chain of atlases, where in
+/// the chain each entry stands.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and one line stands
+/// for each label in the order the labels first stand
+/// across the chain, naming the first atlas the entry
+/// stands in, the last atlas it stands in, the count of
+/// atlases it stands in, and whether it stands at the
+/// close, closing with the standing counts line. A
+/// hand-built lineage holding fewer than two atlases
+/// draws the refusal MY-13 states, and a label holding
+/// an unpaired surrogate draws the refusal PORT-11 names
+/// for that field, the labels read in chain order, atlas
+/// order then entry order.
+pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let mut order: Vec<&PText> = Vec::new();
+    let mut seen: HashSet<&PText> = HashSet::new();
+    for atlas in &lineage.atlases {
+        for entry in &atlas.entries {
+            if seen.insert(&entry.label) {
+                order.push(&entry.label);
+            }
+        }
+    }
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut at_every = 0usize;
+    let mut at_close = 0usize;
+    for label in &order {
+        let mut first = 0usize;
+        let mut last = 0usize;
+        let mut stood = 0usize;
+        for (index, labels) in presence.iter().enumerate() {
+            if labels.contains(label) {
+                if stood == 0 {
+                    first = index + 1;
+                }
+                last = index + 1;
+                stood += 1;
+            }
+        }
+        if stood == total {
+            at_every += 1;
+        }
+        let closes = last == total;
+        if closes {
+            at_close += 1;
+        }
+        lines.push(format!(
+            "entry {}, first stood at atlas {}, last stood at atlas {}, \
+             stands in {} atlases, {}",
+            label,
+            first,
+            last,
+            stood,
+            if closes {
+                "stands at the close"
+            } else {
+                "does not stand at the close"
+            }
+        ));
+    }
+    lines.push(format!(
+        "standing counts, atlases {total}, entries {}, \
+         standing at every atlas {at_every}, standing at the close {at_close}",
+        order.len()
     ));
     Ok(lines)
 }
