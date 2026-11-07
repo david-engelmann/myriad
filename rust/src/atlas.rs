@@ -19,8 +19,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 use crate::explorations::{
-    count_branches, count_by_state, format_counts, load_exploration_data, refuse_surrogate, Branch,
-    Exploration, State,
+    count_branches, count_by_state, format_counts, load_exploration_data, refuse_line_break,
+    refuse_surrogate, Branch, Exploration, State,
 };
 use crate::json::{parse_json, JsonValue};
 use crate::pytext::PText;
@@ -627,9 +627,13 @@ pub fn render_lineage(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// A hand-built lineage holding fewer than two atlases
 /// draws the refusal MY-13 states, and a label holding
 /// an unpaired surrogate draws the refusal PORT-11 names
-/// for that field, the labels read in chain order, atlas
-/// order then entry order. The returns reading and the
-/// standing reading both read presence through this one
+/// for that field, and a label holding a line break
+/// draws the refusal FIX-MY-13 names for that field, the
+/// labels read in chain order, atlas order then entry
+/// order, and each label read for a surrogate first and
+/// then for a line break, as the loader reads them. The
+/// returns reading, the standing reading, and the
+/// absence reading all read presence through this one
 /// pass, so the refusal text, the refusal order, and the
 /// per-atlas label sets stand in one home.
 fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
@@ -641,6 +645,10 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
         let mut labels: HashSet<&PText> = HashSet::new();
         for entry in &atlas.entries {
             refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
+            refuse_line_break(
+                &entry.label,
+                "an entry label holds a newline or a carriage return",
+            )?;
             labels.insert(&entry.label);
         }
         presence.push(labels);
@@ -662,8 +670,10 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 /// counts line. A hand-built lineage holding fewer than
 /// two atlases draws the refusal MY-13 states, and a label
 /// holding an unpaired surrogate draws the refusal
-/// PORT-11 names for that field, the labels read in chain
-/// order, atlas order then entry order.
+/// PORT-11 names for that field, and a label holding a
+/// line break draws the refusal FIX-MY-13 names for that
+/// field, the labels read in chain order, atlas order
+/// then entry order.
 pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let mut lines: Vec<String> = Vec::new();
@@ -735,8 +745,10 @@ fn first_standing_order(lineage: &Lineage) -> Vec<&PText> {
 /// hand-built lineage holding fewer than two atlases
 /// draws the refusal MY-13 states, and a label holding
 /// an unpaired surrogate draws the refusal PORT-11 names
-/// for that field, the labels read in chain order, atlas
-/// order then entry order.
+/// for that field, and a label holding a line break
+/// draws the refusal FIX-MY-13 names for that field, the
+/// labels read in chain order, atlas order then entry
+/// order.
 pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
@@ -804,8 +816,9 @@ pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// lineage holding fewer than two atlases draws the
 /// refusal MY-13 states, and a label holding an unpaired
 /// surrogate draws the refusal PORT-11 names for that
-/// field, the labels read in chain order, atlas order
-/// then entry order.
+/// field, and a label holding a line break draws the
+/// refusal FIX-MY-13 names for that field, the labels
+/// read in chain order, atlas order then entry order.
 pub fn render_absence(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);

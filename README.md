@@ -1,8 +1,8 @@
 # myriad
 
-Myriad is a Rust library and command line tool that reads recorded explorations of a question and atlases of explorations and prints readings over them.
+Myriad is a Rust library and command line tool that reads logs of branching investigations of a question, single investigations, sets of them, and chains of them logged over time, and prints readings over them.
 
-Myriad reads recorded files and prints readings over them. An exploration records the branches of one question, an atlas gathers labelled explorations under one title, and a lineage chains atlases in order, and the readings print the map of a tree, the changes between atlases, and the standings, returns, and absences of a chain. It works offline and makes no live calls, and the same file prints the same lines every time.
+Myriad reads recorded logs and prints readings over them. An exploration is the log of one branching investigation of a question, its branches the forks the investigation took as it ran. An atlas is a set of such logs standing together under one title, and a lineage is the same ground logged again at successive times, one atlas per logging, and the readings print the map of a tree, the changes between two loggings, and the standings, returns, and absences of a chain. It works offline and makes no live calls, and the same file prints the same lines every time.
 
 [![ci](https://github.com/david-engelmann/myriad/actions/workflows/ci.yml/badge.svg)](https://github.com/david-engelmann/myriad/actions/workflows/ci.yml)
 
@@ -279,6 +279,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 9 have closed, with all
 - Contract, MY-15 and MY-16 met. They stand in full form in CONTRACT.md, and Round 7 closed on the merged slice 8 after three reviews approving with no findings.
 - Contract, MY-17 and MY-18 met. They stand in full form in CONTRACT.md, and Round 8 closed on the merged slice 9 after three reviews, a repair pass, and an approving re-review.
 - Contract, MY-19 and MY-20 met. They stand in full form in CONTRACT.md, and Round 9 closed on the merged slice 10 after three reviews, with the red team's one library surface finding carried to Round 10 as a fencing component.
+- Contract, MY-21 and MY-22 now stand in full form in CONTRACT.md, and their standing is not claimed here, as Round 10 has not closed.
+- Slice 11 is built and in review. It carries the chain fencing closure of FIX-MY-13 that refuses a hand built lineage whose entry label holds a line break in the returns, standing, and absence readings, the investigation log example of the three loggings of one branching investigation with its golden standing, returns, and absence under examples, and the investigation log framing of the first screen and this status in the scoped terms of MY-22.
 - Slice 10 has landed. It carries the absence reading that reads the presence of every entry of a chain in every atlas of the chain and names each run of atlases an entry stands absent from after it has stood, the inside runs and the closing run told apart, with the golden absence of the winter, spring, and summer chain under examples, and it brings the README to the fleet README standard, with an install and a quickstart that run and the standing reading of the example chain standing as the captured output of its first screen.
 - Slice 9 has landed. It carries the standing reading that reads the presence of every entry of a chain in every atlas of the chain and names the first atlas each entry stands in, the last atlas it stands in, the count of atlases it stands in, and whether it stands at the close, with the golden standing of the winter, spring, and summer chain under examples.
 - Slice 8 has landed. It carries the returns reading that joins the presences of the entries of a chain across the whole chain and names each entry that stands again after an absence, with the golden returns of the winter, spring, and summer chain under examples.

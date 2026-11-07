@@ -1,0 +1,187 @@
+{
+  "atlases": [
+    {
+      "title": "Radio investigation, first logging",
+      "entries": [
+        {
+          "label": "radio check",
+          "exploration": {
+            "question": "Why does the harbour radio check fail on cold mornings",
+            "branches": [
+              {
+                "id": "check-list",
+                "parent": null,
+                "prompt": "What does the morning radio check cover",
+                "state": "open"
+              },
+              {
+                "id": "check-order",
+                "parent": "check-list",
+                "prompt": "In what order are the stations called",
+                "state": "open"
+              },
+              {
+                "id": "power",
+                "parent": null,
+                "prompt": "What powers the radio set overnight",
+                "state": "open"
+              }
+            ]
+          }
+        },
+        {
+          "label": "battery drain",
+          "exploration": {
+            "question": "Does the radio battery lose charge overnight in the cold",
+            "branches": [
+              {
+                "id": "drain-rate",
+                "parent": null,
+                "prompt": "How fast does the battery drain at low temperature",
+                "state": "taken",
+                "finding": "The battery loses a fifth of its charge on the coldest nights"
+              },
+              {
+                "id": "drain-shelter",
+                "parent": null,
+                "prompt": "Would a sheltered rack slow the drain",
+                "state": "open"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Radio investigation, second logging",
+      "entries": [
+        {
+          "label": "radio check",
+          "exploration": {
+            "question": "Why does the harbour radio check fail on cold mornings",
+            "branches": [
+              {
+                "id": "check-list",
+                "parent": null,
+                "prompt": "What does the morning radio check cover",
+                "state": "taken",
+                "finding": "The check covers the pier, the boat, and the office sets"
+              },
+              {
+                "id": "check-order",
+                "parent": "check-list",
+                "prompt": "In what order are the stations called",
+                "state": "open"
+              },
+              {
+                "id": "power",
+                "parent": null,
+                "prompt": "What powers the radio set overnight",
+                "state": "abandoned",
+                "reason": "The harbour office log already records the mains feed and the backup set"
+              }
+            ]
+          }
+        },
+        {
+          "label": "aerial icing",
+          "exploration": {
+            "question": "Does ice on the aerial cut the signal on cold mornings",
+            "branches": [
+              {
+                "id": "icing-sign",
+                "parent": null,
+                "prompt": "What does an iced aerial do to the signal",
+                "state": "open"
+              },
+              {
+                "id": "icing-melt",
+                "parent": null,
+                "prompt": "When does the ice clear as the morning warms",
+                "state": "open"
+              }
+            ]
+          }
+        },
+        {
+          "label": "log gaps",
+          "exploration": {
+            "question": "Where does the morning log lose entries",
+            "branches": [
+              {
+                "id": "gaps-pattern",
+                "parent": null,
+                "prompt": "Which mornings hold gaps in the log",
+                "state": "open"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Radio investigation, third logging",
+      "entries": [
+        {
+          "label": "radio check",
+          "exploration": {
+            "question": "Why does the harbour radio check fail on cold mornings",
+            "branches": [
+              {
+                "id": "check-list",
+                "parent": null,
+                "prompt": "What does the morning radio check cover",
+                "state": "taken",
+                "finding": "The check covers the pier, the boat, and the office sets"
+              },
+              {
+                "id": "check-order",
+                "parent": "check-list",
+                "prompt": "In what order are the stations called",
+                "state": "taken",
+                "finding": "The boat is called first, then the pier, then the office"
+              }
+            ]
+          }
+        },
+        {
+          "label": "battery drain",
+          "exploration": {
+            "question": "Does the radio battery lose charge overnight in the cold",
+            "branches": [
+              {
+                "id": "drain-rate",
+                "parent": null,
+                "prompt": "How fast does the battery drain at low temperature",
+                "state": "taken",
+                "finding": "The battery loses a fifth of its charge on the coldest nights"
+              },
+              {
+                "id": "drain-shelter",
+                "parent": null,
+                "prompt": "Would a sheltered rack slow the drain",
+                "state": "taken",
+                "finding": "A sheltered rack keeps the battery above the low charge line"
+              }
+            ]
+          }
+        },
+        {
+          "label": "log gaps",
+          "exploration": {
+            "question": "Where does the morning log lose entries",
+            "branches": [
+              {
+                "id": "gaps-pattern",
+                "parent": null,
+                "prompt": "Which mornings hold gaps in the log",
+                "state": "taken",
+                "finding": "The gaps stand on the mornings the relief operator covers"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
