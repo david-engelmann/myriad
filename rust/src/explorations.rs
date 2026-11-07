@@ -574,6 +574,17 @@ pub(crate) fn refuse_surrogate(text: &PText, refusal: &str) -> Result<(), String
     }
 }
 
+/// The refusal a reading returns when a value it prints
+/// holds a line break, naming the field as FIX-MY-13
+/// states the refusal.
+pub(crate) fn refuse_line_break(text: &PText, refusal: &str) -> Result<(), String> {
+    if text.holds_line_break() {
+        Err(refusal.to_string())
+    } else {
+        Ok(())
+    }
+}
+
 /// Render the indented tree map of an exploration.
 ///
 /// The finding and reason lines key on the branch state

@@ -83,6 +83,14 @@ fn contract_carries_the_round_nine_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_ten_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-21", "MY-22", "FIX-MY-13"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -171,8 +179,12 @@ fn readme_reports_the_slice_five_standing() {
     // consequence of the slice 10 status line, which
     // read built and in review while Round 9 was built,
     // until the Round 9 closure landed slice 10 and the
-    // count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // count returned to zero. It stands at one again as
+    // the named mechanical consequence of the slice 11
+    // status line, which reads built and in review while
+    // Round 10 is built, until the Round 10 closure
+    // lands slice 11 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at eleven, not ten, as a mechanical
     // consequence of the Round 9 closure. The slice 10 line
     // now also reads has landed, beside the port status
@@ -265,6 +277,52 @@ fn readme_reports_the_round_nine_status() {
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
     assert!(text.contains("Closed perfection rounds, 9 of 100"));
+}
+
+#[test]
+fn readme_reports_the_round_ten_slice() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-21 and MY-22 now stand in full form in \
+        CONTRACT.md, and their standing is not claimed here, as \
+        Round 10 has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 11 is built and in review. It carries the chain \
+        fencing closure of FIX-MY-13 that refuses a hand built lineage \
+        whose entry label holds a line break in the returns, standing, \
+        and absence readings, the investigation log example of the three \
+        loggings of one branching investigation with its golden standing, \
+        returns, and absence under examples, and the investigation log \
+        framing of the first screen and this status in the scoped terms \
+        of MY-22.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+}
+
+#[test]
+fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
+    let description = "Myriad is a Rust library and command line tool that \
+        reads logs of branching investigations of a question, single \
+        investigations, sets of them, and chains of them logged over \
+        time, and prints readings over them.";
+    let readme = read("README.md");
+    assert!(carries_line(&readme, description));
+    let manifest = read("Cargo.toml");
+    let field = manifest
+        .lines()
+        .find(|line| line.starts_with("description = "))
+        .expect("the metadata carries a description field");
+    let carried = field
+        .trim_start_matches("description = \"")
+        .trim_end_matches('"');
+    assert_eq!(carried, description);
+}
+
+#[test]
+fn readme_states_the_investigation_log_scoping() {
+    let text = read("README.md");
+    assert!(text.contains("An exploration is the log of one branching investigation of a question"));
+    assert!(text.contains("An atlas is a set of such logs standing together"));
+    assert!(text.contains("a lineage is the same ground logged again at successive times"));
 }
 
 #[test]
