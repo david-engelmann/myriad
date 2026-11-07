@@ -9,7 +9,9 @@
 //! all, and its readings are the changelogs of its steps
 //! composed and the returns of the chain, the entries that
 //! stand again after an absence, and the standing of the
-//! chain, where in the chain each entry stands. The loader
+//! chain, where in the chain each entry stands, and the
+//! absence of the chain, the runs of atlases each entry
+//! stands absent from. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -699,6 +701,27 @@ pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// The labels of a chain in the order they first stand
+/// across it, the atlases read in chain order and the
+/// entries of each atlas read in the order they stand in
+/// it, the first standing of a label fixing its place.
+///
+/// The standing reading and the absence reading both read
+/// their lines in this order, so the order stands in one
+/// home.
+fn first_standing_order(lineage: &Lineage) -> Vec<&PText> {
+    let mut order: Vec<&PText> = Vec::new();
+    let mut seen: HashSet<&PText> = HashSet::new();
+    for atlas in &lineage.atlases {
+        for entry in &atlas.entries {
+            if seen.insert(&entry.label) {
+                order.push(&entry.label);
+            }
+        }
+    }
+    order
+}
+
 /// Render the standing of a chain of atlases, where in
 /// the chain each entry stands.
 ///
@@ -716,15 +739,7 @@ pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// order then entry order.
 pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
-    let mut order: Vec<&PText> = Vec::new();
-    let mut seen: HashSet<&PText> = HashSet::new();
-    for atlas in &lineage.atlases {
-        for entry in &atlas.entries {
-            if seen.insert(&entry.label) {
-                order.push(&entry.label);
-            }
-        }
-    }
+    let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
     let mut lines: Vec<String> = Vec::new();
     let mut at_every = 0usize;
@@ -767,6 +782,82 @@ pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
         "standing counts, atlases {total}, entries {}, \
          standing at every atlas {at_every}, standing at the close {at_close}",
         order.len()
+    ));
+    Ok(lines)
+}
+
+/// Render the absence of a chain of atlases, the runs of
+/// atlases each entry stands absent from.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and one line stands
+/// for each absence run of the chain in the order the
+/// labels first stand across the chain, the runs of one
+/// label in chain order. An absence run is a run of one
+/// or more atlases in a row in which the label does not
+/// stand, where the atlas immediately before the run is
+/// one the label stands in, and a run that reaches the
+/// last atlas of the chain closes with the words to the
+/// close. The atlases before the first atlas a label
+/// stands in hold no run of that label. The reading
+/// closes with the absence counts line. A hand-built
+/// lineage holding fewer than two atlases draws the
+/// refusal MY-13 states, and a label holding an unpaired
+/// surrogate draws the refusal PORT-11 names for that
+/// field, the labels read in chain order, atlas order
+/// then entry order.
+pub fn render_absence(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut runs = 0usize;
+    let mut with_absences = 0usize;
+    let mut absent_at_close = 0usize;
+    for label in &order {
+        let mut label_runs = 0usize;
+        let mut stood_before = false;
+        let mut index = 0usize;
+        while index < total {
+            if presence[index].contains(label) {
+                stood_before = true;
+                index += 1;
+                continue;
+            }
+            if !stood_before {
+                index += 1;
+                continue;
+            }
+            let start = index;
+            while index < total && !presence[index].contains(label) {
+                index += 1;
+            }
+            runs += 1;
+            label_runs += 1;
+            if index == total {
+                absent_at_close += 1;
+                lines.push(format!(
+                    "entry {}, absent from atlas {}, for {} atlases, to the close",
+                    label,
+                    start + 1,
+                    index - start
+                ));
+            } else {
+                lines.push(format!(
+                    "entry {}, absent from atlas {}, for {} atlases",
+                    label,
+                    start + 1,
+                    index - start
+                ));
+            }
+        }
+        if label_runs > 0 {
+            with_absences += 1;
+        }
+    }
+    lines.push(format!(
+        "absence counts, absences {runs}, entries with absences {with_absences}, \
+         absent at the close {absent_at_close}"
     ));
     Ok(lines)
 }
