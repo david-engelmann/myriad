@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
 
 #[test]
@@ -183,14 +183,19 @@ fn readme_reports_the_slice_five_standing() {
     // the named mechanical consequence of the slice 11
     // status line, which reads built and in review while
     // Round 10 is built, until the Round 10 closure
-    // lands slice 11 and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at eleven, not ten, as a mechanical
-    // consequence of the Round 9 closure. The slice 10 line
+    // lands slice 11 and the count returns to zero. It
+    // stands at zero again as the named mechanical
+    // consequence of the slice 11 status line, which
+    // read built and in review while Round 10 was built,
+    // until the Round 10 closure landed slice 11 and the
+    // count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at twelve, not eleven, as a mechanical
+    // consequence of the Round 10 closure. The slice 11 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 11);
+    assert_eq!(text.matches("has landed").count(), 12);
 }
 
 #[test]
@@ -206,7 +211,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
 
 #[test]
@@ -255,7 +260,7 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
 
 #[test]
@@ -276,17 +281,19 @@ fn readme_reports_the_round_nine_status() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
 
 #[test]
-fn readme_reports_the_round_ten_slice() {
+fn readme_reports_the_round_ten_status() {
     let text = read("README.md");
-    let standing = "- Contract, MY-21 and MY-22 now stand in full form in \
-        CONTRACT.md, and their standing is not claimed here, as \
-        Round 10 has not closed.";
+    let standing = "- Contract, MY-21 and MY-22 met. They stand in full form in \
+        CONTRACT.md, and Round 10 closed on the merged slice 11 after \
+        three reviews, with the red team's observation on the non \
+        chain renderings carried to a later round as a fencing \
+        candidate.";
     assert!(carries_line(&text, standing));
-    let expected = "- Slice 11 is built and in review. It carries the chain \
+    let expected = "- Slice 11 has landed. It carries the chain \
         fencing closure of FIX-MY-13 that refuses a hand built lineage \
         whose entry label holds a line break in the returns, standing, \
         and absence readings, the investigation log example of the three \
@@ -295,7 +302,7 @@ fn readme_reports_the_round_ten_slice() {
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 9 of 100"));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
 
 #[test]
