@@ -75,6 +75,14 @@ fn contract_carries_the_round_eight_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_nine_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-19", "MY-20"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -158,8 +166,13 @@ fn readme_reports_the_slice_five_standing() {
     // again as the named mechanical consequence of the
     // slice 9 status line, which read built and in review
     // while Round 8 was built, until the Round 8 closure
-    // landed slice 9 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // landed slice 9 and the count returned to zero. It
+    // stands at one again as the named mechanical
+    // consequence of the slice 10 status line, which
+    // reads built and in review while Round 9 is built,
+    // until the Round 9 closure lands slice 10 and the
+    // count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at ten, not nine, as a mechanical
     // consequence of the Round 8 closure. The slice 9 line
     // now also reads has landed, beside the port status
@@ -231,6 +244,21 @@ fn readme_reports_the_round_eight_status() {
         under examples.";
     assert!(carries_line(&text, expected));
     assert!(text.contains("Closed perfection rounds, 8 of 100"));
+}
+
+#[test]
+fn readme_reports_the_round_nine_slice() {
+    let text = read("README.md");
+    let expected = "- Slice 10 is built and in review. It carries the absence \
+        reading that reads the presence of every entry of a chain in \
+        every atlas of the chain and names each run of atlases an entry \
+        stands absent from after it has stood, the inside runs and the \
+        closing run told apart, with the golden absence of the winter, \
+        spring, and summer chain under examples, and it brings the \
+        README to the fleet README standard, with an install and a \
+        quickstart that run and the standing reading of the example \
+        chain standing as the captured output of its first screen.";
+    assert!(carries_line(&text, expected));
 }
 
 #[test]

@@ -2,6 +2,7 @@
 name = "myriad"
 version = "0.1.0"
 edition = "2021"
+description = "Myriad is a Rust library and command line tool that reads recorded explorations of a question and atlases of explorations and prints readings over them."
 
 [lib]
 path = "rust/src/lib.rs"
@@ -141,6 +142,18 @@ path = "rust/tests/test_cli_round8.rs"
 [[test]]
 name = "test_examples_round8"
 path = "rust/tests/test_examples_round8.rs"
+
+[[test]]
+name = "test_absence"
+path = "rust/tests/test_absence.rs"
+
+[[test]]
+name = "test_cli_round9"
+path = "rust/tests/test_cli_round9.rs"
+
+[[test]]
+name = "test_examples_round9"
+path = "rust/tests/test_examples_round9.rs"
 
 [[test]]
 name = "test_binary_surface"
