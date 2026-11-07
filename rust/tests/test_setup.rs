@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 8 of 100"));
+    assert!(text.contains("Closed perfection rounds, 9 of 100"));
 }
 
 #[test]
@@ -167,18 +167,18 @@ fn readme_reports_the_slice_five_standing() {
     // slice 9 status line, which read built and in review
     // while Round 8 was built, until the Round 8 closure
     // landed slice 9 and the count returned to zero. It
-    // stands at one again as the named mechanical
+    // stands at zero again as the named mechanical
     // consequence of the slice 10 status line, which
-    // reads built and in review while Round 9 is built,
-    // until the Round 9 closure lands slice 10 and the
-    // count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at ten, not nine, as a mechanical
-    // consequence of the Round 8 closure. The slice 9 line
+    // read built and in review while Round 9 was built,
+    // until the Round 9 closure landed slice 10 and the
+    // count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at eleven, not ten, as a mechanical
+    // consequence of the Round 9 closure. The slice 10 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 10);
+    assert_eq!(text.matches("has landed").count(), 11);
 }
 
 #[test]
@@ -194,7 +194,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 8 of 100"));
+    assert!(text.contains("Closed perfection rounds, 9 of 100"));
 }
 
 #[test]
@@ -243,13 +243,18 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 8 of 100"));
+    assert!(text.contains("Closed perfection rounds, 9 of 100"));
 }
 
 #[test]
-fn readme_reports_the_round_nine_slice() {
+fn readme_reports_the_round_nine_status() {
     let text = read("README.md");
-    let expected = "- Slice 10 is built and in review. It carries the absence \
+    let standing = "- Contract, MY-19 and MY-20 met. They stand in full form in \
+        CONTRACT.md, and Round 9 closed on the merged slice 10 after \
+        three reviews, with the red team's one library surface \
+        finding carried to Round 10 as a fencing component.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 10 has landed. It carries the absence \
         reading that reads the presence of every entry of a chain in \
         every atlas of the chain and names each run of atlases an entry \
         stands absent from after it has stood, the inside runs and the \
@@ -259,6 +264,7 @@ fn readme_reports_the_round_nine_slice() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 9 of 100"));
 }
 
 #[test]

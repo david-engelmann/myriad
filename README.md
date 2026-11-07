@@ -265,11 +265,11 @@ absence counts, absences 2, entries with absences 2, absent at the close 1
 
 ## Status
 
-Seeded in October 2026. Setup has landed and Rounds 1 to 8 have closed, with all slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
+Seeded in October 2026. Setup has landed and Rounds 1 to 9 have closed, with all slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
 
 ## Programme status
 
-- Closed perfection rounds, 8 of 100. A round counts only when a full cycle of work, audit, review, red team, and approval has closed. Seeding and setup are not rounds.
+- Closed perfection rounds, 9 of 100. A round counts only when a full cycle of work, audit, review, red team, and approval has closed. Seeding and setup are not rounds.
 - Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. MY-1 to MY-4 stand in full form in CONTRACT.md with the Round 1 repair amendments, and Round 1 closed on the merged slice 2 after three reviews, a repair pass, and an approving re-review.
 - Contract, MY-5 and MY-6 met. They stand in full form in CONTRACT.md with the Round 2 repair amendments, and Round 2 closed on the merged slice 3 after three reviews, two repair passes, and two re-reviews, the second approving with no findings.
 - Contract, MY-7 and MY-8 met. They stand in full form in CONTRACT.md with the Round 3 repair amendments, and Round 3 closed on the merged slice 4 after three reviews, a repair pass, and an approving re-review.
@@ -278,7 +278,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 8 have closed, with all
 - Contract, MY-13 and MY-14 met. They stand in full form in CONTRACT.md, and Round 6 closed on the merged slice 7 after three reviews approving with no findings.
 - Contract, MY-15 and MY-16 met. They stand in full form in CONTRACT.md, and Round 7 closed on the merged slice 8 after three reviews approving with no findings.
 - Contract, MY-17 and MY-18 met. They stand in full form in CONTRACT.md, and Round 8 closed on the merged slice 9 after three reviews, a repair pass, and an approving re-review.
-- Slice 10 is built and in review. It carries the absence reading that reads the presence of every entry of a chain in every atlas of the chain and names each run of atlases an entry stands absent from after it has stood, the inside runs and the closing run told apart, with the golden absence of the winter, spring, and summer chain under examples, and it brings the README to the fleet README standard, with an install and a quickstart that run and the standing reading of the example chain standing as the captured output of its first screen.
+- Contract, MY-19 and MY-20 met. They stand in full form in CONTRACT.md, and Round 9 closed on the merged slice 10 after three reviews, with the red team's one library surface finding carried to Round 10 as a fencing component.
+- Slice 10 has landed. It carries the absence reading that reads the presence of every entry of a chain in every atlas of the chain and names each run of atlases an entry stands absent from after it has stood, the inside runs and the closing run told apart, with the golden absence of the winter, spring, and summer chain under examples, and it brings the README to the fleet README standard, with an install and a quickstart that run and the standing reading of the example chain standing as the captured output of its first screen.
 - Slice 9 has landed. It carries the standing reading that reads the presence of every entry of a chain in every atlas of the chain and names the first atlas each entry stands in, the last atlas it stands in, the count of atlases it stands in, and whether it stands at the close, with the golden standing of the winter, spring, and summer chain under examples.
 - Slice 8 has landed. It carries the returns reading that joins the presences of the entries of a chain across the whole chain and names each entry that stands again after an absence, with the golden returns of the winter, spring, and summer chain under examples.
 - Slice 7 has landed. It carries the atlas lineage that reads a chain of atlases as the changelogs of its steps composed and closes a longer chain with the summed counts of its steps, with the winter atlas, its spring successor, and the summer successor and their golden lineage under examples.
