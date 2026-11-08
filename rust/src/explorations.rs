@@ -585,12 +585,91 @@ pub(crate) fn refuse_line_break(text: &PText, refusal: &str) -> Result<(), Strin
     }
 }
 
+/// Read one field of a hand built value for an unpaired
+/// surrogate first and then for a line break, the order
+/// the loader reads a field, drawing the refusal
+/// PORT-11 names for the field and then the refusal
+/// FIX-MY-14 names for it.
+pub(crate) fn refuse_field(text: &PText, surrogate: &str, line_break: &str) -> Result<(), String> {
+    refuse_surrogate(text, surrogate)?;
+    refuse_line_break(text, line_break)
+}
+
+/// The one pass over an exploration the renderings of
+/// the exploration family read before they render,
+/// under FIX-MY-14.
+///
+/// The pass reads the question first, then the branches
+/// in the order they stand in the exploration, and
+/// inside a branch the id, the parent when the branch
+/// holds one, the prompt, the claim when the branch
+/// holds one, and the finding and the reason when the
+/// branch holds them, the order the loader reads the
+/// fields of a branch. The pass reads the parent
+/// although no rendering of this family prints one,
+/// because the changelog prints a parent and the field
+/// order of a branch stands in one home for the two
+/// families, and because a pass reads the fields a
+/// value holds and not the lines a rendering prints.
+pub(crate) fn refuse_exploration_fields(exploration: &Exploration) -> Result<(), String> {
+    refuse_field(
+        &exploration.question,
+        "the question holds an unpaired surrogate",
+        "the question holds a newline or a carriage return",
+    )?;
+    for branch in &exploration.branches {
+        refuse_field(
+            &branch.id,
+            "a branch id holds an unpaired surrogate",
+            "a branch id holds a newline or a carriage return",
+        )?;
+        if let Some(parent) = &branch.parent {
+            refuse_field(
+                parent,
+                "a branch parent holds an unpaired surrogate",
+                "a branch parent holds a newline or a carriage return",
+            )?;
+        }
+        refuse_field(
+            &branch.prompt,
+            "a branch prompt holds an unpaired surrogate",
+            "a branch prompt holds a newline or a carriage return",
+        )?;
+        if let Some(claim) = &branch.claim {
+            refuse_field(
+                claim,
+                "a claim holds an unpaired surrogate",
+                "a claim holds a newline or a carriage return",
+            )?;
+        }
+        if let Some(finding) = &branch.finding {
+            refuse_field(
+                finding,
+                "a finding holds an unpaired surrogate",
+                "a finding holds a newline or a carriage return",
+            )?;
+        }
+        if let Some(reason) = &branch.reason {
+            refuse_field(
+                reason,
+                "a reason holds an unpaired surrogate",
+                "a reason holds a newline or a carriage return",
+            )?;
+        }
+    }
+    Ok(())
+}
+
 /// Render the indented tree map of an exploration.
 ///
 /// The finding and reason lines key on the branch state
 /// alone, and a hand-built value that breaks the loader
-/// preconditions draws the refusal PORT-11 states.
+/// preconditions draws the refusal PORT-11 states. The
+/// one pass of FIX-MY-14 stands before the rendering,
+/// so a field holding a line break draws its refusal
+/// there, in the field order the pass reads.
 pub fn render_map(exploration: &Exploration) -> Result<Vec<String>, String> {
+    refuse_exploration_fields(exploration)?;
     refuse_surrogate(
         &exploration.question,
         "the question holds an unpaired surrogate",
@@ -686,6 +765,7 @@ fn group_refs<'a>(branches: &[&'a Branch]) -> (Vec<(PText, Vec<&'a Branch>)>, Ve
 
 /// Render the claims listing of an exploration.
 pub fn render_claims(exploration: &Exploration) -> Result<Vec<String>, String> {
+    refuse_exploration_fields(exploration)?;
     refuse_surrogate(
         &exploration.question,
         "the question holds an unpaired surrogate",
@@ -715,8 +795,11 @@ pub fn render_claims(exploration: &Exploration) -> Result<Vec<String>, String> {
 /// The closed sections read the finding or the reason the
 /// branch state names, and a hand-built value that breaks
 /// the loader preconditions draws the refusal PORT-11
-/// states instead of failing at the process level.
+/// states instead of failing at the process level. The
+/// one pass of FIX-MY-14 stands before the rendering, so
+/// a field holding a line break draws its refusal there.
 pub fn render_census(exploration: &Exploration) -> Result<Vec<String>, String> {
+    refuse_exploration_fields(exploration)?;
     refuse_surrogate(
         &exploration.question,
         "the question holds an unpaired surrogate",

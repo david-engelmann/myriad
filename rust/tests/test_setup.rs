@@ -91,6 +91,14 @@ fn contract_carries_the_round_ten_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_eleven_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-23", "MY-24", "FIX-MY-14"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn readme_reports_the_contract_status() {
     let text = read("README.md");
     let expected = "- Contract, SETUP-1 to SETUP-4 and MY-1 to MY-4 met. \
@@ -188,8 +196,12 @@ fn readme_reports_the_slice_five_standing() {
     // consequence of the slice 11 status line, which
     // read built and in review while Round 10 was built,
     // until the Round 10 closure landed slice 11 and the
-    // count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // count returned to zero. It stands at one again as
+    // the named mechanical consequence of the slice 12
+    // status line, which reads built and in review while
+    // Round 11 is built, until the Round 11 closure
+    // lands slice 12 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at twelve, not eleven, as a mechanical
     // consequence of the Round 10 closure. The slice 11 line
     // now also reads has landed, beside the port status
@@ -301,6 +313,27 @@ fn readme_reports_the_round_ten_status() {
         returns, and absence under examples, and the investigation log \
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+}
+
+#[test]
+fn readme_reports_the_round_eleven_slice() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-23 and MY-24 now stand in full form in \
+        CONTRACT.md, and their standing is not claimed here, as \
+        Round 11 has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 12 is built and in review. It carries the rendering \
+        fencing closure of FIX-MY-14 that refuses a hand built value \
+        whose printed field holds a line break in the map, claims, \
+        census, atlas, index, and changelog renderings and in the \
+        lineage through them, and the arrivals reading that reads the \
+        presence of every entry of a chain in the one presence pass \
+        and names the entries arriving at each atlas in the lines of \
+        their standing, with the golden arrivals of the winter, spring, \
+        and summer chain and of the radio investigation chain under \
+        examples.";
     assert!(carries_line(&text, expected));
     assert!(text.contains("Closed perfection rounds, 10 of 100"));
 }
