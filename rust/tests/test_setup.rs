@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
@@ -205,18 +205,18 @@ fn readme_reports_the_slice_five_standing() {
     // consequence of the slice 12 status line, which
     // read built and in review while Round 11 was built,
     // until the Round 11 closure landed slice 12 and the
-    // count returned to zero. It stands at one again as
+    // count returned to zero. It stood at one again as
     // the named mechanical consequence of the slice 13
-    // status line, which reads built and in review while
-    // Round 12 is built, until the Round 12 closure
-    // lands slice 13 and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at thirteen, not twelve, as a mechanical
-    // consequence of the Round 11 closure. The slice 12 line
+    // status line, which read built and in review while
+    // Round 12 was built, until the Round 12 closure
+    // landed slice 13 and the count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at fourteen, not thirteen, as a mechanical
+    // consequence of the Round 12 closure. The slice 13 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 13);
+    assert_eq!(text.matches("has landed").count(), 14);
 }
 
 #[test]
@@ -232,7 +232,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
@@ -281,7 +281,7 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
@@ -302,7 +302,7 @@ fn readme_reports_the_round_nine_status() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
@@ -323,7 +323,7 @@ fn readme_reports_the_round_ten_status() {
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
@@ -346,17 +346,18 @@ fn readme_reports_the_round_eleven_status() {
         and summer chain and of the radio investigation chain under \
         examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
-fn readme_reports_the_round_twelve_slice() {
+fn readme_reports_the_round_twelve_status() {
     let text = read("README.md");
-    let standing = "- Contract, MY-25 and MY-26 now stand in full form in \
-        CONTRACT.md, and their standing is not claimed here, as \
-        Round 12 has not closed.";
+    let standing = "- Contract, MY-25 and MY-26 met. They stand in full form in \
+        CONTRACT.md, and Round 12 closed on the merged slice 13 after \
+        three reviews, with the red team's duplicated label finding \
+        repaired under FIX-MY-17.";
     assert!(carries_line(&text, standing));
-    let expected = "- Slice 13 is built and in review. It carries the formats \
+    let expected = "- Slice 13 has landed. It carries the formats \
         amendment of FIX-MY-15 that names the three formats at version 1 \
         in one consolidated section of the contract, the value semantics \
         settlement of FIX-MY-16 that settles the cloning, the equality, \
@@ -369,7 +370,7 @@ fn readme_reports_the_round_twelve_slice() {
         family, one chain of eight loggings at the stated shapes with \
         the goldens of its five chain readings under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+    assert!(text.contains("Closed perfection rounds, 12 of 100"));
 }
 
 #[test]
