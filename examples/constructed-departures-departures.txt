@@ -1,0 +1,6 @@
+atlas 1
+entry solo line, first stood at atlas 1, last stood at atlas 1, stands in 1 atlases, does not stand at the close
+atlas 2
+entry middle line, first stood at atlas 1, last stood at atlas 2, stands in 2 atlases, does not stand at the close
+atlas 3
+departures counts, atlas 1 departures 1, atlas 2 departures 1, atlas 3 departures 0, entries departed 2, entries 4, atlases 3

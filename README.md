@@ -16,7 +16,7 @@ standing counts, atlases 3, entries 4, standing at every atlas 2, standing at th
 
 ## Install
 
-Build from source with a Rust toolchain.
+Build from source with a current stable Rust toolchain. The crate is edition 2021, and the gate tests on Rust 1.91.1, the toolchain the workflow pins.
 
 ```sh
 git clone https://github.com/david-engelmann/myriad.git
@@ -45,6 +45,36 @@ standing counts, atlases 3, entries 4, standing at every atlas 2, standing at th
 ## Usage
 
 The readings read three kinds of file. An exploration file holds one question and a list of branches that form a tree. Each branch holds an id, a parent that is null for a root branch or the id of another branch, a prompt, and a state of open, taken, or abandoned. A taken branch holds a finding, an abandoned branch holds a reason, and an open branch holds neither. A branch in any state may hold a claim, the label of the fork that claimed the branch. An atlas file holds a title and a list of entries, and each entry holds a label and one exploration embedded whole. A lineage file holds two or more atlases embedded whole in chain order.
+
+One exploration file, whole:
+
+```json
+{
+  "question": "Which week does the harbour ice survey run",
+  "branches": [
+    {
+      "id": "root-q",
+      "parent": null,
+      "prompt": "Which week does the harbour ice survey run",
+      "state": "open"
+    },
+    {
+      "id": "ice-depth",
+      "parent": "root-q",
+      "prompt": "What does the ice gauge read at the pier",
+      "state": "taken",
+      "finding": "The ice gauge reads forty centimetres at the pier"
+    },
+    {
+      "id": "ferry-house",
+      "parent": "root-q",
+      "prompt": "Can the survey crew stay at the old ferry house",
+      "state": "abandoned",
+      "reason": "The ferry house roof failed its survey in October"
+    }
+  ]
+}
+```
 
 Each file loads whole or not at all. A command over a malformed file prints an invalid line and then one defect line for each defect and exits with status one, and a sound file exits with status zero. The loader names every malformed field and structural defect it finds, among them a duplicate branch id, a parent that names no branch, a cycle in a parent chain, and a duplicate entry label in an atlas.
 
@@ -262,6 +292,24 @@ entry harbour lights, absent from atlas 2, for 1 atlases
 entry ice report, absent from atlas 3, for 1 atlases, to the close
 absence counts, absences 2, entries with absences 2, absent at the close 1
 ```
+### arrivals
+
+The arrivals of a chain, one section for each atlas holding the entries that first stand at that atlas, in the line the standing reading states for each entry.
+
+```sh
+./target/release/myriad arrivals examples/winter-spring-summer-lineage.json
+```
+
+```text
+atlas 1
+entry ferry link, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+atlas 2
+entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+atlas 3
+arrivals counts, atlas 1 arrivals 3, atlas 2 arrivals 1, atlas 3 arrivals 0, entries 4, atlases 3
+```
 
 ## Status
 
@@ -281,6 +329,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 11 have closed, with al
 - Contract, MY-19 and MY-20 met. They stand in full form in CONTRACT.md, and Round 9 closed on the merged slice 10 after three reviews, with the red team's one library surface finding carried to Round 10 as a fencing component.
 - Contract, MY-21 and MY-22 met. They stand in full form in CONTRACT.md, and Round 10 closed on the merged slice 11 after three reviews, with the red team's observation on the non chain renderings carried to a later round as a fencing candidate.
 - Contract, MY-23 and MY-24 met. They stand in full form in CONTRACT.md, and Round 11 closed on the merged slice 12 after three reviews, with the red team's observation on the JsonValue value semantics carried to a later round as a repair candidate.
+- Contract, MY-25 and MY-26 now stand in full form in CONTRACT.md, and their standing is not claimed here, as Round 12 has not closed.
+- Slice 13 is built and in review. It carries the formats amendment of FIX-MY-15 that names the three formats at version 1 in one consolidated section of the contract, the value semantics settlement of FIX-MY-16 that settles the cloning, the equality, and the formatting of a value at the depth the parser admits, the departures reading of MY-26 that names the entries that stand in no later atlas after the atlas they were last seen in, with its goldens under examples, the documentation repairs of the arrivals section, the worked example, the toolchain floor, the annex, and the settled wording, and the generated fixture family, one chain of eight loggings at the stated shapes with the goldens of its five chain readings under examples.
 - Slice 12 has landed. It carries the rendering fencing closure of FIX-MY-14 that refuses a hand built value whose printed field holds a line break in the map, claims, census, atlas, index, and changelog renderings and in the lineage through them, and the arrivals reading that reads the presence of every entry of a chain in the one presence pass and names the entries arriving at each atlas in the lines of their standing, with the golden arrivals of the winter, spring, and summer chain and of the radio investigation chain under examples.
 - Slice 11 has landed. It carries the chain fencing closure of FIX-MY-13 that refuses a hand built lineage whose entry label holds a line break in the returns, standing, and absence readings, the investigation log example of the three loggings of one branching investigation with its golden standing, returns, and absence under examples, and the investigation log framing of the first screen and this status in the scoped terms of MY-22.
 - Slice 10 has landed. It carries the absence reading that reads the presence of every entry of a chain in every atlas of the chain and names each run of atlases an entry stands absent from after it has stood, the inside runs and the closing run told apart, with the golden absence of the winter, spring, and summer chain under examples, and it brings the README to the fleet README standard, with an install and a quickstart that run and the standing reading of the example chain standing as the captured output of its first screen.

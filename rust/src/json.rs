@@ -15,6 +15,9 @@
 //! the value drops through an explicit work list, so neither
 //! direction leans on the call stack.
 
+use std::fmt;
+use std::fmt::Write as _;
+
 use crate::pytext::PText;
 
 /// The deepest nesting the reading accepts, measured through
@@ -38,7 +41,11 @@ pub enum Num {
 }
 
 /// A parsed JSON value.
-#[derive(Clone, Debug, PartialEq)]
+///
+/// The Clone, PartialEq, and Debug behaviours stand as
+/// manual implementations below, over explicit stacks, so
+/// each settles at the reading's own depth boundary under
+/// FIX-MY-16, where the derived forms recursed.
 pub enum JsonValue {
     /// The null literal.
     Null,
@@ -86,6 +93,191 @@ impl Drop for JsonValue {
             // The emptied shell drops here without recursion,
             // because its own children already moved out.
         }
+    }
+}
+
+impl Clone for JsonValue {
+    fn clone(&self) -> JsonValue {
+        // The copy is assembled bottom up over an explicit
+        // stack of steps, so cloning a value nested to the
+        // reading's boundary cannot grow the call stack, the
+        // protection FIX-MY-16 settles beside the explicit
+        // stack of the parse and the work list of the Drop.
+        enum Step<'a> {
+            Enter(&'a JsonValue),
+            FinishArray(usize),
+            FinishObject(&'a [(PText, JsonValue)]),
+        }
+        let mut steps: Vec<Step<'_>> = vec![Step::Enter(self)];
+        let mut done: Vec<JsonValue> = Vec::new();
+        while let Some(step) = steps.pop() {
+            match step {
+                Step::Enter(value) => match value {
+                    JsonValue::Null => done.push(JsonValue::Null),
+                    JsonValue::Bool(flag) => done.push(JsonValue::Bool(*flag)),
+                    JsonValue::Num(number) => done.push(JsonValue::Num(number.clone())),
+                    JsonValue::Str(text) => done.push(JsonValue::Str(text.clone())),
+                    JsonValue::Arr(items) => {
+                        steps.push(Step::FinishArray(items.len()));
+                        for item in items.iter().rev() {
+                            steps.push(Step::Enter(item));
+                        }
+                    }
+                    JsonValue::Obj(pairs) => {
+                        steps.push(Step::FinishObject(pairs));
+                        for (_, item) in pairs.iter().rev() {
+                            steps.push(Step::Enter(item));
+                        }
+                    }
+                },
+                Step::FinishArray(count) => {
+                    let children = done.split_off(done.len() - count);
+                    done.push(JsonValue::Arr(children));
+                }
+                Step::FinishObject(pairs) => {
+                    let values = done.split_off(done.len() - pairs.len());
+                    let copied: Vec<(PText, JsonValue)> = pairs
+                        .iter()
+                        .map(|(key, _)| key.clone())
+                        .zip(values)
+                        .collect();
+                    done.push(JsonValue::Obj(copied));
+                }
+            }
+        }
+        done.pop().expect("the walk completes the root value")
+    }
+}
+
+impl PartialEq for JsonValue {
+    fn eq(&self, other: &JsonValue) -> bool {
+        // The derived semantics stand exactly, the same
+        // variant, object pairs in document order, an integer
+        // by its literal text, a float by the equality of its
+        // double, so a NaN stands unequal to itself. The pairs
+        // walk an explicit stack, so the comparison settles at
+        // the reading's boundary as FIX-MY-16 states.
+        let mut pairs: Vec<(&JsonValue, &JsonValue)> = vec![(self, other)];
+        while let Some((left, right)) = pairs.pop() {
+            match (left, right) {
+                (JsonValue::Null, JsonValue::Null) => {}
+                (JsonValue::Bool(a), JsonValue::Bool(b)) => {
+                    if a != b {
+                        return false;
+                    }
+                }
+                (JsonValue::Num(a), JsonValue::Num(b)) => {
+                    if a != b {
+                        return false;
+                    }
+                }
+                (JsonValue::Str(a), JsonValue::Str(b)) => {
+                    if a != b {
+                        return false;
+                    }
+                }
+                (JsonValue::Arr(a), JsonValue::Arr(b)) => {
+                    if a.len() != b.len() {
+                        return false;
+                    }
+                    pairs.extend(a.iter().zip(b.iter()));
+                }
+                (JsonValue::Obj(a), JsonValue::Obj(b)) => {
+                    if a.len() != b.len() {
+                        return false;
+                    }
+                    for ((key_a, value_a), (key_b, value_b)) in a.iter().zip(b.iter()) {
+                        if key_a != key_b {
+                            return false;
+                        }
+                        pairs.push((value_a, value_b));
+                    }
+                }
+                _ => return false,
+            }
+        }
+        true
+    }
+}
+
+impl fmt::Debug for JsonValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // The output is the derived form's plain output byte
+        // for byte, the container structure written
+        // iteratively over an explicit stack of jobs while
+        // each leaf formats through its own Debug, so a value
+        // nested to the boundary formats whole. The derived
+        // alternate pretty form is not reproduced, and the
+        // plain form stands under both flags, the one
+        // deliberate deviation FIX-MY-16 names.
+        enum Job<'a> {
+            Value(&'a JsonValue),
+            Literal(&'static str),
+            Number(&'a Num),
+            Text(&'a PText),
+        }
+        let mut out = String::new();
+        let mut jobs: Vec<Job<'_>> = vec![Job::Value(self)];
+        while let Some(job) = jobs.pop() {
+            match job {
+                Job::Literal(text) => out.push_str(text),
+                Job::Number(number) => {
+                    let _ = write!(out, "{number:?}");
+                }
+                Job::Text(text) => {
+                    let _ = write!(out, "{text:?}");
+                }
+                Job::Value(value) => match value {
+                    JsonValue::Null => out.push_str("Null"),
+                    JsonValue::Bool(flag) => {
+                        out.push_str(if *flag { "Bool(true)" } else { "Bool(false)" });
+                    }
+                    JsonValue::Num(number) => {
+                        jobs.push(Job::Literal(")"));
+                        jobs.push(Job::Number(number));
+                        jobs.push(Job::Literal("Num("));
+                    }
+                    JsonValue::Str(text) => {
+                        jobs.push(Job::Literal(")"));
+                        jobs.push(Job::Text(text));
+                        jobs.push(Job::Literal("Str("));
+                    }
+                    JsonValue::Arr(items) => {
+                        if items.is_empty() {
+                            out.push_str("Arr([])");
+                        } else {
+                            jobs.push(Job::Literal("])"));
+                            for (index, item) in items.iter().enumerate().rev() {
+                                jobs.push(Job::Value(item));
+                                if index > 0 {
+                                    jobs.push(Job::Literal(", "));
+                                }
+                            }
+                            jobs.push(Job::Literal("Arr(["));
+                        }
+                    }
+                    JsonValue::Obj(pairs) => {
+                        if pairs.is_empty() {
+                            out.push_str("Obj([])");
+                        } else {
+                            jobs.push(Job::Literal("])"));
+                            for (index, (key, item)) in pairs.iter().enumerate().rev() {
+                                jobs.push(Job::Literal(")"));
+                                jobs.push(Job::Value(item));
+                                jobs.push(Job::Literal(", "));
+                                jobs.push(Job::Text(key));
+                                jobs.push(Job::Literal("("));
+                                if index > 0 {
+                                    jobs.push(Job::Literal(", "));
+                                }
+                            }
+                            jobs.push(Job::Literal("Obj(["));
+                        }
+                    }
+                },
+            }
+        }
+        f.write_str(&out)
     }
 }
 

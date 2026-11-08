@@ -183,5 +183,25 @@ path = "rust/tests/test_cli_round11.rs"
 name = "test_examples_round11"
 path = "rust/tests/test_examples_round11.rs"
 
+[[test]]
+name = "test_json_depth"
+path = "rust/tests/test_json_depth.rs"
+
+[[test]]
+name = "test_departures"
+path = "rust/tests/test_departures.rs"
+
+[[test]]
+name = "test_cli_round12"
+path = "rust/tests/test_cli_round12.rs"
+
+[[test]]
+name = "test_examples_round12"
+path = "rust/tests/test_examples_round12.rs"
+
+[[test]]
+name = "test_generated_chain"
+path = "rust/tests/test_generated_chain.rs"
+
 [dependencies]
 libc = "0.2"

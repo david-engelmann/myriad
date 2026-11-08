@@ -1,0 +1,167 @@
+//! Tests for MY-26, the departures command on the CLI.
+//!
+//! The command loads the lineage file whole through the
+//! MY-13 loader before printing anything, and a malformed
+//! lineage prints exactly what the lineage command prints
+//! for that file, the line invalid lineage and then its
+//! defects, because the file is a lineage and the defects
+//! are the lineage loader's own.
+
+mod common;
+
+use common::*;
+
+fn atlas_text(title: &str, labels: &[&str]) -> String {
+    let entries: Vec<String> = labels
+        .iter()
+        .map(|label| {
+            jobj(&[
+                ("label", jstr(label)),
+                ("exploration", exploration_json("Q", &[])),
+            ])
+        })
+        .collect();
+    jobj(&[("title", jstr(title)), ("entries", jarr(&entries))])
+}
+
+fn lineage_text(atlases: &[String]) -> String {
+    jobj(&[("atlases", jarr(atlases))])
+}
+
+#[test]
+fn sound_file_prints_the_departures_and_exits_zero() {
+    let text = lineage_text(&[
+        atlas_text("One", &["only", "gone"]),
+        atlas_text("Two", &["only"]),
+    ]);
+    let file = write_temp("r12cli-sound", "lineage.json", &text);
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.code, 0);
+    assert_eq!(outcome.stderr, Vec::<String>::new());
+    assert_eq!(
+        stdout_text(&outcome),
+        "atlas 1\n\
+         entry gone, first stood at atlas 1, last stood at atlas 1, \
+         stands in 1 atlases, does not stand at the close\n\
+         atlas 2\n\
+         departures counts, atlas 1 departures 1, atlas 2 departures 0, \
+         entries departed 1, entries 2, atlases 2\n"
+    );
+}
+
+#[test]
+fn a_chain_where_nothing_departs_prints_empty_sections() {
+    let text = lineage_text(&[
+        atlas_text("One", &["kept"]),
+        atlas_text("Two", &["kept", "new"]),
+        atlas_text("Three", &["kept", "new"]),
+    ]);
+    let file = write_temp("r12cli-kept", "lineage.json", &text);
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.code, 0);
+    assert_eq!(
+        stdout_text(&outcome),
+        "atlas 1\n\
+         atlas 2\n\
+         atlas 3\n\
+         departures counts, atlas 1 departures 0, atlas 2 departures 0, \
+         atlas 3 departures 0, entries departed 0, entries 2, atlases 3\n"
+    );
+}
+
+#[test]
+fn malformed_lineage_prints_invalid_lineage_and_its_defects() {
+    let member = jobj(&[("entries", jarr(&[]))]);
+    let text = lineage_text(&[atlas_text("One", &["only"]), member]);
+    let defects = {
+        let (found, defects) = myriad::atlas::load_lineage_text(&text);
+        assert!(found.is_none());
+        defects
+    };
+    let file = write_temp("r12cli-badmember", "lineage.json", &text);
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.code, 1);
+    let mut expected = vec!["invalid lineage".to_string()];
+    expected.extend(defects.iter().map(|defect| format!("defect {defect}")));
+    assert_eq!(outcome.stdout, expected);
+    assert_eq!(outcome.stdout[1], "defect atlas 1, missing field title");
+}
+
+#[test]
+fn a_malformed_file_prints_what_the_lineage_command_prints() {
+    let member = jobj(&[("entries", jarr(&[]))]);
+    let text = lineage_text(&[atlas_text("One", &["only"]), member]);
+    let file = write_temp("r12cli-shared", "lineage.json", &text);
+    let departures = run_cli(&["departures", &file.to_string_lossy()]);
+    let lineage = run_cli(&["lineage", &file.to_string_lossy()]);
+    assert_eq!(departures.code, lineage.code);
+    assert_eq!(departures.stdout, lineage.stdout);
+    assert_eq!(departures.stderr, lineage.stderr);
+}
+
+#[test]
+fn a_chain_of_one_prints_the_fewer_than_two_defect() {
+    let text = lineage_text(&[atlas_text("One", &["only"])]);
+    let file = write_temp("r12cli-one", "lineage.json", &text);
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(
+        outcome.stdout,
+        strings(&[
+            "invalid lineage",
+            "defect field atlases holds fewer than two atlases",
+        ])
+    );
+}
+
+#[test]
+fn unreadable_file_names_file_cannot_be_read() {
+    let missing = temp_dir("r12cli-unreadable").join("gone.json");
+    let outcome = run_cli(&["departures", &missing.to_string_lossy()]);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(
+        outcome.stdout,
+        strings(&["invalid lineage", "defect file cannot be read"])
+    );
+}
+
+#[test]
+fn malformed_lineage_prints_no_reading_line() {
+    let text = lineage_text(&[atlas_text("One", &["only"])]);
+    let file = write_temp("r12cli-noreading", "lineage.json", &text);
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.stdout[0], "invalid lineage");
+    assert!(outcome
+        .stdout
+        .iter()
+        .all(|line| !line.starts_with("atlas ") && !line.starts_with("departures counts")));
+}
+
+#[test]
+fn the_command_writes_nothing() {
+    let dir = temp_dir("r12cli-writes");
+    let text = lineage_text(&[atlas_text("One", &["only"]), atlas_text("Two", &["only"])]);
+    let file = dir.join("lineage.json");
+    std::fs::write(&file, &text).expect("a temporary file");
+    let before: Vec<String> = std::fs::read_dir(&dir)
+        .expect("the directory reads")
+        .map(|item| {
+            item.expect("an entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .collect();
+    let outcome = run_cli(&["departures", &file.to_string_lossy()]);
+    assert_eq!(outcome.code, 0);
+    let after: Vec<String> = std::fs::read_dir(&dir)
+        .expect("the directory reads")
+        .map(|item| {
+            item.expect("an entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .collect();
+    assert_eq!(before, after);
+}

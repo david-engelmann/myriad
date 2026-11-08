@@ -506,6 +506,19 @@ pub fn load_exploration_data(data: &JsonValue) -> (Option<Exploration>, Vec<Stri
 }
 
 /// Read and load one exploration from its JSON text.
+///
+/// ```
+/// use myriad::explorations::load_exploration_text;
+///
+/// let text = "{\"question\": \"Which week does the ice survey run\", \
+///     \"branches\": [{\"id\": \"root-q\", \"parent\": null, \
+///     \"prompt\": \"Which week does the ice survey run\", \"state\": \"open\"}]}";
+/// let (exploration, defects) = load_exploration_text(text);
+/// assert!(defects.is_empty());
+/// let exploration = exploration.expect("the text loads clean");
+/// assert!(exploration.question.eq_str("Which week does the ice survey run"));
+/// assert_eq!(exploration.branches.len(), 1);
+/// ```
 pub fn load_exploration_text(text: &str) -> (Option<Exploration>, Vec<String>) {
     match parse_json(text) {
         None => (None, vec!["input is not valid JSON".to_string()]),
