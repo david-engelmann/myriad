@@ -31,7 +31,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
@@ -200,14 +200,19 @@ fn readme_reports_the_slice_five_standing() {
     // the named mechanical consequence of the slice 12
     // status line, which reads built and in review while
     // Round 11 is built, until the Round 11 closure
-    // lands slice 12 and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at twelve, not eleven, as a mechanical
-    // consequence of the Round 10 closure. The slice 11 line
+    // lands slice 12 and the count returns to zero. It
+    // stands at zero again as the named mechanical
+    // consequence of the slice 12 status line, which
+    // read built and in review while Round 11 was built,
+    // until the Round 11 closure landed slice 12 and the
+    // count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at thirteen, not twelve, as a mechanical
+    // consequence of the Round 11 closure. The slice 12 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 12);
+    assert_eq!(text.matches("has landed").count(), 13);
 }
 
 #[test]
@@ -223,7 +228,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
@@ -272,7 +277,7 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
@@ -293,7 +298,7 @@ fn readme_reports_the_round_nine_status() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
@@ -314,17 +319,19 @@ fn readme_reports_the_round_ten_status() {
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
-fn readme_reports_the_round_eleven_slice() {
+fn readme_reports_the_round_eleven_status() {
     let text = read("README.md");
-    let standing = "- Contract, MY-23 and MY-24 now stand in full form in \
-        CONTRACT.md, and their standing is not claimed here, as \
-        Round 11 has not closed.";
+    let standing = "- Contract, MY-23 and MY-24 met. They stand in full form in \
+        CONTRACT.md, and Round 11 closed on the merged slice 12 after \
+        three reviews, with the red team's observation on the JsonValue \
+        value semantics carried to a later round as a repair \
+        candidate.";
     assert!(carries_line(&text, standing));
-    let expected = "- Slice 12 is built and in review. It carries the rendering \
+    let expected = "- Slice 12 has landed. It carries the rendering \
         fencing closure of FIX-MY-14 that refuses a hand built value \
         whose printed field holds a line break in the map, claims, \
         census, atlas, index, and changelog renderings and in the \
@@ -335,7 +342,7 @@ fn readme_reports_the_round_eleven_slice() {
         and summer chain and of the radio investigation chain under \
         examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 10 of 100"));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
 }
 
 #[test]
