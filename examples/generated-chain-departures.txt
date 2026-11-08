@@ -1,0 +1,17 @@
+atlas 1
+entry pier lights, first stood at atlas 1, last stood at atlas 1, stands in 1 atlases, does not stand at the close
+atlas 2
+atlas 3
+entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, does not stand at the close
+atlas 4
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 4, stands in 2 atlases, does not stand at the close
+atlas 5
+entry buoy line, first stood at atlas 1, last stood at atlas 5, stands in 5 atlases, does not stand at the close
+entry fog bell, first stood at atlas 3, last stood at atlas 5, stands in 3 atlases, does not stand at the close
+atlas 6
+entry pilot boat, first stood at atlas 4, last stood at atlas 6, stands in 3 atlases, does not stand at the close
+atlas 7
+entry signal mast, first stood at atlas 1, last stood at atlas 7, stands in 3 atlases, does not stand at the close
+entry storm ledger, first stood at atlas 7, last stood at atlas 7, stands in 1 atlases, does not stand at the close
+atlas 8
+departures counts, atlas 1 departures 1, atlas 2 departures 0, atlas 3 departures 1, atlas 4 departures 1, atlas 5 departures 2, atlas 6 departures 1, atlas 7 departures 2, atlas 8 departures 0, entries departed 8, entries 21, atlases 8

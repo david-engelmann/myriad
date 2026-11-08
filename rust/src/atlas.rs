@@ -12,7 +12,9 @@
 //! chain, where in the chain each entry stands, and the
 //! absence of the chain, the runs of atlases each entry
 //! stands absent from, and the arrivals of the chain, the
-//! entries that first stand at each atlas. The loader
+//! entries that first stand at each atlas, and the
+//! departures of the chain, the entries that stand in no
+//! later atlas, read by last appearance. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -707,8 +709,10 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 /// stands in at least one atlas earlier than the atlas the
 /// step leads from, and one line stands for each return in
 /// chain order and then in the order the entries stand in
-/// the atlas the step leads to, closing with the returns
-/// counts line. A hand-built lineage holding fewer than
+/// the atlas the step leads to, a label held more
+/// than once in that atlas read once, at its first
+/// standing in it, under FIX-MY-17, closing with the
+/// returns counts line. A hand-built lineage holding fewer than
 /// two atlases draws the refusal MY-13 states, and a label
 /// holding an unpaired surrogate draws the refusal
 /// PORT-11 names for that field, and a label holding a
@@ -721,7 +725,11 @@ pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let mut returns = 0usize;
     let mut returned: HashSet<&PText> = HashSet::new();
     for target in 1..lineage.atlases.len() {
+        let mut seen: HashSet<&PText> = HashSet::new();
         for entry in &lineage.atlases[target].entries {
+            if !seen.insert(&entry.label) {
+                continue;
+            }
             if presence[target - 1].contains(&entry.label) {
                 continue;
             }
@@ -904,6 +912,69 @@ pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
         closing.push_str(&format!(", atlas {} arrivals {}", index + 1, count));
     }
     closing.push_str(&format!(", entries {entries}, atlases {total}"));
+    lines.push(closing);
+    Ok(lines)
+}
+
+/// Render the departures of a chain of atlases, the
+/// entries that stand in no later atlas, read by last
+/// appearance.
+///
+/// Presence is read once over the whole chain in the
+/// one pass of FIX-MY-13, and one section stands for
+/// each atlas of the chain in chain order, opening with
+/// the number of the atlas and holding one line for
+/// each entry departing after that atlas, in the order
+/// the entries stand in that atlas, a label held more
+/// than once in that atlas read once, at its first
+/// standing in it, under FIX-MY-17, the line the
+/// standing reading states for that entry. The last
+/// atlas's section always stands in its empty form,
+/// and the reading closes with the departures counts
+/// line, the departures after each atlas, the count of
+/// entries departed over the chain, the count of
+/// entries, and the count of atlases in the chain. A
+/// hand-built lineage holding fewer than two atlases
+/// draws the refusal MY-13 states, and a label holding
+/// an unpaired surrogate draws the refusal PORT-11
+/// names for that field, and a label holding a line
+/// break draws the refusal FIX-MY-13 names for that
+/// field, the labels read in chain order, atlas order
+/// then entry order.
+pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut counts: Vec<usize> = Vec::new();
+    for (index, atlas) in lineage.atlases.iter().enumerate() {
+        lines.push(format!("atlas {}", index + 1));
+        let mut count = 0usize;
+        if index + 1 < total {
+            let mut seen: HashSet<&PText> = HashSet::new();
+            for entry in &atlas.entries {
+                if !seen.insert(&entry.label) {
+                    continue;
+                }
+                let stands_later = presence[index + 1..]
+                    .iter()
+                    .any(|labels| labels.contains(&entry.label));
+                if !stands_later {
+                    lines.push(standing_line(&presence, &entry.label, total));
+                    count += 1;
+                }
+            }
+        }
+        counts.push(count);
+    }
+    let departed: usize = counts.iter().sum();
+    let entries = first_standing_order(lineage).len();
+    let mut closing = "departures counts".to_string();
+    for (index, count) in counts.iter().enumerate() {
+        closing.push_str(&format!(", atlas {} departures {}", index + 1, count));
+    }
+    closing.push_str(&format!(
+        ", entries departed {departed}, entries {entries}, atlases {total}"
+    ));
     lines.push(closing);
     Ok(lines)
 }

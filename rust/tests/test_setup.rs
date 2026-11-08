@@ -205,8 +205,12 @@ fn readme_reports_the_slice_five_standing() {
     // consequence of the slice 12 status line, which
     // read built and in review while Round 11 was built,
     // until the Round 11 closure landed slice 12 and the
-    // count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // count returned to zero. It stands at one again as
+    // the named mechanical consequence of the slice 13
+    // status line, which reads built and in review while
+    // Round 12 is built, until the Round 12 closure
+    // lands slice 13 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at thirteen, not twelve, as a mechanical
     // consequence of the Round 11 closure. The slice 12 line
     // now also reads has landed, beside the port status
@@ -346,6 +350,29 @@ fn readme_reports_the_round_eleven_status() {
 }
 
 #[test]
+fn readme_reports_the_round_twelve_slice() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-25 and MY-26 now stand in full form in \
+        CONTRACT.md, and their standing is not claimed here, as \
+        Round 12 has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 13 is built and in review. It carries the formats \
+        amendment of FIX-MY-15 that names the three formats at version 1 \
+        in one consolidated section of the contract, the value semantics \
+        settlement of FIX-MY-16 that settles the cloning, the equality, \
+        and the formatting of a value at the depth the parser admits, \
+        the departures reading of MY-26 that names the entries that \
+        stand in no later atlas after the atlas they were last seen in, \
+        with its goldens under examples, the documentation repairs of \
+        the arrivals section, the worked example, the toolchain floor, \
+        the annex, and the settled wording, and the generated fixture \
+        family, one chain of eight loggings at the stated shapes with \
+        the goldens of its five chain readings under examples.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 11 of 100"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -468,4 +495,131 @@ fn readme_names_the_gate_in_its_gate_line() {
         and the codepoint scan, cargo run --bin codepoint_scan. \
         CI runs the same commands.";
     assert!(carries_line(&text, expected));
+}
+
+// The Round 12 formats pins, FIX-MY-15. The amendment names
+// the three file forms and states each at version 1 in the
+// consolidated formats section, and repoints the operative
+// pointers of the earlier sections at the Rust files that
+// carry their pins now. The trailer walk fails the gate the
+// moment any path the contract names stops standing in the
+// tree, so a dead pointer can never stand silently again.
+
+#[test]
+fn contract_carries_the_round_twelve_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["FIX-MY-15", "FIX-MY-16", "MY-25", "MY-26"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn the_exploration_format_stands_named_at_version_one() {
+    let text = read("CONTRACT.md");
+    assert!(text.contains("myriad-exploration at version 1"));
+}
+
+#[test]
+fn the_atlas_format_stands_named_at_version_one() {
+    let text = read("CONTRACT.md");
+    assert!(text.contains("myriad-atlas at version 1"));
+}
+
+#[test]
+fn the_lineage_format_stands_named_at_version_one() {
+    let text = read("CONTRACT.md");
+    assert!(text.contains("myriad-lineage at version 1"));
+    assert!(text.contains("A change that adds an optional field is not a new version"));
+}
+
+// Round 12, the documentation repairs. The arrivals
+// section stands in Usage after the absence section,
+// the worked JSON loads through the loader it teaches,
+// the Install sentence stands in its settled form, and
+// the two visible sentences after the README stand in
+// the read voice of MY-22.
+
+#[test]
+fn the_arrivals_section_stands_in_usage_after_the_absence_section() {
+    let readme = read("README.md");
+    let absence = readme
+        .find("### absence")
+        .expect("the absence section stands");
+    let arrivals = readme
+        .find("### arrivals")
+        .expect("the arrivals section stands");
+    assert!(
+        arrivals > absence,
+        "the arrivals section follows the absence section"
+    );
+    assert!(readme
+        .contains("./target/release/myriad arrivals examples/winter-spring-summer-lineage.json"));
+    assert!(readme.contains(
+        "arrivals counts, atlas 1 arrivals 3, atlas 2 arrivals 1, \
+         atlas 3 arrivals 0, entries 4, atlases 3"
+    ));
+}
+
+#[test]
+fn the_worked_json_of_the_readme_loads_clean_through_the_loader() {
+    let readme = read("README.md");
+    let start = readme
+        .find("```json")
+        .expect("the worked example stands fenced");
+    let rest = &readme[start + "```json".len()..];
+    let end = rest.find("```").expect("the fence closes");
+    let text = rest[..end].trim();
+    let (exploration, defects) = myriad::explorations::load_exploration_text(text);
+    assert!(
+        defects.is_empty(),
+        "the worked example loads clean: {defects:?}"
+    );
+    let exploration = exploration.expect("the worked example loads");
+    assert!(exploration
+        .question
+        .eq_str("Which week does the harbour ice survey run"));
+    assert_eq!(exploration.branches.len(), 3);
+}
+
+#[test]
+fn the_install_sentence_states_the_toolchain_floor() {
+    let readme = read("README.md");
+    assert!(readme.contains("Build from source with a current stable Rust toolchain."));
+    assert!(readme.contains("The crate is edition 2021"));
+    assert!(readme.contains("the gate tests on Rust 1.91.1, the toolchain the workflow pins"));
+}
+
+#[test]
+fn the_cli_description_and_the_lib_doc_head_stand_in_the_read_voice() {
+    let cli = read("rust/src/cli.rs");
+    assert!(cli.contains(
+        "Read logs of branching investigations of a question and print readings over them."
+    ));
+    assert!(!cli.contains("Fork one hard question into branches and map them."));
+    let lib = read("rust/src/lib.rs");
+    // The doc head wraps over comment lines, so the pin
+    // reads it as the rendered text flows.
+    let flowed = lib.replace("\n//! ", " ");
+    assert!(flowed.contains(
+        "Myriad reads logs of branching investigations of a question and prints \
+         readings over them."
+    ));
+    assert!(!lib.contains("forking one hard question"));
+}
+
+#[test]
+fn every_path_the_contract_names_stands_in_the_tree() {
+    let text = read("CONTRACT.md");
+    let root = repo_root();
+    let mut named: Vec<String> = Vec::new();
+    for token in text.split(|ch: char| ch.is_whitespace() || matches!(ch, ',' | '(' | ')')) {
+        let path = token.trim_end_matches('.');
+        if path.starts_with("rust/") && !named.iter().any(|held| held == path) {
+            named.push(path.to_string());
+        }
+    }
+    assert!(named.len() > 40, "the walk reads the contract's paths");
+    for path in &named {
+        assert!(root.join(path).exists(), "the contract names {path}");
+    }
 }

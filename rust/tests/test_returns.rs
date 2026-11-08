@@ -403,3 +403,31 @@ fn a_hand_built_surrogate_label_in_an_atlas_no_return_reads_still_refuses() {
         "an entry label holds an unpaired surrogate"
     );
 }
+
+#[test]
+fn a_label_held_twice_in_the_atlas_it_returns_in_returns_once() {
+    // FIX-MY-17. The loaders refuse a label carried by
+    // two entries, so no loaded chain reaches this shape,
+    // and the shape stands on the library surface alone.
+    // Over it the reading reads the label once, at its
+    // first standing in the atlas it returns in, and its
+    // lines and its closing agree. On the unrepaired
+    // reading the return line of x stands twice and the
+    // closing states returns 2, entries returned 1, so
+    // this pin fails there by assertion.
+    let chain = Lineage {
+        atlases: vec![
+            atlas("One", vec![plain("x"), plain("y")]),
+            atlas("Two", vec![plain("y")]),
+            atlas("Three", vec![plain("x"), plain("x"), plain("y")]),
+        ],
+    };
+    let lines = render_returns(&chain).expect("the chain reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "entry x, returned at step 2, absent 1 atlases",
+            "returns counts, returns 1, entries returned 1",
+        ])
+    );
+}

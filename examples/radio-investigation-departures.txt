@@ -1,0 +1,5 @@
+atlas 1
+atlas 2
+entry aerial icing, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+atlas 3
+departures counts, atlas 1 departures 0, atlas 2 departures 1, atlas 3 departures 0, entries departed 1, entries 4, atlases 3

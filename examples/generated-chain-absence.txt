@@ -1,0 +1,22 @@
+entry ferry link, absent from atlas 3, for 1 atlases
+entry ferry link, absent from atlas 5, for 2 atlases
+entry harbour lights, absent from atlas 4, for 5 atlases, to the close
+entry lifeboat cover, absent from atlas 2, for 2 atlases
+entry lifeboat cover, absent from atlas 5, for 4 atlases, to the close
+entry fuel store, absent from atlas 2, for 1 atlases
+entry fuel store, absent from atlas 6, for 2 atlases
+entry crew rota, absent from atlas 4, for 4 atlases
+entry signal mast, absent from atlas 3, for 4 atlases
+entry signal mast, absent from atlas 8, for 1 atlases, to the close
+entry buoy line, absent from atlas 6, for 3 atlases, to the close
+entry pier lights, absent from atlas 2, for 7 atlases, to the close
+entry cargo shed, absent from atlas 3, for 4 atlases
+entry rescue drill, absent from atlas 3, for 2 atlases
+entry weather glass, absent from atlas 3, for 3 atlases
+entry ballast note, absent from atlas 4, for 4 atlases
+entry fog bell, absent from atlas 6, for 3 atlases, to the close
+entry pilot boat, absent from atlas 7, for 2 atlases, to the close
+entry anchor watch, absent from atlas 6, for 2 atlases
+entry beacon list, absent from atlas 7, for 1 atlases
+entry storm ledger, absent from atlas 8, for 1 atlases, to the close
+absence counts, absences 21, entries with absences 17, absent at the close 8

@@ -1,5 +1,5 @@
-//! Myriad, a tool for forking one hard question into
-//! branches and mapping them.
+//! Myriad reads logs of branching investigations of a
+//! question and prints readings over them.
 //!
 //! The library carries the exploration loader and its
 //! readings (the indented tree map, the branch counts, the

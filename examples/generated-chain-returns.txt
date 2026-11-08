@@ -1,0 +1,14 @@
+entry fuel store, returned at step 2, absent 1 atlases
+entry ferry link, returned at step 3, absent 1 atlases
+entry lifeboat cover, returned at step 3, absent 2 atlases
+entry rescue drill, returned at step 4, absent 2 atlases
+entry weather glass, returned at step 5, absent 3 atlases
+entry ferry link, returned at step 6, absent 2 atlases
+entry signal mast, returned at step 6, absent 4 atlases
+entry cargo shed, returned at step 6, absent 4 atlases
+entry fuel store, returned at step 7, absent 2 atlases
+entry crew rota, returned at step 7, absent 4 atlases
+entry anchor watch, returned at step 7, absent 2 atlases
+entry ballast note, returned at step 7, absent 4 atlases
+entry beacon list, returned at step 7, absent 1 atlases
+returns counts, returns 13, entries returned 11
