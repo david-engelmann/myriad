@@ -11,7 +11,8 @@
 //! stand again after an absence, and the standing of the
 //! chain, where in the chain each entry stands, and the
 //! absence of the chain, the runs of atlases each entry
-//! stands absent from. The loader
+//! stands absent from, and the arrivals of the chain, the
+//! entries that first stand at each atlas. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -19,8 +20,9 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 use crate::explorations::{
-    count_branches, count_by_state, format_counts, load_exploration_data, refuse_line_break,
-    refuse_surrogate, Branch, Exploration, State,
+    count_branches, count_by_state, format_counts, load_exploration_data,
+    refuse_exploration_fields, refuse_field, refuse_line_break, refuse_surrogate, Branch,
+    Exploration, State,
 };
 use crate::json::{parse_json, JsonValue};
 use crate::pytext::PText;
@@ -272,6 +274,36 @@ pub fn load_lineage_file(path: &Path) -> (Option<Lineage>, Vec<String>) {
     load_lineage_text(&text)
 }
 
+/// The one pass over an atlas the atlas rendering, the
+/// index reading, and the changelog reading read before
+/// they render, under FIX-MY-14.
+///
+/// The pass reads the title first, then the entries in
+/// the order they stand in the atlas, and inside an
+/// entry the label and then the entry exploration in
+/// the order the exploration pass reads it, each field
+/// for an unpaired surrogate first and then for a line
+/// break. The changelog reading reads the pass over the
+/// earlier atlas and then over the later atlas, and the
+/// lineage reading inherits the refusal through the
+/// changelogs it composes and holds no pass of its own.
+fn refuse_atlas_fields(atlas: &Atlas) -> Result<(), String> {
+    refuse_field(
+        &atlas.title,
+        "the atlas title holds an unpaired surrogate",
+        "the atlas title holds a newline or a carriage return",
+    )?;
+    for entry in &atlas.entries {
+        refuse_field(
+            &entry.label,
+            "an entry label holds an unpaired surrogate",
+            "an entry label holds a newline or a carriage return",
+        )?;
+        refuse_exploration_fields(&entry.exploration)?;
+    }
+    Ok(())
+}
+
 /// Render the atlas, each entry under its label.
 ///
 /// A section opens with the entry line, then carries the
@@ -279,8 +311,12 @@ pub fn load_lineage_file(path: &Path) -> (Option<Lineage>, Vec<String>) {
 /// it, then the claim lines of the entry exploration exactly
 /// as the claims listing states them after its question
 /// line. A hand-built value that breaks the loader
-/// preconditions draws the refusal PORT-11 states.
+/// preconditions draws the refusal PORT-11 states. The
+/// one pass of FIX-MY-14 stands before the rendering,
+/// so a field holding a line break draws its refusal
+/// there, in the field order the pass reads.
 pub fn render_atlas(atlas: &Atlas) -> Result<Vec<String>, String> {
+    refuse_atlas_fields(atlas)?;
     refuse_surrogate(&atlas.title, "the atlas title holds an unpaired surrogate")?;
     let mut lines = vec![format!("atlas, {}", atlas.title)];
     let mut union: Vec<Branch> = Vec::new();
@@ -481,6 +517,8 @@ struct StepCounts {
 /// closes with, the one pass the changelog and the
 /// lineage readings both read.
 fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, StepCounts), String> {
+    refuse_atlas_fields(earlier)?;
+    refuse_atlas_fields(later)?;
     refuse_surrogate(
         &earlier.title,
         "the atlas title holds an unpaired surrogate",
@@ -572,7 +610,10 @@ fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, Ste
 /// entry that arrived, departed, or changed, and closes
 /// with the counts of the matching. A hand-built value
 /// that breaks the loader preconditions draws the refusal
-/// MY-11 states.
+/// MY-11 states. The one pass of FIX-MY-14 stands before
+/// the reading, over the earlier atlas and then over the
+/// later, so a field holding a line break draws its
+/// refusal there, in the field order the pass reads.
 pub fn render_changelog(earlier: &Atlas, later: &Atlas) -> Result<Vec<String>, String> {
     let (lines, _) = changelog_reading(earlier, later)?;
     Ok(lines)
@@ -732,6 +773,51 @@ fn first_standing_order(lineage: &Lineage) -> Vec<&PText> {
     order
 }
 
+/// The standing figures of one label read from the
+/// presence of a chain, the first atlas it stands in,
+/// the last atlas it stands in, and the count of
+/// atlases it stands in, each atlas counting from one.
+fn standing_figures(presence: &[HashSet<&PText>], label: &PText) -> (usize, usize, usize) {
+    let mut first = 0usize;
+    let mut last = 0usize;
+    let mut stood = 0usize;
+    for (index, labels) in presence.iter().enumerate() {
+        if labels.contains(label) {
+            if stood == 0 {
+                first = index + 1;
+            }
+            last = index + 1;
+            stood += 1;
+        }
+    }
+    (first, last, stood)
+}
+
+/// The line the standing reading states for one label,
+/// in the form MY-18 states.
+///
+/// The standing reading states the line over the labels
+/// of the chain in first standing order, and the
+/// arrivals reading states the same line inside the
+/// section of the atlas the label arrives at, so the
+/// form stands in one home.
+fn standing_line(presence: &[HashSet<&PText>], label: &PText, total: usize) -> String {
+    let (first, last, stood) = standing_figures(presence, label);
+    format!(
+        "entry {}, first stood at atlas {}, last stood at atlas {}, \
+         stands in {} atlases, {}",
+        label,
+        first,
+        last,
+        stood,
+        if last == total {
+            "stands at the close"
+        } else {
+            "does not stand at the close"
+        }
+    )
+}
+
 /// Render the standing of a chain of atlases, where in
 /// the chain each entry stands.
 ///
@@ -757,44 +843,68 @@ pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
     let mut at_every = 0usize;
     let mut at_close = 0usize;
     for label in &order {
-        let mut first = 0usize;
-        let mut last = 0usize;
-        let mut stood = 0usize;
-        for (index, labels) in presence.iter().enumerate() {
-            if labels.contains(label) {
-                if stood == 0 {
-                    first = index + 1;
-                }
-                last = index + 1;
-                stood += 1;
-            }
-        }
+        let (_, last, stood) = standing_figures(&presence, label);
         if stood == total {
             at_every += 1;
         }
-        let closes = last == total;
-        if closes {
+        if last == total {
             at_close += 1;
         }
-        lines.push(format!(
-            "entry {}, first stood at atlas {}, last stood at atlas {}, \
-             stands in {} atlases, {}",
-            label,
-            first,
-            last,
-            stood,
-            if closes {
-                "stands at the close"
-            } else {
-                "does not stand at the close"
-            }
-        ));
+        lines.push(standing_line(&presence, label, total));
     }
     lines.push(format!(
         "standing counts, atlases {total}, entries {}, \
          standing at every atlas {at_every}, standing at the close {at_close}",
         order.len()
     ));
+    Ok(lines)
+}
+
+/// Render the arrivals of a chain of atlases, the
+/// entries that first stand at each atlas of the chain.
+///
+/// Presence is read once over the whole chain in the
+/// one pass of FIX-MY-13, and one section stands for
+/// each atlas of the chain in chain order, opening with
+/// the number of the atlas and holding one line for
+/// each entry that arrives at that atlas, in the order
+/// the entries stand in that atlas, the line the
+/// standing reading states for that entry. A section
+/// in which no entry arrives stands as its opening line
+/// alone, and the reading closes with the arrivals
+/// counts line, the arrivals at each atlas and the
+/// count of entries and of atlases in the chain. A
+/// hand-built lineage holding fewer than two atlases
+/// draws the refusal MY-13 states, and a label holding
+/// an unpaired surrogate draws the refusal PORT-11
+/// names for that field, and a label holding a line
+/// break draws the refusal FIX-MY-13 names for that
+/// field, the labels read in chain order, atlas order
+/// then entry order.
+pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut counts: Vec<usize> = Vec::new();
+    let mut arrived: HashSet<&PText> = HashSet::new();
+    for (index, atlas) in lineage.atlases.iter().enumerate() {
+        lines.push(format!("atlas {}", index + 1));
+        let mut count = 0usize;
+        for entry in &atlas.entries {
+            if arrived.insert(&entry.label) {
+                lines.push(standing_line(&presence, &entry.label, total));
+                count += 1;
+            }
+        }
+        counts.push(count);
+    }
+    let entries: usize = counts.iter().sum();
+    let mut closing = "arrivals counts".to_string();
+    for (index, count) in counts.iter().enumerate() {
+        closing.push_str(&format!(", atlas {} arrivals {}", index + 1, count));
+    }
+    closing.push_str(&format!(", entries {entries}, atlases {total}"));
+    lines.push(closing);
     Ok(lines)
 }
 
@@ -878,8 +988,12 @@ pub fn render_absence(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// Render the atlas index, the cheap reading of an atlas.
 ///
 /// A hand-built value that breaks the loader preconditions
-/// draws the refusal PORT-11 states.
+/// draws the refusal PORT-11 states. The one pass of
+/// FIX-MY-14 stands before the reading, so a field
+/// holding a line break draws its refusal there, in the
+/// field order the pass reads.
 pub fn render_index(atlas: &Atlas) -> Result<Vec<String>, String> {
+    refuse_atlas_fields(atlas)?;
     refuse_surrogate(&atlas.title, "the atlas title holds an unpaired surrogate")?;
     let mut lines = vec![format!("atlas, {}", atlas.title)];
     let mut union: Vec<Branch> = Vec::new();
