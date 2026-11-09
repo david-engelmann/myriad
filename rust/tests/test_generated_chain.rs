@@ -19,13 +19,27 @@
 //! readings' own outputs, with a hand count nowhere,
 //! so a wrong count fails even where a golden was
 //! regenerated carelessly.
+//!
+//! Round 13 extends the family by addition. The
+//! matched golden joins the five at
+//! examples/generated-chain-matched.txt, and three pins
+//! below read the matched reading over the generated
+//! chain and two measured bands over its fields. The
+//! discrimination split of the three stands as follows.
+//! The matched golden pin and the matched relations pin
+//! fail on the tree before this slice by compile
+//! absence, because render_matched stands nowhere on
+//! that tree. The band pin passes on that tree by
+//! design, because the chain and its loader stand
+//! unchanged there, and its failure mode is a drifted
+//! regeneration of the chain.
 
 mod common;
 
 use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_departures, render_index,
-    render_returns, render_standing, Lineage,
+    render_lineage, render_matched, render_returns, render_standing, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -641,4 +655,126 @@ fn each_readings_closing_restates_its_own_sections() {
             figure(closing, &format!("atlas {} departures ", index + 1), ",")
         );
     }
+}
+
+#[test]
+fn the_matched_golden_matches_the_reading_of_the_generated_chain() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_matched(&chain).expect("the matched reads"),
+        golden("generated-chain-matched.txt")
+    );
+}
+
+#[test]
+fn the_matched_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let matched = render_matched(&chain).expect("the matched reads");
+    let closing = matched.last().expect("a closing line");
+    let steps = chain.atlases.len() - 1;
+    let counts: Vec<usize> = (1..=steps)
+        .map(|step| figure(closing, &format!("step {step} matched "), ","))
+        .collect();
+    // The first relation: the per-step counts sum to the
+    // lineage reading's own matched figure.
+    let lineage = render_lineage(&chain).expect("the lineage reads");
+    let lineage_closing = lineage.last().expect("a closing line");
+    let sum: usize = counts.iter().sum();
+    assert_eq!(sum, figure(lineage_closing, "matched ", ","));
+    // The second relation, through the lineage reading's
+    // per-step changelog counts lines: matched and
+    // departed close the atlas a step leads from, and
+    // matched and arrived close the atlas it leads to.
+    let changelogs: Vec<&String> = lineage
+        .iter()
+        .filter(|line| line.starts_with("changelog counts,"))
+        .collect();
+    assert_eq!(changelogs.len(), steps);
+    for step in 0..steps {
+        let arrived = figure(changelogs[step], "entries arrived ", ",");
+        let departed = figure(changelogs[step], "departed ", ",");
+        assert_eq!(counts[step] + departed, chain.atlases[step].entries.len());
+        assert_eq!(
+            counts[step] + arrived,
+            chain.atlases[step + 1].entries.len()
+        );
+    }
+    // The fifth relation: the entries matched figure
+    // names the distinct labels across the sections and
+    // stands no smaller than the standing reading's
+    // standing at every atlas figure.
+    let labels: std::collections::BTreeSet<&str> = matched
+        .iter()
+        .filter(|line| line.starts_with("entry "))
+        .map(|line| {
+            line.strip_prefix("entry ")
+                .expect("an entry line stands")
+                .split(',')
+                .next()
+                .expect("a label stands")
+        })
+        .collect();
+    let entries_matched = figure(closing, "entries matched ", ",");
+    assert_eq!(entries_matched, labels.len());
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_closing = standing.last().expect("a closing line");
+    assert!(
+        entries_matched >= figure(standing_closing, "standing at every atlas ", ","),
+        "the entries matched stand no smaller than the standing at every atlas"
+    );
+}
+
+#[test]
+fn the_measured_bands_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    // The claim rate, branches carrying a claim over
+    // branches in all, computed from the loaded chain's
+    // own fields, stands in the band 0.30 to 0.45.
+    let mut branches = 0usize;
+    let mut claimed = 0usize;
+    for atlas in &chain.atlases {
+        for entry in &atlas.entries {
+            for branch in &entry.exploration.branches {
+                branches += 1;
+                if branch.claim.is_some() {
+                    claimed += 1;
+                }
+            }
+        }
+    }
+    let claim_rate = claimed as f64 / branches as f64;
+    assert!(
+        (0.30..=0.45).contains(&claim_rate),
+        "the claim rate stands in its band, found {claim_rate}"
+    );
+    // The mean per-step churn, the share of each step's
+    // earlier atlas labels not standing in its later
+    // atlas, averaged over the steps, stands in the band
+    // 0.15 to 0.35.
+    let label_sets: Vec<std::collections::HashSet<String>> = chain
+        .atlases
+        .iter()
+        .map(|atlas| {
+            atlas
+                .entries
+                .iter()
+                .map(|entry| entry.label.to_display_string())
+                .collect()
+        })
+        .collect();
+    let mut churn_total = 0.0f64;
+    for step in 0..chain.atlases.len() - 1 {
+        let earlier = &label_sets[step];
+        let later = &label_sets[step + 1];
+        let gone = earlier
+            .iter()
+            .filter(|label| !later.contains(*label))
+            .count();
+        churn_total += gone as f64 / earlier.len() as f64;
+    }
+    let mean_churn = churn_total / (chain.atlases.len() - 1) as f64;
+    assert!(
+        (0.15..=0.35).contains(&mean_churn),
+        "the mean per-step churn stands in its band, found {mean_churn}"
+    );
 }

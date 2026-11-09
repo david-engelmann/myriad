@@ -310,6 +310,21 @@ entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atl
 atlas 3
 arrivals counts, atlas 1 arrivals 3, atlas 2 arrivals 1, atlas 3 arrivals 0, entries 4, atlases 3
 ```
+### departures
+
+The departures of a chain, one section for each atlas holding the entries that stand in no later atlas after it, in the line the standing reading states for each entry.
+
+```sh
+./target/release/myriad departures examples/winter-spring-summer-lineage.json
+```
+
+```text
+atlas 1
+atlas 2
+entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+atlas 3
+departures counts, atlas 1 departures 0, atlas 2 departures 1, atlas 3 departures 0, entries departed 1, entries 4, atlases 3
+```
 
 ## Status
 
@@ -330,6 +345,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 12 have closed, with al
 - Contract, MY-21 and MY-22 met. They stand in full form in CONTRACT.md, and Round 10 closed on the merged slice 11 after three reviews, with the red team's observation on the non chain renderings carried to a later round as a fencing candidate.
 - Contract, MY-23 and MY-24 met. They stand in full form in CONTRACT.md, and Round 11 closed on the merged slice 12 after three reviews, with the red team's observation on the JsonValue value semantics carried to a later round as a repair candidate.
 - Contract, MY-25 and MY-26 met. They stand in full form in CONTRACT.md, and Round 12 closed on the merged slice 13 after three reviews, with the red team's duplicated label finding repaired under FIX-MY-17.
+- Contract, MY-27 and MY-28 now stand in full form in CONTRACT.md, and their standing is not claimed here, as Round 13 has not closed.
+- Slice 14 is built and in review. It carries the matched reading of MY-28 that names the entries standing on both sides of each step of a chain in the lines of their standing, with its goldens under examples, the posture paragraph that records the judgement of the two observations of the Round 12 red team with its two posture pins, the documentation repairs of the departures section of the Usage and the enumeration of the doc head, and the generated fixture family extended with the matched golden and the two measured bands at the stated shapes.
 - Slice 13 has landed. It carries the formats amendment of FIX-MY-15 that names the three formats at version 1 in one consolidated section of the contract, the value semantics settlement of FIX-MY-16 that settles the cloning, the equality, and the formatting of a value at the depth the parser admits, the departures reading of MY-26 that names the entries that stand in no later atlas after the atlas they were last seen in, with its goldens under examples, the documentation repairs of the arrivals section, the worked example, the toolchain floor, the annex, and the settled wording, and the generated fixture family, one chain of eight loggings at the stated shapes with the goldens of its five chain readings under examples.
 - Slice 12 has landed. It carries the rendering fencing closure of FIX-MY-14 that refuses a hand built value whose printed field holds a line break in the map, claims, census, atlas, index, and changelog renderings and in the lineage through them, and the arrivals reading that reads the presence of every entry of a chain in the one presence pass and names the entries arriving at each atlas in the lines of their standing, with the golden arrivals of the winter, spring, and summer chain and of the radio investigation chain under examples.
 - Slice 11 has landed. It carries the chain fencing closure of FIX-MY-13 that refuses a hand built lineage whose entry label holds a line break in the returns, standing, and absence readings, the investigation log example of the three loggings of one branching investigation with its golden standing, returns, and absence under examples, and the investigation log framing of the first screen and this status in the scoped terms of MY-22.

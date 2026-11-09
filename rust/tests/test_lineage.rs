@@ -8,6 +8,17 @@
 //! byte and a longer chain closing with the summed
 //! lineage counts. Refusals of hand-built values follow
 //! MY-11 and PORT-11.
+//!
+//! Round 13 adds one posture pin at the end of this
+//! file, holding the judgement the Round 13 contract
+//! section records on the second observation of the
+//! Round 12 red team. The pin passes on the tree before
+//! this slice by design, because the loaders there
+//! already accept a label carrying a literal U+2028,
+//! the contract's line break set standing at the pair
+//! 0x0A and 0x0D, and it fails by assertion the moment
+//! any widening of that set lands without the version 2
+//! amendment the contract names as its only door.
 
 mod common;
 
@@ -461,5 +472,43 @@ fn a_hand_built_surrogate_in_a_later_step_names_that_step() {
     assert_eq!(
         render_lineage(&lineage).expect_err("the broken branch is refused"),
         "a branch prompt holds an unpaired surrogate"
+    );
+}
+
+#[test]
+fn a_label_carrying_a_line_separator_loads_clean() {
+    // The posture pin of the Round 13 judgement. The
+    // character U+2028 stands outside the contract's
+    // line break set, the pair 0x0A and 0x0D, so a label
+    // carrying it loads with no defect and stands in the
+    // loaded value whole. The pin passes on the tree
+    // before this slice by design and fails the moment
+    // the set widens without a version 2 amendment.
+    let text = lineage_json(&[
+        atlas_json(
+            "One",
+            &[
+                entry_json("a\u{2028}b", "Q", &[]),
+                entry_json("only", "Q", &[]),
+            ],
+        ),
+        atlas_json(
+            "Two",
+            &[
+                entry_json("a\u{2028}b", "Q", &[]),
+                entry_json("only", "Q", &[]),
+            ],
+        ),
+    ]);
+    let (found, defects) = load_lineage_text(&text);
+    assert_eq!(defects, Vec::<String>::new());
+    let lineage = found.expect("the lineage loads whole");
+    assert_eq!(
+        lineage.atlases[0].entries[0].label,
+        PText::from_text("a\u{2028}b")
+    );
+    assert_eq!(
+        lineage.atlases[1].entries[0].label,
+        lineage.atlases[0].entries[0].label
     );
 }
