@@ -10,11 +10,24 @@
 //! file can carry such a label, because the MY-7 loader
 //! refuses it by name, so every value here is built by
 //! hand, as the finding these pins close was built.
+//!
+//! Round 13 adds one posture pin at the end of this
+//! file, holding the judgement the Round 13 contract
+//! section records on the second observation of the
+//! Round 12 red team. The pin passes on the tree before
+//! this slice by design, because the standing reading
+//! there already renders a label carrying a literal
+//! U+2028 with its separator bytes standing in the line,
+//! and it fails by assertion the moment any widening of
+//! the line break set lands without the version 2
+//! amendment the contract names as its only door.
 
 mod common;
 
 use common::*;
-use myriad::atlas::{render_absence, render_returns, render_standing, Atlas, AtlasEntry, Lineage};
+use myriad::atlas::{
+    load_lineage_text, render_absence, render_returns, render_standing, Atlas, AtlasEntry, Lineage,
+};
 use myriad::explorations::{Branch, Exploration};
 use myriad::pytext::PText;
 
@@ -226,6 +239,51 @@ fn a_clean_hand_built_lineage_renders_the_lines_it_rendered_before() {
             "entry gone, absent from atlas 2, for 1 atlases, to the close",
             "absence counts, absences 1, entries with absences 1, \
              absent at the close 1",
+        ])
+    );
+}
+
+#[test]
+fn a_line_separator_label_renders_with_its_bytes_standing() {
+    // The posture pin of the Round 13 judgement, on the
+    // reading side. The lineage loads whole through the
+    // loader, the label carrying a literal U+2028
+    // standing outside the contract's line break set,
+    // and the standing reading renders the label with
+    // its separator bytes standing raw in the one line,
+    // the line count and the closing figures exact. The
+    // pin passes on the tree before this slice by design
+    // and fails the moment the set widens without a
+    // version 2 amendment.
+    let entry = |label: &str| {
+        jobj(&[
+            ("label", jstr(label)),
+            ("exploration", exploration_json("Q", &[])),
+        ])
+    };
+    let atlas = |title: &str, entries: &[String]| {
+        jobj(&[("title", jstr(title)), ("entries", jarr(entries))])
+    };
+    let text = jobj(&[(
+        "atlases",
+        jarr(&[
+            atlas("One", &[entry("a\u{2028}b"), entry("only")]),
+            atlas("Two", &[entry("a\u{2028}b"), entry("only")]),
+        ]),
+    )]);
+    let (found, defects) = load_lineage_text(&text);
+    assert_eq!(defects, Vec::<String>::new());
+    let chain = found.expect("the lineage loads whole");
+    let lines = render_standing(&chain).expect("the standing reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "entry a\u{2028}b, first stood at atlas 1, last stood at atlas 2, \
+             stands in 2 atlases, stands at the close",
+            "entry only, first stood at atlas 1, last stood at atlas 2, \
+             stands in 2 atlases, stands at the close",
+            "standing counts, atlases 2, entries 2, standing at every atlas 2, \
+             standing at the close 2",
         ])
     );
 }

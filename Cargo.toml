@@ -203,5 +203,21 @@ path = "rust/tests/test_examples_round12.rs"
 name = "test_generated_chain"
 path = "rust/tests/test_generated_chain.rs"
 
+[[test]]
+name = "test_matched"
+path = "rust/tests/test_matched.rs"
+
+[[test]]
+name = "test_cli_round13"
+path = "rust/tests/test_cli_round13.rs"
+
+[[test]]
+name = "test_examples_round13"
+path = "rust/tests/test_examples_round13.rs"
+
+[[test]]
+name = "test_changelog_counting"
+path = "rust/tests/test_changelog_counting.rs"
+
 [dependencies]
 libc = "0.2"

@@ -14,7 +14,9 @@
 //! stands absent from, and the arrivals of the chain, the
 //! entries that first stand at each atlas, and the
 //! departures of the chain, the entries that stand in no
-//! later atlas, read by last appearance. The loader
+//! later atlas, read by last appearance, and the matched
+//! of the chain, the entries that stand on both sides of
+//! each step. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
@@ -518,6 +520,14 @@ struct StepCounts {
 /// Render the changelog of two atlases and the counts it
 /// closes with, the one pass the changelog and the
 /// lineage readings both read.
+///
+/// A label held more than once in one atlas is read
+/// once, at its first standing in that atlas, under
+/// FIX-MY-19, its section pairing its first standing
+/// in the earlier atlas with its first standing in the
+/// later, so the counts the reading closes with count
+/// each label once, as the lineage reading's sums and
+/// the matched reading's relations read them.
 fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, StepCounts), String> {
     refuse_atlas_fields(earlier)?;
     refuse_atlas_fields(later)?;
@@ -530,18 +540,21 @@ fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, Ste
         format!("earlier atlas, {}", earlier.title),
         format!("later atlas, {}", later.title),
     ];
-    let later_by_label: HashMap<&PText, &AtlasEntry> = later
-        .entries
-        .iter()
-        .map(|entry| (&entry.label, entry))
-        .collect();
+    let mut later_by_label: HashMap<&PText, &AtlasEntry> = HashMap::new();
+    for entry in &later.entries {
+        later_by_label.entry(&entry.label).or_insert(entry);
+    }
     let earlier_labels: HashSet<&PText> =
         earlier.entries.iter().map(|entry| &entry.label).collect();
     let mut arrived = 0usize;
     let mut departed = 0usize;
     let mut matched = 0usize;
     let mut changed_branches = 0usize;
+    let mut seen: HashSet<&PText> = HashSet::new();
     for entry in &earlier.entries {
+        if !seen.insert(&entry.label) {
+            continue;
+        }
         refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
         match later_by_label.get(&entry.label) {
             None => {
@@ -580,7 +593,11 @@ fn changelog_reading(earlier: &Atlas, later: &Atlas) -> Result<(Vec<String>, Ste
             }
         }
     }
+    let mut seen: HashSet<&PText> = HashSet::new();
     for entry in &later.entries {
+        if !seen.insert(&entry.label) {
+            continue;
+        }
         if earlier_labels.contains(&entry.label) {
             continue;
         }
@@ -974,6 +991,73 @@ pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
     }
     closing.push_str(&format!(
         ", entries departed {departed}, entries {entries}, atlases {total}"
+    ));
+    lines.push(closing);
+    Ok(lines)
+}
+
+/// Render the matched of a chain of atlases, the entries
+/// standing on both sides of each step of the chain.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, in the one pass
+/// MY-18 states, and one section stands for each step of
+/// the chain in chain order, opening with the line step
+/// and the number of the step. Inside a section, one line
+/// stands for each entry matched at that step, standing in
+/// the atlas the step leads from and in the atlas it leads
+/// to, in the order the entries stand in the atlas the
+/// step leads from, and the line of a matched entry is the
+/// standing line of that entry, through the one standing
+/// line helper. Section membership is read from the pass's
+/// per-atlas label sets and each atlas is walked with a
+/// seen set beside it, so a label held more than once in
+/// one atlas is read once, at its first standing in that
+/// atlas, the posture FIX-MY-17 settled for the departures
+/// and returns readings, held here from the reading's first
+/// standing. A section in which no entry is matched stands
+/// as its opening line alone. The reading closes with the
+/// matched counts line, its head standing on that line
+/// alone, so no entry label can render a line equal to it.
+/// A hand-built lineage holding fewer than two atlases
+/// draws the refusal MY-13 states, and a label holding an
+/// unpaired surrogate draws the refusal PORT-11 names for
+/// that field, and a label holding a line break draws the
+/// refusal FIX-MY-13 names for that field, each label read
+/// for an unpaired surrogate first and then for a line
+/// break, as the presence pass reads them.
+pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut counts: Vec<usize> = Vec::new();
+    let mut matched_any: HashSet<&PText> = HashSet::new();
+    for step in 0..total - 1 {
+        lines.push(format!("step {}", step + 1));
+        let mut count = 0usize;
+        let mut seen: HashSet<&PText> = HashSet::new();
+        for entry in &lineage.atlases[step].entries {
+            if !seen.insert(&entry.label) {
+                continue;
+            }
+            if presence[step + 1].contains(&entry.label) {
+                lines.push(standing_line(&presence, &entry.label, total));
+                matched_any.insert(&entry.label);
+                count += 1;
+            }
+        }
+        counts.push(count);
+    }
+    let entries = first_standing_order(lineage).len();
+    let mut closing = String::from("matched counts");
+    for (index, count) in counts.iter().enumerate() {
+        closing.push_str(&format!(", step {} matched {}", index + 1, count));
+    }
+    closing.push_str(&format!(
+        ", entries matched {}, entries {}, steps {}",
+        matched_any.len(),
+        entries,
+        total - 1
     ));
     lines.push(closing);
     Ok(lines)
