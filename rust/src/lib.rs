@@ -11,10 +11,11 @@
 //! standing reading and the absence reading and the
 //! arrivals reading and the departures reading and the
 //! matched reading and the runs reading and the
-//! presence reading and the standings reading, the
-//! fork helper that builds an exploration
-//! skeleton, the JSON reading the loaders rest on, mirroring
-//! the Python json semantics, and the codepoint scan. The
+//! presence reading and the standings reading and
+//! the company reading, the fork helper that builds
+//! an exploration skeleton, the JSON reading the
+//! loaders rest on, mirroring the Python json
+//! semantics, and the codepoint scan. The
 //! binary is a thin shell over the command line module.
 
 pub mod atlas;

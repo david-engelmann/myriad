@@ -384,6 +384,31 @@ entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 2
 presence counts, atlas 1 standing 3, atlas 2 standing 3, atlas 3 standing 3, entries 4, atlases 3
 ```
 
+### standings
+
+The standings of a chain, one section for each entry of the chain under the line of its standing, naming each atlas of the chain the entry stands in, in chain order.
+
+```sh
+./target/release/myriad standings examples/winter-spring-summer-lineage.json
+```
+
+```text
+entry ferry link, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+atlas 1
+atlas 3
+entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+atlas 2
+standings counts, standings 9, entries 4, atlases 3
+```
+
 ## Status
 
 Seeded in October 2026. Setup has landed and Rounds 1 to 16 have closed, with all slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
@@ -410,6 +435,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 16 have closed, with al
 - Slice 16 has landed. It carries the presence reading of MY-32 that names the entries standing in each atlas of a chain in the lines of their standing, one section for each atlas, with its goldens under examples, the documentation repairs of the runs section of the Usage and the enumeration of the doc head carried to nine chain readings, and the generated fixture family extended with the presence golden and its relations at the stated shapes.
 - Contract, MY-33 and MY-34 met. They stand in full form in CONTRACT.md, and Round 16 closed on the merged slice 17 after three reviews, with the three recorded deviations judged faithful reconciliations and the version 2 forms amendment deferred under its named trigger.
 - Slice 17 has landed. It carries the standings reading of MY-34 that names the atlases each entry of a chain stands in, in one section for each entry under the line of its standing, with its goldens under examples, the documentation repairs of the presence section of the Usage and the enumeration of the doc head carried to ten chain readings, and the generated fixture family extended with the standings golden and its relations at the stated shapes.
+- Contract, MY-35 and MY-36 stand in full form in CONTRACT.md. Their standing is not claimed here, as Round 17 has not closed.
+- Slice 18 is built and in review. It carries the company reading of MY-36 that names the entries each entry of a chain stands with, in one section for each entry under the line of its standing, with its goldens under examples, the documentation repairs of the standings section of the Usage and the enumeration of the doc head carried to eleven chain readings, and the generated fixture family extended with the company golden and its relations at the stated shapes.
 - Slice 14 has landed. It carries the matched reading of MY-28 that names the entries standing on both sides of each step of a chain in the lines of their standing, with its goldens under examples, the posture paragraph that records the judgement of the two observations of the Round 12 red team with its two posture pins, the documentation repairs of the departures section of the Usage and the enumeration of the doc head, and the generated fixture family extended with the matched golden and the two measured bands at the stated shapes.
 - Slice 13 has landed. It carries the formats amendment of FIX-MY-15 that names the three formats at version 1 in one consolidated section of the contract, the value semantics settlement of FIX-MY-16 that settles the cloning, the equality, and the formatting of a value at the depth the parser admits, the departures reading of MY-26 that names the entries that stand in no later atlas after the atlas they were last seen in, with its goldens under examples, the documentation repairs of the arrivals section, the worked example, the toolchain floor, the annex, and the settled wording, and the generated fixture family, one chain of eight loggings at the stated shapes with the goldens of its five chain readings under examples.
 - Slice 12 has landed. It carries the rendering fencing closure of FIX-MY-14 that refuses a hand built value whose printed field holds a line break in the map, claims, census, atlas, index, and changelog renderings and in the lineage through them, and the arrivals reading that reads the presence of every entry of a chain in the one presence pass and names the entries arriving at each atlas in the lines of their standing, with the golden arrivals of the winter, spring, and summer chain and of the radio investigation chain under examples.

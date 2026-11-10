@@ -77,14 +77,27 @@
 //! stands nowhere on that tree, and the golden pin
 //! fails there by execution too, because the standings
 //! golden stands nowhere on that tree either.
+//!
+//! Round 17 extends the family by addition again. The
+//! company golden joins the nine at
+//! examples/generated-chain-company.txt, and two pins
+//! below read the company reading over the generated
+//! chain and its first, second, and fifth relations
+//! against the presence and standing readings. The
+//! discrimination split of the two stands as follows.
+//! Both pins fail on the tree before this slice by
+//! compile absence, because render_company stands
+//! nowhere on that tree, and the golden pin fails
+//! there by execution too, because the company
+//! golden stands nowhere on that tree either.
 
 mod common;
 
 use common::*;
 use myriad::atlas::{
-    load_lineage_text, render_absence, render_arrivals, render_departures, render_index,
-    render_lineage, render_matched, render_presence, render_returns, render_runs, render_standing,
-    render_standings, Lineage,
+    load_lineage_text, render_absence, render_arrivals, render_company, render_departures,
+    render_index, render_lineage, render_matched, render_presence, render_returns, render_runs,
+    render_standing, render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -1089,6 +1102,140 @@ fn the_standings_relations_hold_over_the_generated_chain() {
         "the standings counted by entry and by atlas agree"
     );
     assert_eq!(figure(closing, "standings counts, standings ", ","), 77);
+    assert_eq!(figure(closing, "entries ", ","), 21);
+    assert_eq!(figure_last(closing, "atlases "), 8);
+}
+
+#[test]
+fn the_generated_chain_company_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_company(&chain).expect("the company reads"),
+        golden("generated-chain-company.txt")
+    );
+}
+
+#[test]
+fn the_company_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let company = render_company(&chain).expect("the company reads");
+    let label_of = |line: &str| -> String {
+        line.strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(',')
+            .next()
+            .expect("a label stands")
+            .to_string()
+    };
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_lines = &standing[..standing.len() - 1];
+    let order: Vec<String> = standing_lines.iter().map(|line| label_of(line)).collect();
+    // The company each label holds, gathered from the
+    // presence reading's own sections, the labels that
+    // share a section with it, in first standing order.
+    let presence = render_presence(&chain).expect("the presence reads");
+    let mut presence_sections: Vec<Vec<&String>> = Vec::new();
+    for line in &presence {
+        if line.starts_with("atlas ") {
+            presence_sections.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            presence_sections
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line);
+        }
+    }
+    let gathered: Vec<Vec<String>> = order
+        .iter()
+        .map(|label| {
+            order
+                .iter()
+                .filter(|other| {
+                    other.as_str() != label.as_str()
+                        && presence_sections.iter().any(|section| {
+                            section
+                                .iter()
+                                .any(|line| line.starts_with(&format!("entry {label},")))
+                                && section
+                                    .iter()
+                                    .any(|line| line.starts_with(&format!("entry {other},")))
+                        })
+                })
+                .cloned()
+                .collect()
+        })
+        .collect();
+    // The sections of the reading, cut by the gathered
+    // sizes, because a company line and a heading are
+    // both standing lines and no mark on a line tells
+    // them apart. The first relation: each section
+    // names exactly the companions the presence
+    // sections gather with its heading, and each
+    // heading is the standing line of its label.
+    let mut sections: Vec<(String, Vec<String>)> = Vec::new();
+    let mut cursor = 0usize;
+    for (index, label) in order.iter().enumerate() {
+        let heading = company
+            .get(cursor)
+            .expect("a section heading stands")
+            .clone();
+        cursor += 1;
+        assert_eq!(heading, standing_lines[index], "the heading of {label}");
+        let mut named: Vec<String> = Vec::new();
+        for _ in &gathered[index] {
+            let line = company.get(cursor).expect("a company line stands");
+            named.push(label_of(line));
+            cursor += 1;
+        }
+        assert_eq!(
+            named, gathered[index],
+            "the company of {label} transposes the presence sections"
+        );
+        sections.push((label.clone(), named));
+    }
+    assert_eq!(
+        cursor,
+        company.len() - 1,
+        "the sections cover the reading but its closing"
+    );
+    assert_eq!(sections.len(), 21, "the generated chain holds 21 labels");
+    // The second relation: standing with is symmetric,
+    // read from the reading's own sections, and no
+    // section names its own entry.
+    let mut pairs = 0usize;
+    for first in 0..sections.len() {
+        assert!(
+            !sections[first].1.contains(&sections[first].0),
+            "an entry never stands in its own company"
+        );
+        for second in first + 1..sections.len() {
+            let forward = sections[first].1.contains(&sections[second].0);
+            let back = sections[second].1.contains(&sections[first].0);
+            assert_eq!(
+                forward, back,
+                "standing with is symmetric over the generated chain"
+            );
+            if forward {
+                pairs += 1;
+            }
+        }
+    }
+    // The fifth relation: the closing company figure
+    // is the sum of the sections' company lines and
+    // twice the count of the standing pairs.
+    let closing = company.last().expect("a closing line");
+    let summed: usize = sections.iter().map(|(_, named)| named.len()).sum();
+    assert_eq!(
+        figure(closing, "company counts, company ", ","),
+        summed,
+        "the closing company figure is the sum of its sections"
+    );
+    assert_eq!(
+        figure(closing, "company counts, company ", ","),
+        2 * pairs,
+        "the closing counts each standing pair once from each end"
+    );
+    assert_eq!(figure(closing, "company counts, company ", ","), 324);
     assert_eq!(figure(closing, "entries ", ","), 21);
     assert_eq!(figure_last(closing, "atlases "), 8);
 }
