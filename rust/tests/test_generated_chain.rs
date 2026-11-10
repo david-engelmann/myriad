@@ -64,6 +64,19 @@
 //! counted as a last standing before the close, the
 //! departures reading's last section standing empty by
 //! its own form.
+//!
+//! Round 16 extends the family by addition again. The
+//! standings golden joins the eight at
+//! examples/generated-chain-standings.txt, and two pins
+//! below read the standings reading over the generated
+//! chain and its first, second, and fifth relations
+//! against the presence, standing, and matched
+//! readings. The discrimination split of the two stands
+//! as follows. Both pins fail on the tree before this
+//! slice by compile absence, because render_standings
+//! stands nowhere on that tree, and the golden pin
+//! fails there by execution too, because the standings
+//! golden stands nowhere on that tree either.
 
 mod common;
 
@@ -71,7 +84,7 @@ use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_departures, render_index,
     render_lineage, render_matched, render_presence, render_returns, render_runs, render_standing,
-    Lineage,
+    render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -948,6 +961,136 @@ fn the_presence_relations_hold_over_the_generated_chain() {
             "the last standings of atlas {atlas_no} restate its departures"
         );
     }
+}
+
+#[test]
+fn the_generated_chain_standings_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_standings(&chain).expect("the standings read"),
+        golden("generated-chain-standings.txt")
+    );
+}
+
+#[test]
+fn the_standings_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let standings = render_standings(&chain).expect("the standings read");
+    let label_of = |line: &str| -> String {
+        line.strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(',')
+            .next()
+            .expect("a label stands")
+            .to_string()
+    };
+    // The sections of the reading, parsed from its own
+    // lines, each its heading line and the numbers of
+    // its atlas lines in order.
+    let mut sections: Vec<(String, Vec<usize>)> = Vec::new();
+    for line in &standings {
+        if line.starts_with("entry ") {
+            sections.push((line.clone(), Vec::new()));
+        } else if line.starts_with("atlas ") {
+            let number: usize = line
+                .strip_prefix("atlas ")
+                .expect("an atlas line")
+                .parse()
+                .expect("an atlas number");
+            sections
+                .last_mut()
+                .expect("an atlas line stands inside a section")
+                .1
+                .push(number);
+        }
+    }
+    assert_eq!(sections.len(), 21, "the generated chain holds 21 labels");
+    // The first relation: each section is the transpose
+    // of the presence sections over this chain, read
+    // from the presence reading's own output.
+    let presence = render_presence(&chain).expect("the presence reads");
+    let mut presence_sections: Vec<Vec<&String>> = Vec::new();
+    for line in &presence {
+        if line.starts_with("atlas ") {
+            presence_sections.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            presence_sections
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line);
+        }
+    }
+    for (heading, numbers) in &sections {
+        let label = label_of(heading);
+        let expected: Vec<usize> = presence_sections
+            .iter()
+            .enumerate()
+            .filter(|(_, section)| {
+                section
+                    .iter()
+                    .any(|line| line.starts_with(&format!("entry {label},")))
+            })
+            .map(|(index, _)| index + 1)
+            .collect();
+        assert_eq!(numbers, &expected, "the section of {label} transposes");
+    }
+    // The second relation: each heading is the standing
+    // line of its label in the standing reading, byte
+    // for byte, and each section's first line, last
+    // line, and count agree with its heading.
+    let standing = render_standing(&chain).expect("the standing reads");
+    for (heading, numbers) in &sections {
+        let label = label_of(heading);
+        let standing_line = standing
+            .iter()
+            .find(|line| line.starts_with(&format!("entry {label},")))
+            .expect("the label stands in the standing reading");
+        assert_eq!(heading, standing_line, "the heading of {label}");
+        assert_eq!(figure(heading, "first stood at atlas ", ","), numbers[0]);
+        assert_eq!(
+            figure(heading, "last stood at atlas ", ","),
+            *numbers.last().expect("a section holds a line")
+        );
+        assert_eq!(
+            figure(heading, "stands in ", " atlases"),
+            numbers.len(),
+            "the count of {label}"
+        );
+        assert_eq!(
+            heading.ends_with("stands at the close"),
+            *numbers.last().expect("a section holds a line") == chain.atlases.len()
+        );
+    }
+    // The fifth relation: the sections naming both
+    // atlases of a step are that step's matched figure,
+    // and the closing standings figure is the sum of
+    // the presence closing's per atlas figures.
+    let matched = render_matched(&chain).expect("the matched reads");
+    let matched_closing = matched.last().expect("a closing line");
+    for step in 1..chain.atlases.len() {
+        let both = sections
+            .iter()
+            .filter(|(_, numbers)| numbers.contains(&step) && numbers.contains(&(step + 1)))
+            .count();
+        assert_eq!(
+            both,
+            figure(matched_closing, &format!("step {step} matched "), ","),
+            "the sections naming both atlases of step {step}"
+        );
+    }
+    let closing = standings.last().expect("a closing line");
+    let presence_closing = presence.last().expect("a closing line");
+    let by_atlas: usize = (1..=chain.atlases.len())
+        .map(|index| figure(presence_closing, &format!("atlas {index} standing "), ","))
+        .sum();
+    assert_eq!(
+        figure(closing, "standings counts, standings ", ","),
+        by_atlas,
+        "the standings counted by entry and by atlas agree"
+    );
+    assert_eq!(figure(closing, "standings counts, standings ", ","), 77);
+    assert_eq!(figure(closing, "entries ", ","), 21);
+    assert_eq!(figure_last(closing, "atlases "), 8);
 }
 
 #[test]

@@ -1,0 +1,13 @@
+entry solo line, first stood at atlas 1, last stood at atlas 1, stands in 1 atlases, does not stand at the close
+atlas 1
+entry middle line, first stood at atlas 1, last stood at atlas 2, stands in 2 atlases, does not stand at the close
+atlas 1
+atlas 2
+entry keeper line, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+entry late line, first stood at atlas 2, last stood at atlas 3, stands in 2 atlases, stands at the close
+atlas 2
+atlas 3
+standings counts, standings 8, entries 4, atlases 3
