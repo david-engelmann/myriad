@@ -1107,6 +1107,60 @@ pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// Render the standings of a chain of atlases, the
+/// atlases each entry stands in, stated whole under
+/// its own standing line.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, in the one pass
+/// MY-18 states, and the pass is inverted before anything
+/// is stated, holding for each label the set of atlases
+/// it stands in. One section stands for each label in
+/// the order the labels first stand across the chain,
+/// opening with the standing line of that entry through
+/// the one standing line helper, and holding one line
+/// for each atlas the label stands in, in chain order,
+/// in the form atlas N, one line per standing, a label
+/// held more than once in one atlas named once there,
+/// by the presence pass's own posture. The reading
+/// closes with the standings counts line. A hand-built
+/// lineage holding fewer than two atlases draws the
+/// refusal MY-13 states, and a label holding an
+/// unpaired surrogate draws the refusal PORT-11 names
+/// for that field, and a label holding a line break
+/// draws the refusal FIX-MY-13 names for that field,
+/// the labels read in chain order, atlas order then
+/// entry order.
+pub fn render_standings(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut inverted: Vec<Vec<usize>> = Vec::new();
+    for label in &order {
+        let mut atlases: Vec<usize> = Vec::new();
+        for (index, labels) in presence.iter().enumerate() {
+            if labels.contains(label) {
+                atlases.push(index + 1);
+            }
+        }
+        inverted.push(atlases);
+    }
+    let mut lines: Vec<String> = Vec::new();
+    let mut standings = 0usize;
+    for (label, atlases) in order.iter().zip(inverted.iter()) {
+        lines.push(standing_line(&presence, label, total));
+        for atlas_no in atlases {
+            lines.push(format!("atlas {atlas_no}"));
+            standings += 1;
+        }
+    }
+    lines.push(format!(
+        "standings counts, standings {standings}, entries {}, atlases {total}",
+        order.len()
+    ));
+    Ok(lines)
+}
+
 /// Render the runs of a chain of atlases, the runs of
 /// atlases each entry stands in.
 ///
