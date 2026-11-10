@@ -22,6 +22,18 @@
 //! they passed by design against the fourteen command
 //! surface as it then stood, and they move only because
 //! the surface gained its fifteenth command.
+//!
+//! Round 15 states this file's split in the open. No pin
+//! here is new in this round and none of them is a new
+//! discriminating pin. The expected texts were
+//! regenerated from the real formatter as the named
+//! mechanical consequence of the sixteenth command, the
+//! presence command joining the choices the usage and
+//! help texts name, and the fixtures pin the command
+//! surface as it stands. On the tree before this slice
+//! they passed by design against the fifteen command
+//! surface as it then stood, and they move only because
+//! the surface gained its sixteenth command.
 
 mod common;
 
@@ -40,7 +52,7 @@ const WIDTHS: [usize; 3] = [60, 80, 120];
 fn top_help(columns: usize) -> Vec<String> {
     let usage: &[&str] = &[
         "usage: myriad [-h]",
-        "              {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs}",
+        "              {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs,presence}",
         "              ...",
     ];
     let mut lines: Vec<String> = usage.iter().map(|line| line.to_string()).collect();
@@ -63,7 +75,7 @@ fn top_help(columns: usize) -> Vec<String> {
     lines.push(String::new());
     lines.push("positional arguments:".to_string());
     lines.push(
-        "  {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs}"
+        "  {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs,presence}"
             .to_string(),
     );
     lines.push("    map                 print the map of a tree".to_string());
@@ -93,6 +105,8 @@ fn top_help(columns: usize) -> Vec<String> {
         lines.push("                        chain of atlases".to_string());
         lines.push("    runs                print the standing runs of a chain".to_string());
         lines.push("                        of atlases".to_string());
+        lines.push("    presence            print the presence of a chain of".to_string());
+        lines.push("                        atlases".to_string());
     } else {
         lines.push("    census              print the territory census of a tree".to_string());
         lines.push("    atlas               print the rendering of an atlas of trees".to_string());
@@ -111,6 +125,7 @@ fn top_help(columns: usize) -> Vec<String> {
         lines.push(
             "    runs                print the standing runs of a chain of atlases".to_string(),
         );
+        lines.push("    presence            print the presence of a chain of atlases".to_string());
     }
     lines.push(String::new());
     lines.push("options:".to_string());
@@ -121,7 +136,7 @@ fn top_help(columns: usize) -> Vec<String> {
 fn top_usage_lines(_columns: usize) -> Vec<String> {
     common::strings(&[
         "usage: myriad [-h]",
-        "              {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs}",
+        "              {map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs,presence}",
         "              ...",
     ])
 }
@@ -180,7 +195,7 @@ fn the_invalid_choice_error_stands_at_sixty_eighty_and_one_twenty() {
         let mut expected = top_usage_lines(columns);
         expected.push(
             "myriad: error: argument command: invalid choice: 'bogus' \
-             (choose from 'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs')"
+             (choose from 'map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs', 'presence')"
                 .to_string(),
         );
         assert_eq!(outcome.stderr, expected, "columns {columns}");
