@@ -26,6 +26,22 @@
 //! sixteenth, so the genus the Round 15 sweep names is
 //! designed against in this round's own file from its
 //! first standing.
+//!
+//! Round 17 states this file's split in the open.
+//! One pin here is restated in this round, the naming
+//! pin, whose choices header and choices string
+//! assertions now name company last, as the named
+//! mechanical consequence of the eighteenth command
+//! joining the surface. On the tree before this slice
+//! the file stands at two passed and one failed. The
+//! failure is the naming pin,
+//! the_help_and_choices_name_standings, failing by
+//! assertion on its restated text against the base
+//! surface, because neither the choices header nor
+//! the choices string names company on that tree.
+//! The golden pin and the malformed pin pass there
+//! by design, as they hold standing surface the round
+//! does not move.
 
 mod common;
 
@@ -87,14 +103,14 @@ fn the_help_and_choices_name_standings() {
         "the help listing names the standings command: {listing}"
     );
     assert!(
-        listing.contains("presence,standings}"),
-        "the choices header names standings last: {listing}"
+        listing.contains("presence,standings,company}"),
+        "the choices header names company last: {listing}"
     );
     let refused = run_cli(&["bogus"]);
     assert_eq!(refused.code, 2);
     let error = refused.stderr.join("\n");
     assert!(
-        error.contains("'presence', 'standings'"),
-        "the choices string names standings last: {error}"
+        error.contains("'presence', 'standings', 'company'"),
+        "the choices string names company last: {error}"
     );
 }

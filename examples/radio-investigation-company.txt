@@ -1,0 +1,15 @@
+entry radio check, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry battery drain, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry aerial icing, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+entry log gaps, first stood at atlas 2, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry battery drain, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry radio check, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry log gaps, first stood at atlas 2, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry aerial icing, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+entry radio check, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry log gaps, first stood at atlas 2, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry log gaps, first stood at atlas 2, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry radio check, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry battery drain, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+entry aerial icing, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+company counts, company 10, entries 4, atlases 3

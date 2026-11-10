@@ -1161,6 +1161,57 @@ pub fn render_standings(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// Render the company of a chain of atlases, the
+/// entries each entry of the chain stands with.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and one section
+/// stands for each label of the chain in the order the
+/// labels first stand across the chain, each section
+/// opening with the standing line of that entry through
+/// the one standing line helper, and holding one line
+/// for each entry that stands with it, the standing line
+/// of that entry through the one helper, in the order of
+/// first standing, two entries standing with each other
+/// when one atlas of the chain holds them both, an entry
+/// never standing in its own company, and an entry
+/// sharing no atlas with another entry holding its
+/// heading alone. The reading closes with the company
+/// counts line. A hand-built lineage holding fewer
+/// than two atlases draws the refusal MY-13 states, and
+/// a label holding an unpaired surrogate draws the
+/// refusal PORT-11 names for that field, and a label
+/// holding a line break draws the refusal FIX-MY-13
+/// names for that field, the labels read in chain
+/// order, atlas order then entry order.
+pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut company = 0usize;
+    for label in &order {
+        lines.push(standing_line(&presence, label, total));
+        for other in &order {
+            if other == label {
+                continue;
+            }
+            let shares = presence
+                .iter()
+                .any(|labels| labels.contains(label) && labels.contains(other));
+            if shares {
+                lines.push(standing_line(&presence, other, total));
+                company += 1;
+            }
+        }
+    }
+    lines.push(format!(
+        "company counts, company {company}, entries {}, atlases {total}",
+        order.len()
+    ));
+    Ok(lines)
+}
+
 /// Render the runs of a chain of atlases, the runs of
 /// atlases each entry stands in.
 ///
