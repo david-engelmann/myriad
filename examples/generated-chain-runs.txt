@@ -1,0 +1,35 @@
+entry ferry link, standing from atlas 1, for 2 atlases
+entry ferry link, standing from atlas 4, for 1 atlases
+entry ferry link, standing from atlas 7, for 2 atlases, to the close
+entry ice report, standing from atlas 1, for 8 atlases, to the close
+entry harbour lights, standing from atlas 1, for 3 atlases
+entry lifeboat cover, standing from atlas 1, for 1 atlases
+entry lifeboat cover, standing from atlas 4, for 1 atlases
+entry tide table, standing from atlas 1, for 8 atlases, to the close
+entry fuel store, standing from atlas 1, for 1 atlases
+entry fuel store, standing from atlas 3, for 3 atlases
+entry fuel store, standing from atlas 8, for 1 atlases, to the close
+entry crew rota, standing from atlas 1, for 3 atlases
+entry crew rota, standing from atlas 8, for 1 atlases, to the close
+entry signal mast, standing from atlas 1, for 2 atlases
+entry signal mast, standing from atlas 7, for 1 atlases
+entry buoy line, standing from atlas 1, for 5 atlases
+entry pier lights, standing from atlas 1, for 1 atlases
+entry cargo shed, standing from atlas 2, for 1 atlases
+entry cargo shed, standing from atlas 7, for 2 atlases, to the close
+entry rescue drill, standing from atlas 2, for 1 atlases
+entry rescue drill, standing from atlas 5, for 4 atlases, to the close
+entry weather glass, standing from atlas 2, for 1 atlases
+entry weather glass, standing from atlas 6, for 3 atlases, to the close
+entry ballast note, standing from atlas 2, for 2 atlases
+entry ballast note, standing from atlas 8, for 1 atlases, to the close
+entry fog bell, standing from atlas 3, for 3 atlases
+entry salt store, standing from atlas 3, for 6 atlases, to the close
+entry pilot boat, standing from atlas 4, for 3 atlases
+entry anchor watch, standing from atlas 5, for 1 atlases
+entry anchor watch, standing from atlas 8, for 1 atlases, to the close
+entry beacon list, standing from atlas 6, for 1 atlases
+entry beacon list, standing from atlas 8, for 1 atlases, to the close
+entry storm ledger, standing from atlas 7, for 1 atlases
+entry mooring plan, standing from atlas 8, for 1 atlases, to the close
+runs counts, runs 34, entries with runs 21, standing at the close 13

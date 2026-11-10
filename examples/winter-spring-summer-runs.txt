@@ -1,0 +1,6 @@
+entry ferry link, standing from atlas 1, for 3 atlases, to the close
+entry lifeboat cover, standing from atlas 1, for 3 atlases, to the close
+entry harbour lights, standing from atlas 1, for 1 atlases
+entry harbour lights, standing from atlas 3, for 1 atlases, to the close
+entry ice report, standing from atlas 2, for 1 atlases
+runs counts, runs 5, entries with runs 4, standing at the close 3
