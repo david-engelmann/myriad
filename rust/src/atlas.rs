@@ -1073,6 +1073,40 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// The presence reading: one section per atlas of the chain,
+/// each holding the standing lines of the entries standing in
+/// that atlas, plus a closing line counting the standings per
+/// atlas, the distinct labels, and the atlases. An empty atlas
+/// leaves its section as its opening line alone. The reading
+/// reads the presence pass once and states every line from it;
+/// a label held twice in one atlas stands once in its section,
+/// the posture FIX-MY-17 settled. The refusals are the presence
+/// pass's own, in chain order, each label read for an unpaired
+/// surrogate first and then for a line break.
+pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let total = lineage.atlases.len();
+    let entries = first_standing_order(lineage).len();
+    let mut lines: Vec<String> = Vec::new();
+    for (index, atlas) in lineage.atlases.iter().enumerate() {
+        lines.push(format!("atlas {}", index + 1));
+        let mut seen: HashSet<&PText> = HashSet::new();
+        for entry in &atlas.entries {
+            if !seen.insert(&entry.label) {
+                continue;
+            }
+            lines.push(standing_line(&presence, &entry.label, total));
+        }
+    }
+    let mut closing = String::from("presence counts");
+    for (index, set) in presence.iter().enumerate() {
+        closing.push_str(&format!(", atlas {} standing {}", index + 1, set.len()));
+    }
+    closing.push_str(&format!(", entries {}, atlases {}", entries, total));
+    lines.push(closing);
+    Ok(lines)
+}
+
 /// Render the runs of a chain of atlases, the runs of
 /// atlases each entry stands in.
 ///

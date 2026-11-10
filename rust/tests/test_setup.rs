@@ -23,6 +23,22 @@
 //! 15 status line. No pin added here passes on that tree
 //! by design.
 //!
+//! Round 15 adds three pins to this file and extends a
+//! fourth, and their discrimination split stands as
+//! follows. The runs Usage pin and the presence assertion
+//! of the doc head enumeration pin fail on the tree
+//! before this slice by assertion, because no runs
+//! section stands in the README's Usage there and the
+//! doc head names eight of the nine chain readings
+//! there. The round fifteen status pin and the round
+//! fifteen obligations pin fail there by assertion too,
+//! because the README carries no round fifteen standing
+//! or slice line and the contract carries no MY-31 or
+//! MY-32 there. The built and in review count moves to
+//! one as the named mechanical consequence of the slice
+//! 16 status line. No pin added here passes on that tree
+//! by design.
+//!
 //! Round 13 adds four pins to this file and alters a
 //! fifth, and their discrimination split stands as
 //! follows. The departures
@@ -251,7 +267,12 @@ fn readme_reports_the_slice_five_standing() {
     // status line, which read built and in review while
     // Round 14 was built, until the Round 14 closure
     // landed slice 15 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one again as the named mechanical
+    // consequence of the slice 16 status line, which
+    // reads built and in review while Round 15 is
+    // built, until the Round 15 closure lands slice 16
+    // and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at sixteen, not fifteen, as a mechanical
     // consequence of the Round 14 closure. The slice 15 line
     // now also reads has landed, beside the port status
@@ -458,6 +479,25 @@ fn readme_reports_the_round_fourteen_status() {
 }
 
 #[test]
+fn readme_reports_the_round_fifteen_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-31 and MY-32 stand in full form in \
+        CONTRACT.md. Their standing is not claimed here, as Round 15 \
+        has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 16 is built and in review. It carries the \
+        presence reading of MY-32 that names the entries standing in \
+        each atlas of a chain in the lines of their standing, one \
+        section for each atlas, with its goldens under examples, the \
+        documentation repairs of the runs section of the Usage and \
+        the enumeration of the doc head carried to nine chain \
+        readings, and the generated fixture family extended with the \
+        presence golden and its relations at the stated shapes.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 14 of 100"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -615,6 +655,14 @@ fn contract_carries_the_round_fourteen_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_fifteen_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-31", "MY-32"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn the_exploration_format_stands_named_at_version_one() {
     let text = read("CONTRACT.md");
     assert!(text.contains("myriad-exploration at version 1"));
@@ -732,9 +780,34 @@ fn the_lib_doc_head_names_every_chain_reading() {
         "the departures reading",
         "the matched reading",
         "the runs reading",
+        "the presence reading",
     ] {
         assert!(flowed.contains(reading), "the doc head names {reading}");
     }
+}
+
+// Round 15, the documentation repairs. The runs section
+// stands in Usage after the matched section, and the doc
+// head of the library root names every chain reading,
+// each pin failing by assertion on the tree before this
+// slice, where no runs section stood and the doc head
+// named eight of the nine.
+
+#[test]
+fn the_runs_section_stands_in_usage_after_the_matched_section() {
+    let readme = read("README.md");
+    let matched = readme
+        .find("### matched")
+        .expect("the matched section stands");
+    let runs = readme.find("### runs").expect("the runs section stands");
+    assert!(
+        runs > matched,
+        "the runs section follows the matched section"
+    );
+    assert!(
+        readme.contains("./target/release/myriad runs examples/winter-spring-summer-lineage.json")
+    );
+    assert!(readme.contains("runs counts, runs 5, entries with runs 4, standing at the close 3"));
 }
 
 #[test]
