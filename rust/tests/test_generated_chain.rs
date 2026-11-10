@@ -33,13 +33,26 @@
 //! design, because the chain and its loader stand
 //! unchanged there, and its failure mode is a drifted
 //! regeneration of the chain.
+//!
+//! Round 14 extends the family by addition again. The
+//! runs golden joins the six at
+//! examples/generated-chain-runs.txt, and two pins
+//! below read the runs reading over the generated chain
+//! and its first three relations against the standing,
+//! returns, and absence readings. The discrimination
+//! split of the two stands as follows. Both pins fail
+//! on the tree before this slice by compile absence,
+//! because render_runs stands nowhere on that tree,
+//! and the golden pin fails there by execution too,
+//! because the runs golden stands nowhere on that tree
+//! either.
 
 mod common;
 
 use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_departures, render_index,
-    render_lineage, render_matched, render_returns, render_standing, Lineage,
+    render_lineage, render_matched, render_returns, render_runs, render_standing, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -721,6 +734,69 @@ fn the_matched_relations_hold_over_the_generated_chain() {
     assert!(
         entries_matched >= figure(standing_closing, "standing at every atlas ", ","),
         "the entries matched stand no smaller than the standing at every atlas"
+    );
+}
+
+#[test]
+fn the_generated_chain_runs_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_runs(&chain).expect("the runs read"),
+        golden("generated-chain-runs.txt")
+    );
+}
+
+#[test]
+fn the_runs_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let runs = render_runs(&chain).expect("the runs read");
+    let closing = runs.last().expect("a closing line");
+    let runs_figure = figure(closing, "runs counts, runs ", ",");
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_closing = standing.last().expect("a closing line");
+    // The first relation: the runs figure is the
+    // standing entries figure together with the returns
+    // figure.
+    let returns = render_returns(&chain).expect("the returns read");
+    let returns_closing = returns.last().expect("a closing line");
+    assert_eq!(
+        runs_figure,
+        figure(standing_closing, "entries ", ",")
+            + figure(returns_closing, "returns counts, returns ", ",")
+    );
+    // The second relation: for each label, the counts
+    // of atlases of its run lines, taken together, equal
+    // the count its standing line states.
+    let mut sums: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
+    for line in runs.iter().filter(|line| line.starts_with("entry ")) {
+        let label = line
+            .strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(", standing from atlas ")
+            .next()
+            .expect("a label stands");
+        *sums.entry(label.to_string()).or_insert(0) += figure(line, ", for ", " atlases");
+    }
+    for (label, sum) in &sums {
+        let line = standing
+            .iter()
+            .find(|line| line.starts_with(&format!("entry {label},")))
+            .expect("the standing line of the label stands");
+        assert_eq!(
+            *sum,
+            figure(line, "stands in ", " atlases"),
+            "the runs of {label} partition its standings"
+        );
+    }
+    // The third relation: the runs figure reads off the
+    // absence figures together with the entries figure.
+    let absence = render_absence(&chain).expect("the absence reads");
+    let absence_closing = absence.last().expect("a closing line");
+    assert_eq!(
+        runs_figure,
+        figure(absence_closing, "absence counts, absences ", ",")
+            - figure_last(absence_closing, "absent at the close ")
+            + figure(standing_closing, "entries ", ",")
     );
 }
 

@@ -77,14 +77,14 @@ fn the_help_and_choices_name_matched() {
         "the help listing names the matched command: {listing}"
     );
     assert!(
-        listing.contains("departures,matched}"),
-        "the choices header names matched last: {listing}"
+        listing.contains("departures,matched,runs}"),
+        "the choices header names runs last: {listing}"
     );
     let refused = run_cli(&["bogus"]);
     assert_eq!(refused.code, 2);
     let error = refused.stderr.join("\n");
     assert!(
-        error.contains("'departures', 'matched'"),
-        "the choices string names matched last: {error}"
+        error.contains("'departures', 'matched', 'runs'"),
+        "the choices string names runs last: {error}"
     );
 }

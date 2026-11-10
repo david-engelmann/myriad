@@ -470,20 +470,26 @@ fn changelog_branch(
 /// earlier exploration, the matched and the departed
 /// branches among them, and the arrived branches stand
 /// after them in the order they stand in the later
-/// exploration.
+/// exploration. Under FIX-MY-20 each branch id is read
+/// once at its first standing in each exploration, the
+/// later map taking the first standing and each walk
+/// skipping a standing of an id already read.
 fn changelog_branches(
     earlier: &Exploration,
     later: &Exploration,
     lines: &mut Vec<String>,
 ) -> Result<usize, String> {
-    let later_by_id: HashMap<&PText, &Branch> = later
-        .branches
-        .iter()
-        .map(|branch| (&branch.id, branch))
-        .collect();
+    let mut later_by_id: HashMap<&PText, &Branch> = HashMap::new();
+    for branch in &later.branches {
+        later_by_id.entry(&branch.id).or_insert(branch);
+    }
     let earlier_ids: HashSet<&PText> = earlier.branches.iter().map(|branch| &branch.id).collect();
     let mut changed = 0usize;
+    let mut seen: HashSet<&PText> = HashSet::new();
     for branch in &earlier.branches {
+        if !seen.insert(&branch.id) {
+            continue;
+        }
         match later_by_id.get(&branch.id) {
             None => {
                 refuse_surrogate(&branch.id, "a branch id holds an unpaired surrogate")?;
@@ -497,7 +503,11 @@ fn changelog_branches(
             }
         }
     }
+    let mut seen_later: HashSet<&PText> = HashSet::new();
     for branch in &later.branches {
+        if !seen_later.insert(&branch.id) {
+            continue;
+        }
         if earlier_ids.contains(&branch.id) {
             continue;
         }
@@ -1060,6 +1070,74 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
         total - 1
     ));
     lines.push(closing);
+    Ok(lines)
+}
+
+/// Render the runs of a chain of atlases, the runs of
+/// atlases each entry stands in.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and one line stands
+/// for each standing run of the chain in the order the
+/// labels first stand across the chain, the runs of one
+/// label in chain order. A standing run is a run of one
+/// or more atlases in a row in which the label stands,
+/// where the atlas immediately before the run, when the
+/// chain holds one, is one the label does not stand in,
+/// and a run that reaches the last atlas of the chain
+/// closes with the words to the close. The reading
+/// closes with the runs counts line. A hand-built
+/// lineage holding fewer than two atlases draws the
+/// refusal MY-13 states, and a label holding an unpaired
+/// surrogate draws the refusal PORT-11 names for that
+/// field, and a label holding a line break draws the
+/// refusal FIX-MY-13 names for that field, the labels
+/// read in chain order, atlas order then entry order.
+pub fn render_runs(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut lines: Vec<String> = Vec::new();
+    let mut runs = 0usize;
+    let mut standing_at_close = 0usize;
+    for label in &order {
+        let mut index = 0usize;
+        let mut label_closes = false;
+        while index < total {
+            if !presence[index].contains(label) {
+                index += 1;
+                continue;
+            }
+            let start = index;
+            while index < total && presence[index].contains(label) {
+                index += 1;
+            }
+            runs += 1;
+            if index == total {
+                label_closes = true;
+                lines.push(format!(
+                    "entry {}, standing from atlas {}, for {} atlases, to the close",
+                    label,
+                    start + 1,
+                    index - start
+                ));
+            } else {
+                lines.push(format!(
+                    "entry {}, standing from atlas {}, for {} atlases",
+                    label,
+                    start + 1,
+                    index - start
+                ));
+            }
+        }
+        if label_closes {
+            standing_at_close += 1;
+        }
+    }
+    lines.push(format!(
+        "runs counts, runs {runs}, entries with runs {}, standing at the close {standing_at_close}",
+        order.len()
+    ));
     Ok(lines)
 }
 

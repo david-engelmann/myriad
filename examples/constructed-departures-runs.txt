@@ -1,0 +1,5 @@
+entry solo line, standing from atlas 1, for 1 atlases
+entry middle line, standing from atlas 1, for 2 atlases
+entry keeper line, standing from atlas 1, for 3 atlases, to the close
+entry late line, standing from atlas 2, for 2 atlases, to the close
+runs counts, runs 4, entries with runs 4, standing at the close 2

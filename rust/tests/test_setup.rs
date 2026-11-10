@@ -7,6 +7,22 @@
 //! and the cargo steps in the CI gate, the additions PORT-5
 //! and PORT-7 ask the port to make.
 //!
+//! Round 14 adds three pins to this file and extends a
+//! fourth, and their discrimination split stands as
+//! follows. The matched Usage pin and the runs assertion
+//! of the doc head enumeration pin fail on the tree
+//! before this slice by assertion, because no matched
+//! section stands in the README's Usage there and the
+//! doc head names seven of the eight chain readings
+//! there. The round fourteen slice pin and the round
+//! fourteen obligations pin fail there by assertion too,
+//! because the README carries no round fourteen standing
+//! or slice line and the contract carries no MY-29 or
+//! MY-30 there. The built and in review count moves to
+//! one as the named mechanical consequence of the slice
+//! 15 status line. No pin added here passes on that tree
+//! by design.
+//!
 //! Round 13 adds four pins to this file and alters a
 //! fifth, and their discrimination split stands as
 //! follows. The departures
@@ -230,8 +246,12 @@ fn readme_reports_the_slice_five_standing() {
     // consequence of the slice 14 status line, which
     // read built and in review while Round 13 was built,
     // until the Round 13 closure landed slice 14 and the
-    // count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // count returned to zero. It stands at one again as
+    // the named mechanical consequence of the slice 15
+    // status line, which reads built and in review while
+    // Round 14 is built, until the Round 14 closure
+    // lands slice 15 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at fifteen, not fourteen, as a mechanical
     // consequence of the Round 13 closure. The slice 14 line
     // now also reads has landed, beside the port status
@@ -417,6 +437,26 @@ fn readme_reports_the_round_thirteen_status() {
 }
 
 #[test]
+fn readme_reports_the_round_fourteen_slice() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-29 and MY-30 now stand in full form in \
+        CONTRACT.md, and their standing is not claimed here, as Round 14 \
+        has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 15 is built and in review. It carries the \
+        runs reading of MY-30 that names each standing run of a chain, \
+        one line for each run of atlases in a row an entry stands in, \
+        with its goldens under examples, the changelog branch counting \
+        repair of FIX-MY-20 that reads each branch id once at its first \
+        standing inside a matched entry, the documentation repairs of \
+        the matched section of the Usage and the enumeration of the \
+        doc head, and the generated fixture family extended with the \
+        runs golden and its relations at the stated shapes.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 13 of 100"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -566,6 +606,14 @@ fn contract_carries_the_round_thirteen_obligations() {
 }
 
 #[test]
+fn contract_carries_the_round_fourteen_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-29", "MY-30", "FIX-MY-20"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
 fn the_exploration_format_stands_named_at_version_one() {
     let text = read("CONTRACT.md");
     assert!(text.contains("myriad-exploration at version 1"));
@@ -640,6 +688,34 @@ fn the_departures_section_stands_in_usage_after_the_arrivals_section() {
     ));
 }
 
+// Round 14, the documentation repairs. The matched
+// section stands in Usage after the departures section,
+// and the doc head of the library root names every
+// chain reading, each pin failing by assertion on the
+// tree before this slice, where no matched section
+// stood and the doc head named seven of the eight.
+
+#[test]
+fn the_matched_section_stands_in_usage_after_the_departures_section() {
+    let readme = read("README.md");
+    let departures = readme
+        .find("### departures")
+        .expect("the departures section stands");
+    let matched = readme
+        .find("### matched")
+        .expect("the matched section stands");
+    assert!(
+        matched > departures,
+        "the matched section follows the departures section"
+    );
+    assert!(readme
+        .contains("./target/release/myriad matched examples/winter-spring-summer-lineage.json"));
+    assert!(readme.contains(
+        "matched counts, step 1 matched 2, step 2 matched 2, \
+         entries matched 2, entries 4, steps 2"
+    ));
+}
+
 #[test]
 fn the_lib_doc_head_names_every_chain_reading() {
     let lib = read("rust/src/lib.rs");
@@ -654,6 +730,7 @@ fn the_lib_doc_head_names_every_chain_reading() {
         "the arrivals reading",
         "the departures reading",
         "the matched reading",
+        "the runs reading",
     ] {
         assert!(flowed.contains(reading), "the doc head names {reading}");
     }

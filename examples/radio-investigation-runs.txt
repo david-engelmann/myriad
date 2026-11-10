@@ -1,0 +1,6 @@
+entry radio check, standing from atlas 1, for 3 atlases, to the close
+entry battery drain, standing from atlas 1, for 1 atlases
+entry battery drain, standing from atlas 3, for 1 atlases, to the close
+entry aerial icing, standing from atlas 2, for 1 atlases
+entry log gaps, standing from atlas 2, for 2 atlases, to the close
+runs counts, runs 5, entries with runs 4, standing at the close 3

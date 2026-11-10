@@ -1,6 +1,6 @@
 //! The command line, mirroring the Python argparse surface.
 //!
-//! The binary carries fourteen commands, thirteen over one file
+//! The binary carries fifteen commands, fourteen over one file
 //! argument each and the changelog over two. The dispatch
 //! mirrors the Python argparse run token
 //! for token, including the layouts of help and of errors, the
@@ -17,7 +17,7 @@ use std::ffi::OsString;
 use crate::atlas::{
     load_atlas_text, load_lineage_text, render_absence, render_arrivals, render_atlas,
     render_changelog, render_departures, render_index, render_lineage, render_matched,
-    render_returns, render_standing, Atlas, Lineage,
+    render_returns, render_runs, render_standing, Atlas, Lineage,
 };
 use crate::explorations::{
     count_by_state, load_exploration_text, render_census, render_claims, render_map, Exploration,
@@ -722,7 +722,7 @@ fn format_action(action: &ActionInfo, help_position: usize, width: usize) -> Str
 // The dispatch, mirroring the Python argparse run over the
 // two parser shapes.
 
-const COMMANDS: [&str; 14] = [
+const COMMANDS: [&str; 15] = [
     "map",
     "check",
     "claims",
@@ -737,11 +737,12 @@ const COMMANDS: [&str; 14] = [
     "arrivals",
     "departures",
     "matched",
+    "runs",
 ];
 const CHOICES_DISPLAY: &str = "'map', 'check', 'claims', 'census', 'atlas', 'index', \
-     'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched'";
+     'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs'";
 const CHOICES_HEADER: &str =
-    "{map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched}";
+    "{map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs}";
 
 fn help_action() -> ActionInfo {
     ActionInfo {
@@ -781,6 +782,7 @@ fn top_info() -> ParserInfo {
             ("arrivals", "print the arrivals of a chain of atlases"),
             ("departures", "print the departures of a chain of atlases"),
             ("matched", "print the matched entries of a chain of atlases"),
+            ("runs", "print the standing runs of a chain of atlases"),
         ]
         .into_iter()
         .map(|(name, help)| (name.to_string(), help.to_string()))
@@ -1401,7 +1403,8 @@ fn run_command(
                 }
             }
         }
-        "lineage" | "returns" | "standing" | "absence" | "arrivals" | "departures" | "matched" => {
+        "lineage" | "returns" | "standing" | "absence" | "arrivals" | "departures" | "matched"
+        | "runs" => {
             let loaded = load_lineage_arg(file, read_file);
             match loaded {
                 (Some(lineage), _) => Outcome {
@@ -1423,6 +1426,9 @@ fn run_command(
                     } else if command == "matched" {
                         render_matched(&lineage)
                             .expect("a loaded lineage satisfies the reading preconditions")
+                    } else if command == "runs" {
+                        render_runs(&lineage)
+                            .expect("a loaded lineage satisfies the reading preconditions")
                     } else {
                         render_absence(&lineage)
                             .expect("a loaded lineage satisfies the reading preconditions")
@@ -1443,7 +1449,7 @@ fn run_command(
                 }
             }
         }
-        _ => unreachable!("the choice check admits only the fourteen commands"),
+        _ => unreachable!("the choice check admits only the fifteen commands"),
     }
 }
 
