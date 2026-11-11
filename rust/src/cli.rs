@@ -1,6 +1,6 @@
 //! The command line, mirroring the Python argparse surface.
 //!
-//! The binary carries eighteen commands, seventeen over one file
+//! The binary carries nineteen commands, eighteen over one file
 //! argument each and the changelog over two. The dispatch
 //! mirrors the Python argparse run token
 //! for token, including the layouts of help and of errors, the
@@ -17,7 +17,7 @@ use std::ffi::OsString;
 use crate::atlas::{
     load_atlas_text, load_lineage_text, render_absence, render_arrivals, render_atlas,
     render_changelog, render_company, render_departures, render_index, render_lineage,
-    render_matched, render_presence, render_returns, render_runs, render_standing,
+    render_matched, render_presence, render_returns, render_runs, render_sets, render_standing,
     render_standings, Atlas, Lineage,
 };
 use crate::explorations::{
@@ -723,7 +723,7 @@ fn format_action(action: &ActionInfo, help_position: usize, width: usize) -> Str
 // The dispatch, mirroring the Python argparse run over the
 // two parser shapes.
 
-const COMMANDS: [&str; 18] = [
+const COMMANDS: [&str; 19] = [
     "map",
     "check",
     "claims",
@@ -742,11 +742,12 @@ const COMMANDS: [&str; 18] = [
     "presence",
     "standings",
     "company",
+    "sets",
 ];
 const CHOICES_DISPLAY: &str = "'map', 'check', 'claims', 'census', 'atlas', 'index', \
-     'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs', 'presence', 'standings', 'company'";
+     'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs', 'presence', 'standings', 'company', 'sets'";
 const CHOICES_HEADER: &str =
-    "{map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs,presence,standings,company}";
+    "{map,check,claims,census,atlas,index,changelog,lineage,returns,standing,absence,arrivals,departures,matched,runs,presence,standings,company,sets}";
 
 fn help_action() -> ActionInfo {
     ActionInfo {
@@ -790,6 +791,7 @@ fn top_info() -> ParserInfo {
             ("presence", "print the presence of a chain of atlases"),
             ("standings", "print the standings of a chain of atlases"),
             ("company", "print the company of a chain of atlases"),
+            ("sets", "print the sets of a chain of atlases"),
         ]
         .into_iter()
         .map(|(name, help)| (name.to_string(), help.to_string()))
@@ -1411,7 +1413,7 @@ fn run_command(
             }
         }
         "lineage" | "returns" | "standing" | "absence" | "arrivals" | "departures" | "matched"
-        | "runs" | "presence" | "standings" | "company" => {
+        | "runs" | "presence" | "standings" | "company" | "sets" => {
             let loaded = load_lineage_arg(file, read_file);
             match loaded {
                 (Some(lineage), _) => Outcome {
@@ -1445,6 +1447,9 @@ fn run_command(
                     } else if command == "company" {
                         render_company(&lineage)
                             .expect("a loaded lineage satisfies the reading preconditions")
+                    } else if command == "sets" {
+                        render_sets(&lineage)
+                            .expect("a loaded lineage satisfies the reading preconditions")
                     } else {
                         render_absence(&lineage)
                             .expect("a loaded lineage satisfies the reading preconditions")
@@ -1465,7 +1470,7 @@ fn run_command(
                 }
             }
         }
-        _ => unreachable!("the choice check admits only the eighteen commands"),
+        _ => unreachable!("the choice check admits only the nineteen commands"),
     }
 }
 

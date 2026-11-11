@@ -1,0 +1,91 @@
+atlas 1
+atlas 2
+atlas 4
+atlas 7
+atlas 8
+entry ferry link, first stood at atlas 1, last stood at atlas 8, stands in 5 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+atlas 4
+atlas 5
+atlas 6
+atlas 7
+atlas 8
+entry ice report, first stood at atlas 1, last stood at atlas 8, stands in 8 atlases, stands at the close
+entry tide table, first stood at atlas 1, last stood at atlas 8, stands in 8 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, does not stand at the close
+atlas 1
+atlas 4
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 4, stands in 2 atlases, does not stand at the close
+atlas 1
+atlas 3
+atlas 4
+atlas 5
+atlas 8
+entry fuel store, first stood at atlas 1, last stood at atlas 8, stands in 5 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 3
+atlas 8
+entry crew rota, first stood at atlas 1, last stood at atlas 8, stands in 4 atlases, stands at the close
+atlas 1
+atlas 2
+atlas 7
+entry signal mast, first stood at atlas 1, last stood at atlas 7, stands in 3 atlases, does not stand at the close
+atlas 1
+atlas 2
+atlas 3
+atlas 4
+atlas 5
+entry buoy line, first stood at atlas 1, last stood at atlas 5, stands in 5 atlases, does not stand at the close
+atlas 1
+entry pier lights, first stood at atlas 1, last stood at atlas 1, stands in 1 atlases, does not stand at the close
+atlas 2
+atlas 7
+atlas 8
+entry cargo shed, first stood at atlas 2, last stood at atlas 8, stands in 3 atlases, stands at the close
+atlas 2
+atlas 5
+atlas 6
+atlas 7
+atlas 8
+entry rescue drill, first stood at atlas 2, last stood at atlas 8, stands in 5 atlases, stands at the close
+atlas 2
+atlas 6
+atlas 7
+atlas 8
+entry weather glass, first stood at atlas 2, last stood at atlas 8, stands in 4 atlases, stands at the close
+atlas 2
+atlas 3
+atlas 8
+entry ballast note, first stood at atlas 2, last stood at atlas 8, stands in 3 atlases, stands at the close
+atlas 3
+atlas 4
+atlas 5
+entry fog bell, first stood at atlas 3, last stood at atlas 5, stands in 3 atlases, does not stand at the close
+atlas 3
+atlas 4
+atlas 5
+atlas 6
+atlas 7
+atlas 8
+entry salt store, first stood at atlas 3, last stood at atlas 8, stands in 6 atlases, stands at the close
+atlas 4
+atlas 5
+atlas 6
+entry pilot boat, first stood at atlas 4, last stood at atlas 6, stands in 3 atlases, does not stand at the close
+atlas 5
+atlas 8
+entry anchor watch, first stood at atlas 5, last stood at atlas 8, stands in 2 atlases, stands at the close
+atlas 6
+atlas 8
+entry beacon list, first stood at atlas 6, last stood at atlas 8, stands in 2 atlases, stands at the close
+atlas 7
+entry storm ledger, first stood at atlas 7, last stood at atlas 7, stands in 1 atlases, does not stand at the close
+atlas 8
+entry mooring plan, first stood at atlas 8, last stood at atlas 8, stands in 1 atlases, stands at the close
+sets counts, sets 20, entries 21, atlases 8

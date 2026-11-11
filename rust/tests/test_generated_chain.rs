@@ -90,6 +90,19 @@
 //! nowhere on that tree, and the golden pin fails
 //! there by execution too, because the company
 //! golden stands nowhere on that tree either.
+//!
+//! Round 18 extends the family by addition again. The
+//! sets golden joins the ten at
+//! examples/generated-chain-sets.txt, and two pins
+//! below read the sets reading over the generated
+//! chain and its first, second, and fifth relations
+//! against the standings and standing readings. The
+//! discrimination split of the two stands as follows.
+//! Both pins fail on the tree before this slice by
+//! compile absence, because render_sets stands
+//! nowhere on that tree, and the golden pin fails
+//! there by execution too, because the sets
+//! golden stands nowhere on that tree either.
 
 mod common;
 
@@ -97,7 +110,7 @@ use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_company, render_departures,
     render_index, render_lineage, render_matched, render_presence, render_returns, render_runs,
-    render_standing, render_standings, Lineage,
+    render_sets, render_standing, render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -1238,6 +1251,167 @@ fn the_company_relations_hold_over_the_generated_chain() {
     assert_eq!(figure(closing, "company counts, company ", ","), 324);
     assert_eq!(figure(closing, "entries ", ","), 21);
     assert_eq!(figure_last(closing, "atlases "), 8);
+}
+
+#[test]
+fn the_generated_chain_sets_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_sets(&chain).expect("the sets read"),
+        golden("generated-chain-sets.txt")
+    );
+}
+
+#[test]
+fn the_sets_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let sets = render_sets(&chain).expect("the sets read");
+    let label_of = |line: &str| -> String {
+        line.strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(',')
+            .next()
+            .expect("a label stands")
+            .to_string()
+    };
+    // The standings sections of the chain, each label
+    // against the atlases its own section names, read
+    // from the standings reading's own output.
+    let standings = render_standings(&chain).expect("the standings read");
+    let mut by_label: Vec<(String, Vec<usize>)> = Vec::new();
+    for line in &standings[..standings.len() - 1] {
+        if line.starts_with("entry ") {
+            by_label.push((label_of(line), Vec::new()));
+        } else if line.starts_with("atlas ") {
+            let number: usize = line
+                .strip_prefix("atlas ")
+                .expect("an atlas line")
+                .parse()
+                .expect("an atlas number");
+            by_label
+                .last_mut()
+                .expect("an atlas line stands inside a section")
+                .1
+                .push(number);
+        }
+    }
+    // The sections of the reading, each its atlas
+    // numbers in order and the labels holding the set.
+    // A section opens at an atlas line standing first
+    // or following an entry line.
+    let mut sections: Vec<(Vec<usize>, Vec<String>)> = Vec::new();
+    for line in &sets[..sets.len() - 1] {
+        if line.starts_with("atlas ") {
+            let opens = match sections.last() {
+                None => true,
+                Some((_, labels)) => !labels.is_empty(),
+            };
+            if opens {
+                sections.push((Vec::new(), Vec::new()));
+            }
+            let number: usize = line
+                .strip_prefix("atlas ")
+                .expect("an atlas line")
+                .parse()
+                .expect("an atlas number");
+            sections
+                .last_mut()
+                .expect("an atlas line stands inside a section")
+                .0
+                .push(number);
+        } else if line.starts_with("entry ") {
+            sections
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .1
+                .push(label_of(line));
+        }
+    }
+    // The first relation: each label stands in exactly
+    // one section, the section whose atlas lines are
+    // the atlas lines of its standings section.
+    for (label, numbers) in &by_label {
+        let holding: Vec<&(Vec<usize>, Vec<String>)> = sections
+            .iter()
+            .filter(|(_, labels)| labels.contains(label))
+            .collect();
+        assert_eq!(
+            holding.len(),
+            1,
+            "the label {label} stands in exactly one section"
+        );
+        assert_eq!(
+            &holding[0].0, numbers,
+            "the section of {label} carries the atlas lines of its standings section"
+        );
+    }
+    assert_eq!(
+        sections.len(),
+        20,
+        "the generated chain holds 20 distinct sets"
+    );
+    // The second relation: two labels stand in one
+    // section exactly when their standings sections
+    // name the same atlases, the one shared set being
+    // the full set of all eight atlases, held by the
+    // ice report and tide table entries.
+    for (first_label, first_numbers) in &by_label {
+        for (second_label, second_numbers) in &by_label {
+            let together = sections
+                .iter()
+                .any(|(_, labels)| labels.contains(first_label) && labels.contains(second_label));
+            assert_eq!(
+                together,
+                first_numbers == second_numbers,
+                "{first_label} and {second_label} stand together exactly on the equality of their sets"
+            );
+        }
+    }
+    // The fifth relation: the closing sets figure is
+    // the count of the sections, its entries figure is
+    // the standing reading's, each label's set counted
+    // once at its own section sums to the standings
+    // figure, and the sections holding one label are
+    // the labels whose set no other label holds.
+    let closing = sets.last().expect("a closing line");
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_closing = standing.last().expect("a closing line");
+    assert_eq!(
+        figure(closing, "sets counts, sets ", ","),
+        sections.len(),
+        "the closing sets figure is the count of the sections"
+    );
+    assert_eq!(
+        figure(closing, "entries ", ","),
+        figure(standing_closing, "entries ", ","),
+        "the entries figure is the standing reading's"
+    );
+    let summed: usize = sections
+        .iter()
+        .map(|(numbers, labels)| numbers.len() * labels.len())
+        .sum();
+    let standings_closing = standings.last().expect("a closing line");
+    assert_eq!(
+        summed,
+        figure(standings_closing, "standings counts, standings ", ","),
+        "each label's set counted once at its own section sums to the standings figure"
+    );
+    let singletons = sections
+        .iter()
+        .filter(|(_, labels)| labels.len() == 1)
+        .count();
+    let lonely = by_label
+        .iter()
+        .filter(|(_, numbers)| by_label.iter().filter(|(_, held)| held == numbers).count() == 1)
+        .count();
+    assert_eq!(
+        singletons, lonely,
+        "the sections holding one label are the labels whose set no other label holds"
+    );
+    assert_eq!(figure(closing, "sets counts, sets ", ","), 20);
+    assert_eq!(figure(closing, "entries ", ","), 21);
+    assert_eq!(figure_last(closing, "atlases "), 8);
+    assert_eq!(summed, 77);
 }
 
 #[test]
