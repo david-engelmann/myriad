@@ -1212,6 +1212,62 @@ pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// Render the sets of a chain of atlases, the entries
+/// of the chain gathered by the set of atlases each
+/// stands in.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and the labels are
+/// gathered by their sets in one walk over the order the
+/// labels first stand across the chain, and one section
+/// stands for each distinct set of atlases in the order
+/// of the earliest label holding it, each section
+/// opening with one line for each atlas of its set in
+/// chain order and holding the standing line of each
+/// label holding the set through the one standing line
+/// helper, in the order of first standing. The reading
+/// closes with the sets counts line. A hand-built lineage
+/// holding fewer than two atlases draws the refusal
+/// MY-13 states, and a label holding an unpaired
+/// surrogate draws the refusal PORT-11 names for that
+/// field, and a label holding a line break draws the
+/// refusal FIX-MY-13 names for that field, the labels
+/// read in chain order, atlas order then entry order.
+pub fn render_sets(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut gatherings: Vec<(Vec<usize>, Vec<&PText>)> = Vec::new();
+    for label in &order {
+        let mut set: Vec<usize> = Vec::new();
+        for (index, labels) in presence.iter().enumerate() {
+            if labels.contains(label) {
+                set.push(index + 1);
+            }
+        }
+        match gatherings.iter_mut().find(|(held, _)| *held == set) {
+            Some((_, labels)) => labels.push(label),
+            None => gatherings.push((set, vec![label])),
+        }
+    }
+    let mut lines: Vec<String> = Vec::new();
+    let mut entries = 0usize;
+    for (set, labels) in &gatherings {
+        for atlas_no in set {
+            lines.push(format!("atlas {atlas_no}"));
+        }
+        for label in labels {
+            lines.push(standing_line(&presence, label, total));
+            entries += 1;
+        }
+    }
+    lines.push(format!(
+        "sets counts, sets {}, entries {entries}, atlases {total}",
+        gatherings.len()
+    ));
+    Ok(lines)
+}
+
 /// Render the runs of a chain of atlases, the runs of
 /// atlases each entry stands in.
 ///
