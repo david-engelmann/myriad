@@ -153,7 +153,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -361,17 +361,17 @@ fn readme_reports_the_slice_five_standing() {
     // built, until the Round 18 closure landed slice 19
     // and the count returned to zero. It stands at one
     // again as the named mechanical consequence of the
-    // slice 20 status line, which reads built and in
-    // review while Round 19 is built, until the Round
-    // 19 closure lands slice 20 and the count returns
+    // slice 20 status line, which read built and in
+    // review while Round 19 was built, until the Round
+    // 19 closure landed slice 20 and the count returned
     // to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at twenty, not nineteen, as a mechanical
-    // consequence of the Round 18 closure. The slice 19 line
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at twenty one, not twenty, as a mechanical
+    // consequence of the Round 19 closure. The slice 20 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 20);
+    assert_eq!(text.matches("has landed").count(), 21);
 }
 
 #[test]
@@ -387,7 +387,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -436,7 +436,7 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -457,7 +457,7 @@ fn readme_reports_the_round_nine_status() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -478,7 +478,7 @@ fn readme_reports_the_round_ten_status() {
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -501,7 +501,7 @@ fn readme_reports_the_round_eleven_status() {
         and summer chain and of the radio investigation chain under \
         examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -525,7 +525,7 @@ fn readme_reports_the_round_twelve_status() {
         family, one chain of eight loggings at the stated shapes with \
         the goldens of its five chain readings under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -547,7 +547,7 @@ fn readme_reports_the_round_thirteen_status() {
         fixture family extended with the matched golden and the two \
         measured bands at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -568,7 +568,7 @@ fn readme_reports_the_round_fourteen_status() {
         doc head, and the generated fixture family extended with the \
         runs golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -589,7 +589,7 @@ fn readme_reports_the_round_fifteen_status() {
         readings, and the generated fixture family extended with the \
         presence golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
 }
 
 #[test]
@@ -610,7 +610,7 @@ fn readme_reports_the_round_sixteen_status() {
         readings, and the generated fixture family extended with the \
         standings golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 16
     // ratification holds, the version 2 amendment deferred.
@@ -637,7 +637,7 @@ fn readme_reports_the_round_seventeen_status() {
         with the company golden and its relations at the stated \
         shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 17
     // ratification holds, the version 2 amendment deferred.
@@ -665,7 +665,7 @@ fn readme_reports_the_round_eighteen_status() {
         family extended with the sets golden and its relations at \
         the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 18
     // ratification holds, the version 2 amendment deferred.
@@ -676,11 +676,13 @@ fn readme_reports_the_round_eighteen_status() {
 #[test]
 fn readme_reports_the_round_nineteen_status() {
     let text = read("README.md");
-    let standing = "- Contract, MY-39 and MY-40 stand in full form in \
-        CONTRACT.md. Their standing is not claimed here, as Round 19 \
-        has not closed.";
+    let standing = "- Contract, MY-39 and MY-40 met. They stand in full form in \
+        CONTRACT.md, and Round 19 closed on the merged slice 20 after \
+        three reviews, with the red team clean, the figure repair and \
+        the header restatement repair landed in the slice, and the \
+        record corrections of the round carried in its closure record.";
     assert!(carries_line(&text, standing));
-    let expected = "- Slice 20 is built and in review. It carries the \
+    let expected = "- Slice 20 has landed. It carries the \
         rosters reading of MY-40 that gathers the atlases of a chain by \
         the set of entries each holds, in one section for each distinct \
         roster under the standing lines of its entries and the atlas \
@@ -691,7 +693,7 @@ fn readme_reports_the_round_nineteen_status() {
         extended with the rosters golden and its relations at the \
         stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 18 of 100"));
+    assert!(text.contains("Closed perfection rounds, 19 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 19
     // ratification holds, the version 2 amendment deferred.
