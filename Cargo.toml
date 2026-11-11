@@ -283,5 +283,17 @@ path = "rust/tests/test_cli_round18.rs"
 name = "test_examples_round18"
 path = "rust/tests/test_examples_round18.rs"
 
+[[test]]
+name = "test_rosters"
+path = "rust/tests/test_rosters.rs"
+
+[[test]]
+name = "test_cli_round19"
+path = "rust/tests/test_cli_round19.rs"
+
+[[test]]
+name = "test_examples_round19"
+path = "rust/tests/test_examples_round19.rs"
+
 [dependencies]
 libc = "0.2"

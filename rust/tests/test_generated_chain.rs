@@ -103,14 +103,28 @@
 //! nowhere on that tree, and the golden pin fails
 //! there by execution too, because the sets
 //! golden stands nowhere on that tree either.
+//!
+//! Round 19 extends the family by addition again. The
+//! rosters golden joins the eleven at
+//! examples/generated-chain-rosters.txt, and two pins
+//! below read the rosters reading over the generated
+//! chain and its first, second, and fifth relations
+//! against the presence, standing, and standings
+//! readings. The discrimination split of the two
+//! stands as follows. Both pins fail on the tree
+//! before this slice by compile absence, because
+//! render_rosters stands nowhere on that tree, and
+//! the golden pin fails there by execution too,
+//! because the rosters golden stands nowhere on that
+//! tree either.
 
 mod common;
 
 use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_company, render_departures,
-    render_index, render_lineage, render_matched, render_presence, render_returns, render_runs,
-    render_sets, render_standing, render_standings, Lineage,
+    render_index, render_lineage, render_matched, render_presence, render_returns, render_rosters,
+    render_runs, render_sets, render_standing, render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -1411,6 +1425,216 @@ fn the_sets_relations_hold_over_the_generated_chain() {
     assert_eq!(figure(closing, "sets counts, sets ", ","), 20);
     assert_eq!(figure(closing, "entries ", ","), 21);
     assert_eq!(figure_last(closing, "atlases "), 8);
+    assert_eq!(summed, 77);
+}
+
+#[test]
+fn the_generated_chain_rosters_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_rosters(&chain).expect("the rosters read"),
+        golden("generated-chain-rosters.txt")
+    );
+}
+
+#[test]
+fn the_rosters_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let rosters = render_rosters(&chain).expect("the rosters read");
+    // The sections of the reading, each its heading
+    // lines and the atlas numbers standing under them,
+    // read from the reading's own output. An entry line
+    // opens a section once the standing section carries
+    // an atlas line.
+    let mut sections: Vec<(Vec<String>, Vec<usize>)> = Vec::new();
+    for line in &rosters[..rosters.len() - 1] {
+        if line.starts_with("entry ") {
+            let opens = match sections.last() {
+                None => true,
+                Some((_, numbers)) => !numbers.is_empty(),
+            };
+            if opens {
+                sections.push((Vec::new(), Vec::new()));
+            }
+            sections
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .0
+                .push(line.clone());
+        } else if line.starts_with("atlas ") {
+            let number: usize = line
+                .strip_prefix("atlas ")
+                .expect("an atlas line")
+                .parse()
+                .expect("an atlas number");
+            sections
+                .last_mut()
+                .expect("an atlas line stands inside a section")
+                .1
+                .push(number);
+        }
+    }
+    // The presence sections of the chain, the entry
+    // lines the presence reading names for each atlas,
+    // read from that reading's own output.
+    let presence = render_presence(&chain).expect("the presence reads");
+    let mut by_atlas: Vec<Vec<String>> = Vec::new();
+    for line in &presence[..presence.len() - 1] {
+        if line.starts_with("atlas ") {
+            by_atlas.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            by_atlas
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line.clone());
+        }
+    }
+    assert_eq!(by_atlas.len(), chain.atlases.len());
+    // The first relation: each atlas stands in exactly
+    // one section, that section's heading naming the
+    // entries presence names for the atlas, the same
+    // standing lines, and standing in the order of
+    // first standing the standing reading prints, the
+    // atlas lines over all the sections count the
+    // atlases, and the sections stand at their earliest
+    // atlas's place. The presence sections print their
+    // entries in the order they stand in the atlas, so
+    // the heading is read against them as a set of
+    // lines and against the standing reading for its
+    // order, the two orders parting on this chain at
+    // atlases 3 to 8.
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_lines = &standing[..standing.len() - 1];
+    for (index, entries) in by_atlas.iter().enumerate() {
+        let atlas_no = index + 1;
+        let holding: Vec<&(Vec<String>, Vec<usize>)> = sections
+            .iter()
+            .filter(|(_, numbers)| numbers.contains(&atlas_no))
+            .collect();
+        assert_eq!(
+            holding.len(),
+            1,
+            "atlas {atlas_no} stands in exactly one section"
+        );
+        let heading = &holding[0].0;
+        let mut named: Vec<String> = heading.clone();
+        named.sort();
+        let mut present: Vec<String> = entries.clone();
+        present.sort();
+        assert_eq!(
+            named, present,
+            "the heading of the section holding atlas {atlas_no} names the entries presence names for it"
+        );
+        let mut ordered: Vec<&String> = heading.iter().collect();
+        ordered.sort_by_key(|line| {
+            standing_lines
+                .iter()
+                .position(|held| held == *line)
+                .expect("a heading line is a standing line")
+        });
+        let ordered: Vec<String> = ordered.into_iter().cloned().collect();
+        assert_eq!(
+            heading, &ordered,
+            "the heading lines of atlas {atlas_no} stand in the order of first standing"
+        );
+    }
+    let atlas_lines: usize = sections.iter().map(|(_, numbers)| numbers.len()).sum();
+    assert_eq!(
+        atlas_lines,
+        by_atlas.len(),
+        "the atlas lines over all the sections count the atlases"
+    );
+    for pair in sections.windows(2) {
+        assert!(
+            pair[0].1[0] < pair[1].1[0],
+            "the sections stand at their earliest atlas's place"
+        );
+    }
+    // The second relation: two atlases stand in one
+    // section exactly when presence names the same
+    // entries for them.
+    let label_of = |line: &str| -> String {
+        line.strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(',')
+            .next()
+            .expect("a label stands")
+            .to_string()
+    };
+    for first in 0..by_atlas.len() {
+        for second in 0..by_atlas.len() {
+            let together = sections.iter().any(|(_, numbers)| {
+                numbers.contains(&(first + 1)) && numbers.contains(&(second + 1))
+            });
+            let mut first_labels: Vec<String> =
+                by_atlas[first].iter().map(|line| label_of(line)).collect();
+            first_labels.sort();
+            let mut second_labels: Vec<String> =
+                by_atlas[second].iter().map(|line| label_of(line)).collect();
+            second_labels.sort();
+            assert_eq!(
+                together,
+                first_labels == second_labels,
+                "atlases {} and {} stand together exactly on the equality of their rosters",
+                first + 1,
+                second + 1
+            );
+        }
+    }
+    // The fifth relation: the closing rosters figure
+    // is the count of the sections, its entries figure
+    // is the standing reading's, each atlas counted at
+    // the size of its own roster sums to the standings
+    // figure, the printed heading lines stand at the
+    // same sum beside it, every section of this chain
+    // holding one atlas, and the sections holding one
+    // atlas are the rosters no other atlas holds.
+    let closing = rosters.last().expect("a closing line");
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_closing = standing.last().expect("a closing line");
+    let standings = render_standings(&chain).expect("the standings read");
+    let standings_closing = standings.last().expect("a closing line");
+    assert_eq!(
+        figure(closing, "rosters counts, rosters ", ","),
+        sections.len(),
+        "the closing rosters figure is the count of the sections"
+    );
+    assert_eq!(
+        figure_last(closing, "entries "),
+        figure(standing_closing, "entries ", ","),
+        "the entries figure is the standing reading's"
+    );
+    assert_eq!(
+        figure(closing, "atlases ", ","),
+        by_atlas.len(),
+        "the atlases figure is the count of the chain's atlases"
+    );
+    let summed: usize = by_atlas.iter().map(|entries| entries.len()).sum();
+    assert_eq!(
+        summed,
+        figure(standings_closing, "standings counts, standings ", ","),
+        "each atlas counted at the size of its own roster sums to the standings figure"
+    );
+    let printed: usize = sections.iter().map(|(heading, _)| heading.len()).sum();
+    assert_eq!(
+        printed, summed,
+        "the printed heading lines stand at the sum beside it"
+    );
+    let singletons = sections
+        .iter()
+        .filter(|(_, numbers)| numbers.len() == 1)
+        .count();
+    let lonely = by_atlas
+        .iter()
+        .filter(|entries| by_atlas.iter().filter(|held| held == entries).count() == 1)
+        .count();
+    assert_eq!(
+        singletons, lonely,
+        "the sections holding one atlas are the rosters no other atlas holds"
+    );
+    assert_eq!(figure(closing, "rosters counts, rosters ", ","), 8);
+    assert_eq!(figure(closing, "atlases ", ","), 8);
+    assert_eq!(figure_last(closing, "entries "), 21);
     assert_eq!(summed, 77);
 }
 
