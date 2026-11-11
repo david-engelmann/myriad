@@ -42,6 +42,22 @@
 //! The golden pin and the malformed pin pass there
 //! by design, as they hold standing surface the round
 //! does not move.
+//!
+//! Round 19 states this file's split in the open.
+//! One pin here is restated in this round, the naming
+//! pin, whose choices header and choices string
+//! assertions now name rosters last, as the named
+//! mechanical consequence of the twentieth command
+//! joining the surface. On the tree before this slice
+//! the file stands at two passed and one failed. The
+//! failure is the naming pin,
+//! the_help_and_choices_name_company, failing by
+//! assertion on its restated text against the base
+//! surface, because neither the choices header nor
+//! the choices string names rosters on that tree.
+//! The golden pin and the malformed pin pass there
+//! by design, as they hold standing surface the round
+//! does not move.
 
 mod common;
 
@@ -103,14 +119,14 @@ fn the_help_and_choices_name_company() {
         "the help listing names the company command: {listing}"
     );
     assert!(
-        listing.contains("presence,standings,company,sets}"),
-        "the choices header names sets last: {listing}"
+        listing.contains("presence,standings,company,sets,rosters}"),
+        "the choices header names rosters last: {listing}"
     );
     let refused = run_cli(&["bogus"]);
     assert_eq!(refused.code, 2);
     let error = refused.stderr.join("\n");
     assert!(
-        error.contains("'presence', 'standings', 'company', 'sets'"),
-        "the choices string names sets last: {error}"
+        error.contains("'presence', 'standings', 'company', 'sets', 'rosters'"),
+        "the choices string names rosters last: {error}"
     );
 }

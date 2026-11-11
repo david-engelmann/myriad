@@ -12,8 +12,8 @@
 //! arrivals reading and the departures reading and the
 //! matched reading and the runs reading and the
 //! presence reading and the standings reading and
-//! the company reading and the sets reading, the
-//! fork helper that builds
+//! the company reading and the sets reading and the
+//! rosters reading, the fork helper that builds
 //! an exploration skeleton, the JSON reading the
 //! loaders rest on, mirroring the Python json
 //! semantics, and the codepoint scan. The
