@@ -117,14 +117,29 @@
 //! the golden pin fails there by execution too,
 //! because the rosters golden stands nowhere on that
 //! tree either.
+//!
+//! Round 20 extends the family by addition again. The
+//! fellows golden joins the twelve at
+//! examples/generated-chain-fellows.txt, and two pins
+//! below read the fellows reading over the generated
+//! chain and its first, second, and fifth relations
+//! against the presence, standing, and standings
+//! readings. The discrimination split of the two
+//! stands as follows. Both pins fail on the tree
+//! before this slice by compile absence, because
+//! render_fellows stands nowhere on that tree, and
+//! the golden pin fails there by execution too,
+//! because the fellows golden stands nowhere on that
+//! tree either. The standing pins of the family pass
+//! unchanged.
 
 mod common;
 
 use common::*;
 use myriad::atlas::{
     load_lineage_text, render_absence, render_arrivals, render_company, render_departures,
-    render_index, render_lineage, render_matched, render_presence, render_returns, render_rosters,
-    render_runs, render_sets, render_standing, render_standings, Lineage,
+    render_fellows, render_index, render_lineage, render_matched, render_presence, render_returns,
+    render_rosters, render_runs, render_sets, render_standing, render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -1690,5 +1705,169 @@ fn the_measured_bands_hold_over_the_generated_chain() {
     assert!(
         (0.15..=0.35).contains(&mean_churn),
         "the mean per-step churn stands in its band, found {mean_churn}"
+    );
+}
+
+/// The number an atlas line names.
+fn atlas_number(line: &str) -> Option<usize> {
+    line.strip_prefix("atlas ")?.parse().ok()
+}
+
+/// The sections of a fellows reading, the closing set
+/// aside, one section for each atlas in chain order,
+/// each holding the numbers of its fellows lines in
+/// order. A fellows line and the next section's
+/// heading can carry the same text, so the sections
+/// are read by trying each run of fellows lines the
+/// heading order admits, the reading's own shape
+/// standing as the check: the headings stand at
+/// atlas 1 to the chain's count in order, and a
+/// section's fellows stand in rising order, none of
+/// them the section's own atlas.
+fn fellows_sections(lines: &[String], atlases: usize) -> Vec<Vec<usize>> {
+    fn parse(
+        lines: &[String],
+        pos: usize,
+        heading: usize,
+        atlases: usize,
+    ) -> Option<Vec<Vec<usize>>> {
+        if heading > atlases {
+            return if pos == lines.len() {
+                Some(Vec::new())
+            } else {
+                None
+            };
+        }
+        if pos >= lines.len() || lines[pos] != format!("atlas {heading}") {
+            return None;
+        }
+        let mut run: Vec<usize> = Vec::new();
+        let mut end = pos + 1;
+        while end < lines.len() {
+            let Some(number) = atlas_number(&lines[end]) else {
+                break;
+            };
+            if number == heading {
+                break;
+            }
+            if let Some(&last) = run.last() {
+                if number <= last {
+                    break;
+                }
+            }
+            run.push(number);
+            end += 1;
+        }
+        for take in (0..=run.len()).rev() {
+            if let Some(mut rest) = parse(lines, pos + 1 + take, heading + 1, atlases) {
+                let mut out = vec![run[..take].to_vec()];
+                out.append(&mut rest);
+                return Some(out);
+            }
+        }
+        None
+    }
+    parse(lines, 0, 1, atlases).expect("the fellows sections stand in chain order")
+}
+
+#[test]
+fn the_generated_chain_fellows_golden_matches() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_fellows(&chain).expect("the fellows read"),
+        golden("generated-chain-fellows.txt")
+    );
+}
+
+#[test]
+fn the_fellows_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let fellows = render_fellows(&chain).expect("the fellows read");
+    let found = fellows_sections(&fellows[..fellows.len() - 1], chain.atlases.len());
+    // The presence sections of the chain, the entry
+    // lines the presence reading names for each atlas,
+    // read from that reading's own output.
+    let presence = render_presence(&chain).expect("the presence reads");
+    let mut by_atlas: Vec<Vec<String>> = Vec::new();
+    for line in &presence[..presence.len() - 1] {
+        if line.starts_with("atlas ") {
+            by_atlas.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            by_atlas
+                .last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line.clone());
+        }
+    }
+    assert_eq!(by_atlas.len(), chain.atlases.len());
+    let label_of = |line: &str| -> String {
+        line.strip_prefix("entry ")
+            .expect("an entry line stands")
+            .split(',')
+            .next()
+            .expect("a label stands")
+            .to_string()
+    };
+    let labels: Vec<Vec<String>> = by_atlas
+        .iter()
+        .map(|section| section.iter().map(|line| label_of(line)).collect())
+        .collect();
+    // The first relation: an atlas stands among the
+    // fellows of another exactly when their presence
+    // sections name a common entry.
+    for first in 1..=chain.atlases.len() {
+        for second in 1..=chain.atlases.len() {
+            if first == second {
+                continue;
+            }
+            let shared = labels[first - 1]
+                .iter()
+                .any(|label| labels[second - 1].contains(label));
+            assert_eq!(
+                found[first - 1].contains(&second),
+                shared,
+                "atlases {first} and {second} stand together exactly on a common entry"
+            );
+        }
+    }
+    // The second relation: standing with is symmetric,
+    // and the closing's fellows figure is twice the
+    // count of the unordered pairs standing together.
+    let mut pairs = 0usize;
+    for first in 1..=chain.atlases.len() {
+        for second in (first + 1)..=chain.atlases.len() {
+            assert_eq!(
+                found[first - 1].contains(&second),
+                found[second - 1].contains(&first),
+                "atlases {first} and {second} stand together from both ends or neither"
+            );
+            if found[first - 1].contains(&second) {
+                pairs += 1;
+            }
+        }
+    }
+    assert_eq!(pairs, 28, "the unordered pairs standing together");
+    // The fifth relation: the closing agrees with the
+    // sections, its fellows figure the count of the
+    // fellows lines, its atlases figure the chain's
+    // atlases, its entries figure the standing
+    // reading's, and no section holds no fellows line.
+    let closing = fellows.last().expect("a closing line");
+    let printed: usize = found.iter().map(|section| section.len()).sum();
+    assert_eq!(figure(closing, "fellows counts, fellows ", ","), printed);
+    assert_eq!(figure(closing, "fellows counts, fellows ", ","), 56);
+    assert_eq!(figure(closing, "atlases ", ","), 8);
+    let standing = render_standing(&chain).expect("the standing reads");
+    let standing_closing = standing.last().expect("a closing line");
+    assert_eq!(
+        figure_last(closing, "entries "),
+        figure(standing_closing, "entries ", ","),
+        "the entries figure is the standing reading's"
+    );
+    assert_eq!(figure_last(closing, "entries "), 21);
+    let lonely = found.iter().filter(|section| section.is_empty()).count();
+    assert_eq!(
+        lonely, 0,
+        "the sections holding no fellows line stand at none"
     );
 }

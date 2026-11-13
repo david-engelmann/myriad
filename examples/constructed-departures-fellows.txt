@@ -1,0 +1,10 @@
+atlas 1
+atlas 2
+atlas 3
+atlas 2
+atlas 1
+atlas 3
+atlas 3
+atlas 1
+atlas 2
+fellows counts, fellows 6, atlases 3, entries 4
