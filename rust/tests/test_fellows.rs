@@ -112,8 +112,14 @@
 //! rosters, which the roster gathering keeps together
 //! entire and which contain each other both ways,
 //! under MF-6, the pair sharing three entries, and
-//! under MF-4 and MF-5, neither edit parting a pair
-//! the rosters reading joins. Pin 8, the closing
+//! under MF-4, neither edit parting a pair the
+//! rosters reading joins, and it fails under MF-5,
+//! at the shared parsing helper fellows_sections,
+//! whose chain order assertion refuses a section
+//! holding its own atlas's line before the pin's
+//! relation arm can run, the execution the Round 21
+//! paragraph at the end of this header records.
+//! Pin 8, the closing
 //! agreement, fails under all six edits, every edit
 //! moving a figure or a line count on at least one of
 //! its chains, MF-1 reading four fellows lines on the
@@ -126,8 +132,14 @@
 //! section names it, and it passes under MF-1, every
 //! step pair standing together under the step
 //! gathering and every step of its chains holding a
-//! shared entry, under MF-4, and under MF-5, the self
-//! lines naming no step pair. Pin 10, the lonely
+//! shared entry, and under MF-4, and it fails under
+//! MF-5, at the shared parsing helper
+//! fellows_sections, whose chain order assertion
+//! refuses a section holding its own atlas's line
+//! before the pin's relation arm can run, the self
+//! lines naming no step pair standing unreached
+//! behind that refusal, the execution the Round 21
+//! paragraph at the end of this header records. Pin 10, the lonely
 //! atlas, fails under all six edits: under MF-1 the
 //! third atlas names its neighbour and the second
 //! names the third; under MF-2 and MF-3 the first and
@@ -182,6 +194,29 @@
 //! under MF-6 no pair of the fixture stands, each
 //! pair sharing at most the one entry, so every
 //! section stands at its heading alone.
+//!
+//! Round 21 restates two clauses of this header and
+//! adds no pin to this file. The executions of
+//! MY-44, run by the Round 21 design lane on the
+//! merged tree and confirmed by the build lane at
+//! its warm-up on the slice base tree, executed
+//! MF-1 to MF-6 against the four fellows family
+//! files, and every posture this header states
+//! stood as executed but two. Pin 7 and pin 9 were
+//! stated to pass under MF-5, and both execute as
+//! failures under it, at the shared parsing helper
+//! fellows_sections, whose chain order assertion
+//! refuses a section holding its own atlas's line
+//! before either pin's relation arm can run, a
+//! posture the Round 20 red team recorded of the
+//! helper in its discrimination audit without
+//! carrying it into the two pins' stated splits.
+//! The MF-5 clauses of pin 7 and pin 9 above stand
+//! restated to the executed posture, in comment
+//! only, no assertion of this file moving, and this
+//! file with its comments stripped returns the file
+//! as it stood before this round byte for byte
+//! outside the header comment block.
 
 mod common;
 
