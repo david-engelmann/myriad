@@ -161,6 +161,27 @@
 //! family do. Under MF-1 to MF-6 the two pins pass,
 //! the edits standing in the gathering and the closing
 //! and none in the shared pass.
+//!
+//! Pin 25, the empty atlas, stands added by the
+//! Round 20 repair beside FIX-MY-22, the amendment
+//! restating the two sentences of MY-42 its fixture
+//! exercises, the qualified sharing clause and the
+//! section of an atlas holding no entry. It fails on
+//! the tree before this slice by execution, sharing
+//! the compile absence of pins 1 to 11 there, and it
+//! fails under all six edits. Under MF-1 the empty
+//! atlas names both its neighbours and the first
+//! atlas loses the fourth. Under MF-2 no atlas
+//! stands with any other, the four rosters of the
+//! fixture all differing. Under MF-3 the empty atlas
+//! stands with every atlas of the chain, its empty
+//! roster standing inside each of theirs, and the
+//! first atlas gains it beside its two fellows.
+//! Under MF-4 the closing reading fellows 2. Under
+//! MF-5 every section gaining its own line. And
+//! under MF-6 no pair of the fixture stands, each
+//! pair sharing at most the one entry, so every
+//! section stands at its heading alone.
 
 mod common;
 
@@ -733,5 +754,32 @@ fn a_label_holding_an_unpaired_surrogate_is_refused_first() {
     assert_eq!(
         render_fellows(&chain).expect_err("the doubly broken label names the surrogate first"),
         "an entry label holds an unpaired surrogate"
+    );
+}
+
+#[test]
+fn the_empty_atlas_holds_a_section_of_its_heading_alone() {
+    let chain = Lineage {
+        atlases: vec![
+            atlas("First", &["alpha", "beta"]),
+            atlas("Second", &["beta"]),
+            atlas("Third", &[]),
+            atlas("Fourth", &["alpha"]),
+        ],
+    };
+    let lines = render_fellows(&chain).expect("the chain reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "atlas 1",
+            "atlas 2",
+            "atlas 4",
+            "atlas 2",
+            "atlas 1",
+            "atlas 3",
+            "atlas 4",
+            "atlas 1",
+            "fellows counts, fellows 4, atlases 4, entries 2",
+        ])
     );
 }
