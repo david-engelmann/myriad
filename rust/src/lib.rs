@@ -13,8 +13,9 @@
 //! matched reading and the runs reading and the
 //! presence reading and the standings reading and
 //! the company reading and the sets reading and the
-//! rosters reading, the fork helper that builds
-//! an exploration skeleton, the JSON reading the
+//! rosters reading and the fellows reading, the
+//! fork helper that builds an exploration skeleton,
+//! the JSON reading the
 //! loaders rest on, mirroring the Python json
 //! semantics, and the codepoint scan. The
 //! binary is a thin shell over the command line module.

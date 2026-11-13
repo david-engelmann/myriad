@@ -457,6 +457,27 @@ entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atl
 sets counts, sets 3, entries 4, atlases 3
 ```
 
+### rosters
+
+The rosters of a chain, one section for each distinct roster the chain holds under the standing lines of its entries, naming the atlas line of each atlas holding exactly that roster, in the order of first standing.
+
+```sh
+./target/release/myriad rosters examples/winter-spring-summer-lineage.json
+```
+
+```text
+entry ferry link, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close
+atlas 1
+atlas 3
+entry ferry link, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry lifeboat cover, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close
+entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close
+atlas 2
+rosters counts, rosters 2, atlases 3, entries 4
+```
+
 ## Status
 
 Seeded in October 2026. Setup has landed and Rounds 1 to 19 have closed, with all slices merged on main. Part of the Spectacle line in the 39 repo storefront perfection programme.
