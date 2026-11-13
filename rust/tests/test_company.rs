@@ -76,6 +76,67 @@
 //! stands nowhere there, as the pins of every
 //! reading file of the family do.
 
+//! Round 22 adds three pins to this file, and their
+//! discrimination split stands as follows. The fold
+//! of MY-45 is behaviour neutral, so the behaviour
+//! the three pins pin stands whole on the tree
+//! before this slice, in the shipped render_company,
+//! and the three pins pass there by design, as
+//! guards of a restatement and not as witnesses of
+//! an absence. Two forms of the fold stand behaviour
+//! identical to the correct fold on every chain,
+//! MC-1, the pair scan restored, and MC-2, the lines
+//! taken from the standing line helper, the scan and
+//! the walk gathering the same company and the
+//! helper and the inversion stating the same
+//! figures, so every pin of this file passes under
+//! both, and their discrimination stands on the
+//! contract text of MY-45, on the reviews' line
+//! read of the one function, and on the fold
+//! record's measured times, as MY-46 states. Under
+//! MC-3, the self company, 11 pins of this file
+//! fail, the three counted golden pins among them,
+//! beside the generated chain company golden and
+//! company relations. Under MC-4, the reversed
+//! company, 7 pins of this file fail, the three
+//! counted golden pins among them, beside the same
+//! two generated chain pins. Under MC-5, the first
+//! atlas gathering, 9 pins of this file fail, the
+//! three counted golden pins among them, beside
+//! the same two. Under MC-6, the span line, 3 pins
+//! of this file fail, the winter and radio counted
+//! pins and the standing line order pin, the
+//! constructed chain's figures standing span equal
+//! to count throughout, beside the same two. The
+//! thin chain pin fails under MC-3, its sections
+//! holding their own headings' labels and the
+//! closing reading company 906 over 1,209 lines,
+//! under MC-4, its first label's company lines
+//! standing reversed, under MC-5, its first label
+//! holding one company line and the closing reading
+//! company 302, and under MC-6, its first label's
+//! heading reading a span of 302 against standings
+//! of two. The window chain pin fails under MC-3,
+//! the closing reading company 270 over 301 lines,
+//! under MC-4, its first label's company lines
+//! standing reversed, under MC-5, its first label
+//! holding four company lines in place of eight and
+//! the closing reading company 120, and under MC-6,
+//! its first label's heading reading a span of 120
+//! against standings of twenty. The gathering
+//! relation pin fails under MC-3, its computed
+//! company holding no self line where the edit
+//! prints one, under MC-4, its sections standing in
+//! an order its computed order is not, under MC-5,
+//! its computed company standing gathered from
+//! every atlas where the edit gathers from one, and
+//! under MC-6, its heading figures standing at
+//! counts where the edit reads spans. Under MI-1
+//! to MI-5 and MF-1 to MF-6 all three pins pass,
+//! those edits standing in render_standings and
+//! render_fellows and in no function the pins call.
+//! The thirteen pins above stand unmoved.
+//!
 mod common;
 
 use common::*;
@@ -242,6 +303,54 @@ fn company_sections(lines: &[String], chain: &Lineage) -> Vec<(String, Vec<Strin
         "the sections cover the reading but its closing"
     );
     out
+}
+
+/// A hand built thin chain of n atlases over n
+/// labels, atlas i holding labels i and i plus one
+/// cyclically, each label standing in exactly two
+/// atlases.
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        atlases.push(Atlas {
+            title: pt(&format!("atlas-{}", i + 1)),
+            entries: vec![
+                AtlasEntry {
+                    label: pt(&first),
+                    exploration: expl(),
+                },
+                AtlasEntry {
+                    label: pt(&second),
+                    exploration: expl(),
+                },
+            ],
+        });
+    }
+    Lineage { atlases }
+}
+
+/// A hand built window chain of 120 atlases over 30
+/// labels, each atlas holding the five labels of a
+/// window turning by one label per atlas, each label
+/// standing in exactly twenty atlases.
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let mut entries = Vec::new();
+        for j in 0..5usize {
+            entries.push(AtlasEntry {
+                label: pt(&format!("label-{}", (i + j) % 30 + 1)),
+                exploration: expl(),
+            });
+        }
+        atlases.push(Atlas {
+            title: pt(&format!("atlas-{}", i + 1)),
+            entries,
+        });
+    }
+    Lineage { atlases }
 }
 
 #[test]
@@ -646,4 +755,168 @@ fn a_label_holding_an_unpaired_surrogate_is_refused_first() {
         render_company(&chain).expect_err("the doubly broken label names the surrogate first"),
         "an entry label holds an unpaired surrogate"
     );
+}
+
+#[test]
+fn the_thin_chain_company_sections_stand_as_counted() {
+    let chain = thin_chain(302);
+    let lines = render_company(&chain).expect("the chain reads");
+    assert_eq!(lines.len(), 907);
+    assert_eq!(
+        lines.last().map(String::as_str),
+        Some("company counts, company 604, entries 302, atlases 302")
+    );
+    let found = company_sections(&lines, &chain);
+    assert_eq!(found.len(), 302);
+    assert_eq!(
+        found[0].0.as_str(),
+        "entry label-1, first stood at atlas 1, last stood at atlas 302, \
+         stands in 2 atlases, stands at the close"
+    );
+    assert_eq!(
+        found[0].1,
+        strings(&[
+            "entry label-2, first stood at atlas 1, last stood at atlas 2, \
+             stands in 2 atlases, does not stand at the close",
+            "entry label-302, first stood at atlas 301, last stood at atlas 302, \
+             stands in 2 atlases, stands at the close",
+        ])
+    );
+    assert_eq!(
+        found[149].0.as_str(),
+        "entry label-150, first stood at atlas 149, last stood at atlas 150, \
+         stands in 2 atlases, does not stand at the close"
+    );
+    assert_eq!(
+        found[149]
+            .1
+            .iter()
+            .map(|line| label_of(line))
+            .collect::<Vec<_>>(),
+        vec!["label-149".to_string(), "label-151".to_string()]
+    );
+    assert_eq!(
+        found[301].0.as_str(),
+        "entry label-302, first stood at atlas 301, last stood at atlas 302, \
+         stands in 2 atlases, stands at the close"
+    );
+    assert_eq!(
+        found[301]
+            .1
+            .iter()
+            .map(|line| label_of(line))
+            .collect::<Vec<_>>(),
+        vec!["label-1".to_string(), "label-301".to_string()]
+    );
+    for (_, company_lines) in &found {
+        assert_eq!(company_lines.len(), 2, "each label stands with two others");
+    }
+}
+
+#[test]
+fn the_window_chain_company_sections_stand_as_counted() {
+    let chain = window_chain();
+    let lines = render_company(&chain).expect("the chain reads");
+    assert_eq!(lines.len(), 271);
+    assert_eq!(
+        lines.last().map(String::as_str),
+        Some("company counts, company 240, entries 30, atlases 120")
+    );
+    let found = company_sections(&lines, &chain);
+    assert_eq!(found.len(), 30);
+    for (index, (heading, company_lines)) in found.iter().enumerate() {
+        assert_eq!(label_of(heading), format!("label-{}", index + 1));
+        assert_eq!(figure(heading, "stands in ", " atlases,"), 20);
+        assert_eq!(
+            company_lines.len(),
+            8,
+            "each label stands with eight others"
+        );
+    }
+    assert_eq!(
+        found[0].0.as_str(),
+        "entry label-1, first stood at atlas 1, last stood at atlas 120, \
+         stands in 20 atlases, stands at the close"
+    );
+    assert_eq!(
+        found[0]
+            .1
+            .iter()
+            .map(|line| label_of(line))
+            .collect::<Vec<_>>(),
+        vec![
+            "label-2".to_string(),
+            "label-3".to_string(),
+            "label-4".to_string(),
+            "label-5".to_string(),
+            "label-27".to_string(),
+            "label-28".to_string(),
+            "label-29".to_string(),
+            "label-30".to_string(),
+        ]
+    );
+}
+
+#[test]
+fn the_company_sections_agree_with_the_presence_and_standings_readings() {
+    let mut chains: Vec<Lineage> = CHAINS.iter().map(|name| load(name)).collect();
+    chains.push(thin_chain(302));
+    for chain in &chains {
+        let total = chain.atlases.len();
+        let lines = render_company(chain).expect("the company reads");
+        let found = company_sections(&lines, chain);
+        let standing = render_standing(chain).expect("the standing reads");
+        let standing_lines = &standing[..standing.len() - 1];
+        let order: Vec<String> = standing_lines.iter().map(|line| label_of(line)).collect();
+        let standings = render_standings(chain).expect("the standings read");
+        let sets = standings_sections(&standings);
+        let presence = render_presence(chain).expect("the presence reads");
+        let by_atlas = presence_sections(&presence);
+        assert_eq!(found.len(), order.len());
+        for (index, (heading, company_lines)) in found.iter().enumerate() {
+            let label = label_of(heading);
+            assert_eq!(label, order[index]);
+            let own = sets
+                .iter()
+                .find(|(held, _)| label_of(held) == label)
+                .expect("the label holds a standings section");
+            assert_eq!(
+                figure(heading, "first stood at atlas ", ", last stood"),
+                own.1[0]
+            );
+            assert_eq!(
+                figure(heading, "last stood at atlas ", ", stands in"),
+                own.1[own.1.len() - 1]
+            );
+            assert_eq!(figure(heading, "stands in ", " atlases,"), own.1.len());
+            assert_eq!(
+                heading.ends_with("stands at the close"),
+                own.1[own.1.len() - 1] == total
+            );
+            let mut gathered: Vec<String> = Vec::new();
+            for atlas_no in &own.1 {
+                for line in &by_atlas[atlas_no - 1] {
+                    let other = label_of(line);
+                    if other != label && !gathered.contains(&other) {
+                        gathered.push(other);
+                    }
+                }
+            }
+            let expected: Vec<String> = order
+                .iter()
+                .filter(|held| gathered.contains(held))
+                .cloned()
+                .collect();
+            let named: Vec<String> = company_lines.iter().map(|line| label_of(line)).collect();
+            assert_eq!(named, expected, "the company of {label} as gathered");
+            for line in company_lines {
+                let named_label = label_of(line);
+                let standing_line = standing_lines
+                    .iter()
+                    .find(|held| label_of(held) == named_label)
+                    .expect("the named entry holds a standing line");
+                assert_eq!(line, standing_line, "a company line is a standing line");
+            }
+        }
+    }
 }
