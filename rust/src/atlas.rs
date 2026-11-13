@@ -1324,6 +1324,67 @@ pub fn render_rosters(lineage: &Lineage) -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
+/// Render the fellows of a chain of atlases, the atlases
+/// standing with each atlas of the chain.
+///
+/// Presence is read once over the whole chain, each label
+/// against the atlases it stands in, and the atlases
+/// standing with each atlas are gathered from the one
+/// pass in one walk over the pass, each entry standing
+/// its atlases with each other as the pass is consumed,
+/// and one section stands for each atlas of the chain
+/// in chain order, each section opening with the bare
+/// atlas line of its own atlas and holding one bare
+/// atlas line for each atlas standing with it in chain
+/// order, an atlas never standing among its own fellows
+/// and an atlas sharing no entry with any other atlas
+/// holding a section of its heading alone. The reading
+/// closes with the fellows counts line. A hand-built
+/// lineage holding fewer than two atlases draws the
+/// refusal MY-13 states, and a label holding an
+/// unpaired surrogate draws the refusal PORT-11 names
+/// for that field, and a label holding a line break
+/// draws the refusal FIX-MY-13 names for that field,
+/// the labels read in chain order, atlas order then
+/// entry order.
+pub fn render_fellows(lineage: &Lineage) -> Result<Vec<String>, String> {
+    let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let total = lineage.atlases.len();
+    let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); total];
+    for label in &order {
+        let mut holders: Vec<usize> = Vec::new();
+        for (index, labels) in presence.iter().enumerate() {
+            if labels.contains(label) {
+                holders.push(index);
+            }
+        }
+        for &holder in &holders {
+            for &other in &holders {
+                if other != holder && !gatherings[holder].contains(&other) {
+                    gatherings[holder].push(other);
+                }
+            }
+        }
+    }
+    let mut lines: Vec<String> = Vec::new();
+    let mut fellows = 0usize;
+    for (index, gathering) in gatherings.iter().enumerate() {
+        lines.push(format!("atlas {}", index + 1));
+        for other in 0..total {
+            if gathering.contains(&other) {
+                lines.push(format!("atlas {}", other + 1));
+                fellows += 1;
+            }
+        }
+    }
+    lines.push(format!(
+        "fellows counts, fellows {fellows}, atlases {total}, entries {}",
+        order.len()
+    ));
+    Ok(lines)
+}
+
 /// Render the runs of a chain of atlases, the runs of
 /// atlases each entry stands in.
 ///
