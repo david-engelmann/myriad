@@ -99,15 +99,15 @@
 //! counts. The window chain pin fails under MI-3,
 //! MI-4, and MI-5 on the same grounds. The heading
 //! relation pin fails under MI-4 and MI-5, and it
-//! passes under MI-3, the edit moving no heading
-//! figure and no section order, its body ground
-//! standing at the thin and window chain pins and
-//! at this file's shipped golden pins. Under MF-1
-//! to MF-6 all three pins pass, the fellows edits
-//! standing in render_fellows' gathering and
-//! closing and in no other function, and no pin of
-//! this file calling render_fellows. The thirteen
-//! pins above stand unmoved.
+//! fails under MI-3, its headings reading the
+//! reversed lists' ends, the first atlas of each
+//! heading standing at the last atlas of the
+//! presence-derived list and the last atlas at the
+//! first. Under MF-1 to MF-6 all three pins pass,
+//! the fellows edits standing in render_fellows'
+//! gathering and closing and in no other function,
+//! and no pin of this file calling render_fellows.
+//! The thirteen pins above stand unmoved.
 
 mod common;
 
