@@ -477,6 +477,26 @@ entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atl
 atlas 2
 rosters counts, rosters 2, atlases 3, entries 4
 ```
+### fellows
+
+The fellows of a chain, one section for each atlas of the chain opening with its bare atlas line, holding one bare atlas line for each atlas standing with it, in chain order.
+
+```sh
+./target/release/myriad fellows examples/winter-spring-summer-lineage.json
+```
+
+```text
+atlas 1
+atlas 2
+atlas 3
+atlas 2
+atlas 1
+atlas 3
+atlas 3
+atlas 1
+atlas 2
+fellows counts, fellows 6, atlases 3, entries 4
+```
 
 ## Status
 
