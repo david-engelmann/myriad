@@ -385,16 +385,16 @@ fn readme_reports_the_slice_five_standing() {
     // 19 closure landed slice 20 and the count returned
     // to zero. It stands at one again as the named
     // mechanical consequence of the slice 21 status
-    // line, which reads built and in review while
-    // Round 20 is built, until the Round 20 closure
-    // lands slice 21 and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at twenty one, not twenty, as a mechanical
-    // consequence of the Round 19 closure. The slice 20 line
+    // line, which read built and in review while
+    // Round 20 was built, until the Round 20 closure
+    // landed slice 21 and the count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at twenty two, not twenty one, as a mechanical
+    // consequence of the Round 20 closure. The slice 21 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 21);
+    assert_eq!(text.matches("has landed").count(), 22);
 }
 
 #[test]
