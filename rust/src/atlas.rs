@@ -1219,6 +1219,7 @@ pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
         }
     }
     let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    let mut membership: Vec<HashSet<usize>> = vec![HashSet::new(); order.len()];
     for atlas in &lineage.atlases {
         let mut held: Vec<usize> = Vec::new();
         for entry in &atlas.entries {
@@ -1229,7 +1230,7 @@ pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
         }
         for &slot in &held {
             for &other in &held {
-                if other != slot && !gatherings[slot].contains(&other) {
+                if other != slot && membership[slot].insert(other) {
                     gatherings[slot].push(other);
                 }
             }
