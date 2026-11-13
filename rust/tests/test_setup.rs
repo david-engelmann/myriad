@@ -132,6 +132,22 @@
 //! chain names it. No pin added here passes on that
 //! tree by design.
 //!
+//! Round 21 adds three pins to this file and restates
+//! a fourth, and their discrimination split stands as
+//! follows. The fellows Usage pin fails on the tree
+//! before this slice by assertion, because no fellows
+//! section stands in the README's Usage there. The
+//! round twenty-one status pin and the round
+//! twenty-one obligations pin fail there by assertion
+//! too, because the README carries no round
+//! twenty-one standing or slice line and the contract
+//! carries no MY-43 or MY-44 there. The built and in
+//! review count moves to one as the named mechanical
+//! consequence of the slice 22 status line, restated
+//! inside the slice five standing pin whose comment
+//! chain names it. No pin added here passes on that
+//! tree by design.
+//!
 //! Round 13 adds four pins to this file and alters a
 //! fifth, and their discrimination split stands as
 //! follows. The departures
@@ -388,7 +404,12 @@ fn readme_reports_the_slice_five_standing() {
     // line, which read built and in review while
     // Round 20 was built, until the Round 20 closure
     // landed slice 21 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one again as the named mechanical
+    // consequence of the slice 22 status line, which
+    // reads built and in review while Round 21 is
+    // built, until the Round 21 closure lands slice 22
+    // and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at twenty two, not twenty one, as a mechanical
     // consequence of the Round 20 closure. The slice 21 line
     // now also reads has landed, beside the port status
@@ -748,6 +769,32 @@ fn readme_reports_the_round_twenty_status() {
 }
 
 #[test]
+fn readme_reports_the_round_twenty_one_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-43 and MY-44 stand in full form in \
+        CONTRACT.md. Their standing is not claimed here, as Round 21 \
+        has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 22 is built and in review. It carries the \
+        standings inversion fold of MY-43 that reads the standings \
+        of a chain in one walk over the presence pass with its \
+        heading figures taken from the inversion itself, the large \
+        shape pins and the execution record of MY-44 with the \
+        fellows header restatement the executions forced, the colon \
+        repair of FIX-MY-23 that restates the third relation of \
+        MY-42 without its colon, and the documentation repair of \
+        the fellows section of the Usage, and no new command and no \
+        new reading stands in the slice.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 20 of 100"));
+    // The number FIX-MY-18 stands unspent, as the Round 13
+    // section of the contract records and the Round 21
+    // ratification holds, the version 2 amendment deferred.
+    let contract = read("CONTRACT.md");
+    assert!(!contract.contains("### FIX-MY-18"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -948,6 +995,14 @@ fn contract_carries_the_round_nineteen_obligations() {
 fn contract_carries_the_round_twenty_obligations() {
     let text = read("CONTRACT.md");
     for oid in ["MY-41", "MY-42"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn contract_carries_the_round_twenty_one_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-43", "MY-44", "FIX-MY-23"] {
         assert!(text.contains(oid), "{oid}");
     }
 }
@@ -1225,6 +1280,30 @@ fn the_rosters_section_stands_in_usage_after_the_sets_section() {
     assert!(readme
         .contains("./target/release/myriad rosters examples/winter-spring-summer-lineage.json"));
     assert!(readme.contains("rosters counts, rosters 2, atlases 3, entries 4"));
+}
+
+// Round 21, the documentation repairs. The fellows
+// section stands in Usage after the rosters section,
+// completing the Usage family at the fourteen chain
+// readings, the pin failing by assertion on the tree
+// before this slice, where no fellows section stood.
+
+#[test]
+fn the_fellows_section_stands_in_usage_after_the_rosters_section() {
+    let readme = read("README.md");
+    let rosters = readme
+        .find("### rosters")
+        .expect("the rosters section stands");
+    let fellows = readme
+        .find("### fellows")
+        .expect("the fellows section stands");
+    assert!(
+        fellows > rosters,
+        "the fellows section follows the rosters section"
+    );
+    assert!(readme
+        .contains("./target/release/myriad fellows examples/winter-spring-summer-lineage.json"));
+    assert!(readme.contains("fellows counts, fellows 6, atlases 3, entries 4"));
 }
 
 #[test]

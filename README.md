@@ -477,6 +477,26 @@ entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atl
 atlas 2
 rosters counts, rosters 2, atlases 3, entries 4
 ```
+### fellows
+
+The fellows of a chain, one section for each atlas of the chain opening with its bare atlas line, holding one bare atlas line for each atlas standing with it, in chain order.
+
+```sh
+./target/release/myriad fellows examples/winter-spring-summer-lineage.json
+```
+
+```text
+atlas 1
+atlas 2
+atlas 3
+atlas 2
+atlas 1
+atlas 3
+atlas 3
+atlas 1
+atlas 2
+fellows counts, fellows 6, atlases 3, entries 4
+```
 
 ## Status
 
@@ -512,6 +532,8 @@ Seeded in October 2026. Setup has landed and Rounds 1 to 20 have closed, with al
 - Slice 20 has landed. It carries the rosters reading of MY-40 that gathers the atlases of a chain by the set of entries each holds, in one section for each distinct roster under the standing lines of its entries and the atlas lines of the atlases holding it, with its goldens under examples, the documentation repairs of the sets section of the Usage and the enumeration of the doc head carried to thirteen chain readings, and the generated fixture family extended with the rosters golden and its relations at the stated shapes.
 - Contract, MY-41 and MY-42 met. They stand in full form in CONTRACT.md, and Round 20 closed on the merged slice 21 after three reviews, with the red team approving on recomputation of every fellows golden, FIX-MY-22 amending the reconstruction direction and the sharing clause of MY-42, and the empty atlas pinned beside it.
 - Slice 21 has landed. It carries the fellows reading of MY-42 that names for each atlas of a chain the atlases standing with it, in one section for each atlas under its bare atlas line and the atlas lines of the atlases standing with it, with its goldens under examples, the documentation repairs of the rosters section of the Usage and the enumeration of the doc head carried to fourteen chain readings, and the generated fixture family extended with the fellows golden and its relations at the stated shapes.
+- Contract, MY-43 and MY-44 stand in full form in CONTRACT.md. Their standing is not claimed here, as Round 21 has not closed.
+- Slice 22 is built and in review. It carries the standings inversion fold of MY-43 that reads the standings of a chain in one walk over the presence pass with its heading figures taken from the inversion itself, the large shape pins and the execution record of MY-44 with the fellows header restatement the executions forced, the colon repair of FIX-MY-23 that restates the third relation of MY-42 without its colon, and the documentation repair of the fellows section of the Usage, and no new command and no new reading stands in the slice.
 - Slice 14 has landed. It carries the matched reading of MY-28 that names the entries standing on both sides of each step of a chain in the lines of their standing, with its goldens under examples, the posture paragraph that records the judgement of the two observations of the Round 12 red team with its two posture pins, the documentation repairs of the departures section of the Usage and the enumeration of the doc head, and the generated fixture family extended with the matched golden and the two measured bands at the stated shapes.
 - Slice 13 has landed. It carries the formats amendment of FIX-MY-15 that names the three formats at version 1 in one consolidated section of the contract, the value semantics settlement of FIX-MY-16 that settles the cloning, the equality, and the formatting of a value at the depth the parser admits, the departures reading of MY-26 that names the entries that stand in no later atlas after the atlas they were last seen in, with its goldens under examples, the documentation repairs of the arrivals section, the worked example, the toolchain floor, the annex, and the settled wording, and the generated fixture family, one chain of eight loggings at the stated shapes with the goldens of its five chain readings under examples.
 - Slice 12 has landed. It carries the rendering fencing closure of FIX-MY-14 that refuses a hand built value whose printed field holds a line break in the map, claims, census, atlas, index, and changelog renderings and in the lineage through them, and the arrivals reading that reads the presence of every entry of a chain in the one presence pass and names the entries arriving at each atlas in the lines of their standing, with the golden arrivals of the winter, spring, and summer chain and of the radio investigation chain under examples.

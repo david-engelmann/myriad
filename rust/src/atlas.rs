@@ -1113,12 +1113,13 @@ pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
 ///
 /// Presence is read once over the whole chain, each label
 /// against the atlases it stands in, in the one pass
-/// MY-18 states, and the pass is inverted before anything
-/// is stated, holding for each label the set of atlases
-/// it stands in. One section stands for each label in
-/// the order the labels first stand across the chain,
-/// opening with the standing line of that entry through
-/// the one standing line helper, and holding one line
+/// MY-18 states, and the pass is inverted in one walk
+/// over the atlases of the chain before anything is
+/// stated, holding for each label the atlases it stands
+/// in, in chain order. One section stands for each label
+/// in the order the labels first stand across the chain,
+/// opening with the standing line of that entry formed
+/// from the inversion itself, and holding one line
 /// for each atlas the label stands in, in chain order,
 /// in the form atlas N, one line per standing, a label
 /// held more than once in one atlas named once there,
@@ -1135,20 +1136,32 @@ pub fn render_standings(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut inverted: Vec<Vec<usize>> = Vec::new();
-    for label in &order {
-        let mut atlases: Vec<usize> = Vec::new();
-        for (index, labels) in presence.iter().enumerate() {
-            if labels.contains(label) {
-                atlases.push(index + 1);
-            }
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
         }
-        inverted.push(atlases);
     }
     let mut lines: Vec<String> = Vec::new();
     let mut standings = 0usize;
     for (label, atlases) in order.iter().zip(inverted.iter()) {
-        lines.push(standing_line(&presence, label, total));
+        lines.push(format!(
+            "entry {}, first stood at atlas {}, last stood at atlas {}, \
+             stands in {} atlases, {}",
+            label,
+            atlases[0],
+            atlases[atlases.len() - 1],
+            atlases.len(),
+            if atlases[atlases.len() - 1] == total {
+                "stands at the close"
+            } else {
+                "does not stand at the close"
+            }
+        ));
         for atlas_no in atlases {
             lines.push(format!("atlas {atlas_no}"));
             standings += 1;

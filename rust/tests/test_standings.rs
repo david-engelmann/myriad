@@ -72,6 +72,42 @@
 //! absence on that tree, because render_standings
 //! stands nowhere there, as the pins of every
 //! reading file of the family do.
+//!
+//! Round 21 adds three pins to this file, and their
+//! discrimination split stands as follows. The fold
+//! of MY-43 is behaviour neutral, so the behaviour
+//! the three pins pin stands whole on the tree
+//! before this slice, in the shipped
+//! render_standings, and the three pins pass there
+//! by design, as guards of a restatement and not as
+//! witnesses of an absence. Two forms of the fold
+//! stand behaviour identical to the correct fold on
+//! every chain, MI-1, the scan restored, and MI-2,
+//! the figures read from the standing line helper,
+//! the scan and the walk gathering the same lists
+//! and the helper and the list stating the same
+//! figures, so every pin of this file passes under
+//! both, and their discrimination stands on the
+//! contract text of MY-43, on the reviews' line
+//! read of the one function, and on the fold
+//! record's measured times, as MY-44 states. The
+//! thin chain pin fails under MI-3, the reversed
+//! append, its lists descending, under MI-4, the
+//! last standing order, its sections standing in
+//! last standing order, and under MI-5, the span
+//! heading, its headings reading spans in place of
+//! counts. The window chain pin fails under MI-3,
+//! MI-4, and MI-5 on the same grounds. The heading
+//! relation pin fails under MI-4 and MI-5, and it
+//! fails under MI-3, its headings reading the
+//! reversed lists' ends, the first atlas of each
+//! heading standing at the last atlas of the
+//! presence-derived list and the last atlas at the
+//! first. Under MF-1 to MF-6 all three pins pass,
+//! the fellows edits standing in render_fellows'
+//! gathering and closing and in no other function,
+//! and no pin of this file calling render_fellows.
+//! The thirteen pins above stand unmoved.
 
 mod common;
 
@@ -219,6 +255,54 @@ fn runs_of(lines: &[String], label: &str, verb: &str) -> Vec<(usize, usize)> {
             )
         })
         .collect()
+}
+
+/// A hand built thin chain of n atlases over n
+/// labels, atlas i holding labels i and i plus one
+/// cyclically, each label standing in exactly two
+/// atlases.
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        atlases.push(Atlas {
+            title: pt(&format!("atlas-{}", i + 1)),
+            entries: vec![
+                AtlasEntry {
+                    label: pt(&first),
+                    exploration: expl(),
+                },
+                AtlasEntry {
+                    label: pt(&second),
+                    exploration: expl(),
+                },
+            ],
+        });
+    }
+    Lineage { atlases }
+}
+
+/// A hand built window chain of 120 atlases over 30
+/// labels, each atlas holding the five labels of a
+/// window turning by one label per atlas, each label
+/// standing in exactly twenty atlases.
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let mut entries = Vec::new();
+        for j in 0..5usize {
+            entries.push(AtlasEntry {
+                label: pt(&format!("label-{}", (i + j) % 30 + 1)),
+                exploration: expl(),
+            });
+        }
+        atlases.push(Atlas {
+            title: pt(&format!("atlas-{}", i + 1)),
+            entries,
+        });
+    }
+    Lineage { atlases }
 }
 
 #[test]
@@ -598,4 +682,109 @@ fn a_label_holding_an_unpaired_surrogate_is_refused_first() {
         render_standings(&chain).expect_err("the doubly broken label names the surrogate first"),
         "an entry label holds an unpaired surrogate"
     );
+}
+
+#[test]
+fn the_thin_chain_standings_sections_stand_as_counted() {
+    let chain = thin_chain(302);
+    let lines = render_standings(&chain).expect("the chain reads");
+    assert_eq!(lines.len(), 907);
+    assert_eq!(
+        lines.last().map(String::as_str),
+        Some("standings counts, standings 604, entries 302, atlases 302")
+    );
+    let found = sections(&lines);
+    assert_eq!(found.len(), 302);
+    assert_eq!(
+        found[0].0.as_str(),
+        "entry label-1, first stood at atlas 1, last stood at atlas 302, \
+         stands in 2 atlases, stands at the close"
+    );
+    assert_eq!(found[0].1, vec![1, 302]);
+    assert_eq!(
+        found[149].0.as_str(),
+        "entry label-150, first stood at atlas 149, last stood at atlas 150, \
+         stands in 2 atlases, does not stand at the close"
+    );
+    assert_eq!(found[149].1, vec![149, 150]);
+    assert_eq!(
+        found[301].0.as_str(),
+        "entry label-302, first stood at atlas 301, last stood at atlas 302, \
+         stands in 2 atlases, stands at the close"
+    );
+    assert_eq!(found[301].1, vec![301, 302]);
+}
+
+#[test]
+fn the_window_chain_standings_sections_stand_as_counted() {
+    let chain = window_chain();
+    let lines = render_standings(&chain).expect("the chain reads");
+    assert_eq!(lines.len(), 631);
+    assert_eq!(
+        lines.last().map(String::as_str),
+        Some("standings counts, standings 600, entries 30, atlases 120")
+    );
+    let found = sections(&lines);
+    assert_eq!(found.len(), 30);
+    for (index, (heading, atlases)) in found.iter().enumerate() {
+        assert_eq!(label_of(heading), format!("label-{}", index + 1));
+        assert_eq!(atlases.len(), 20, "a label stands in twenty atlases");
+    }
+    assert_eq!(
+        found[0].0.as_str(),
+        "entry label-1, first stood at atlas 1, last stood at atlas 120, \
+         stands in 20 atlases, stands at the close"
+    );
+    assert_eq!(
+        found[0].1,
+        vec![1, 27, 28, 29, 30, 31, 57, 58, 59, 60, 61, 87, 88, 89, 90, 91, 117, 118, 119, 120]
+    );
+}
+
+#[test]
+fn the_standings_headings_stand_as_the_presence_reading_counts_them() {
+    let mut chains: Vec<Lineage> = CHAINS.iter().map(|name| load(name)).collect();
+    chains.push(thin_chain(302));
+    for chain in &chains {
+        let total = chain.atlases.len();
+        let presence = render_presence(chain).expect("the chain reads");
+        let by_atlas = presence_sections(&presence[..presence.len() - 1]);
+        let mut order: Vec<String> = Vec::new();
+        let mut stands: Vec<Vec<usize>> = Vec::new();
+        for (index, section) in by_atlas.iter().enumerate() {
+            for line in section {
+                let label = label_of(line);
+                match order.iter().position(|held| *held == label) {
+                    Some(slot) => stands[slot].push(index + 1),
+                    None => {
+                        order.push(label);
+                        stands.push(vec![index + 1]);
+                    }
+                }
+            }
+        }
+        let lines = render_standings(chain).expect("the chain reads");
+        let found = sections(&lines);
+        assert_eq!(found.len(), order.len());
+        for (index, (heading, atlases)) in found.iter().enumerate() {
+            assert_eq!(label_of(heading), order[index]);
+            let held = &stands[index];
+            assert_eq!(
+                figure(heading, "first stood at atlas ", ", last stood"),
+                held[0]
+            );
+            assert_eq!(
+                figure(heading, "last stood at atlas ", ", stands in"),
+                held[held.len() - 1]
+            );
+            assert_eq!(figure(heading, "stands in ", " atlases,"), held.len());
+            assert_eq!(
+                heading.ends_with("stands at the close"),
+                held[held.len() - 1] == total
+            );
+            let mut sorted = atlases.clone();
+            sorted.sort_unstable();
+            assert_eq!(&sorted, held);
+        }
+    }
 }
