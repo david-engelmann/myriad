@@ -1275,47 +1275,75 @@ pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// stands in.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, and the labels are
-/// gathered by their sets in one walk over the order the
-/// labels first stand across the chain, and one section
-/// stands for each distinct set of atlases in the order
-/// of the earliest label holding it, each section
-/// opening with one line for each atlas of its set in
-/// chain order and holding the standing line of each
-/// label holding the set through the one standing line
-/// helper, in the order of first standing. The reading
-/// closes with the sets counts line. A hand-built lineage
-/// holding fewer than two atlases draws the refusal
-/// MY-13 states, and a label holding an unpaired
-/// surrogate draws the refusal PORT-11 names for that
-/// field, and a label holding a line break draws the
-/// refusal FIX-MY-13 names for that field, the labels
-/// read in chain order, atlas order then entry order.
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain
+/// before anything is stated, holding for each label
+/// the atlases it stands in, in chain order, and the
+/// labels are gathered by their sets in one walk over
+/// the pass, each label appended to its set's gathering
+/// as the pass is consumed, and one section stands for
+/// each distinct set of atlases in the order of the
+/// earliest label holding it, each section opening with
+/// one line for each atlas of its set in chain order
+/// and holding the standing line of each label holding
+/// the set formed from the inversion itself, in the
+/// order of first standing. The reading closes with
+/// the sets counts line. A hand-built lineage holding
+/// fewer than two atlases draws the refusal MY-13
+/// states, and a label holding an unpaired surrogate
+/// draws the refusal PORT-11 names for that field, and
+/// a label holding a line break draws the refusal
+/// FIX-MY-13 names for that field, the labels read in
+/// chain order, atlas order then entry order.
 pub fn render_sets(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut gatherings: Vec<(Vec<usize>, Vec<&PText>)> = Vec::new();
-    for label in &order {
-        let mut set: Vec<usize> = Vec::new();
-        for (index, labels) in presence.iter().enumerate() {
-            if labels.contains(label) {
-                set.push(index + 1);
-            }
-        }
-        match gatherings.iter_mut().find(|(held, _)| *held == set) {
-            Some((_, labels)) => labels.push(label),
-            None => gatherings.push((set, vec![label])),
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
         }
     }
+    let mut gatherings: Vec<(Vec<usize>, Vec<usize>)> = Vec::new();
+    let mut gathered: HashMap<Vec<usize>, usize> = HashMap::new();
+    for (index, _) in order.iter().enumerate() {
+        let set = inverted[index].clone();
+        match gathered.get(&set) {
+            Some(&slot) => gatherings[slot].1.push(index),
+            None => {
+                gathered.insert(set.clone(), gatherings.len());
+                gatherings.push((set, vec![index]));
+            }
+        }
+    }
+    let line_of = |label: &PText, atlases: &[usize]| -> String {
+        format!(
+            "entry {}, first stood at atlas {}, last stood at atlas {}, \
+             stands in {} atlases, {}",
+            label,
+            atlases[0],
+            atlases[atlases.len() - 1],
+            atlases.len(),
+            if atlases[atlases.len() - 1] == total {
+                "stands at the close"
+            } else {
+                "does not stand at the close"
+            }
+        )
+    };
     let mut lines: Vec<String> = Vec::new();
     let mut entries = 0usize;
     for (set, labels) in &gatherings {
         for atlas_no in set {
             lines.push(format!("atlas {atlas_no}"));
         }
-        for label in labels {
-            lines.push(standing_line(&presence, label, total));
+        for &slot in labels {
+            lines.push(line_of(order[slot], &inverted[slot]));
             entries += 1;
         }
     }
