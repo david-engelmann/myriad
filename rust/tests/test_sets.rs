@@ -101,6 +101,97 @@
 //! tree, because render_sets stands nowhere there,
 //! as the pins of every reading file of the family
 //! do.
+//!
+//! Round 24 adds four pins to this file, and their
+//! discrimination split stands as follows. The fold
+//! of MY-49 is behaviour neutral, so the behaviour
+//! the four pins pin stands whole on the tree before
+//! this slice, in the shipped render_sets, and
+//! the four pins pass there by design, as guards of
+//! a restatement and not as witnesses of an absence.
+//! Two forms of the fold stand behaviour identical
+//! to the correct fold on every chain, MS-1, the
+//! set scan restored, and MS-2, the lines from
+//! the helper, the scan and the walk gathering the
+//! same sets in the same order and the helper and
+//! the list stating the same figures, so every
+//! pin of this file passes under both, and their
+//! discrimination stands on the contract text of
+//! MY-49, on the reviews' line read of the one
+//! function, and on the fold record's measured
+//! times, as MY-50 states. Under MS-3, the size
+//! order sections, 5 pins of this file fail, pins 1,
+//! 2, and 3, the three counted golden pins, pin 7,
+//! the line agreement and order, and pin 10, the
+//! widest and single set pin, beside the generated
+//! chain sets golden, the generated relations pin
+//! passing, its relations standing read from the
+//! sections as they stand. Under MS-4, the reversed
+//! sections, 5 pins of this file fail, pins 1, 2,
+//! and 3, pin 7, and pin 10, beside the generated
+//! chain sets golden. Under MS-5, the earliest
+//! label only, 6 pins of this file fail, pin 1,
+//! pin 4, the partition relation, pin 5, the
+//! equality relation, pin 8, the closing
+//! agreement, pin 10, and pin 11, the doubled
+//! label pin, beside the two generated chain sets
+//! pins, the golden and the relations, the radio
+//! and constructed counted pins passing, every
+//! section of those chains holding one label, so
+//! the earliest label only stands as the whole of
+//! each section's label lines there. Under MS-6,
+//! the span line, 4 pins of this file fail, pins 1
+//! and 2, pin 6, the atlas line agreement, and
+//! pin 7, beside the generated chain sets golden,
+//! the constructed counted pin passing, no
+//! constructed label's standings gapping, so span
+//! and count agree on every line of that chain,
+//! and the generated relations pin passing. Pins
+//! 12 and 13, the refusal battery, pass under all
+//! six edits, the refusals they pin standing in
+//! the one presence pass none of the six edits
+//! touches. The thin chain pin fails under MS-4,
+//! its sections standing reversed, the last section
+//! first, and under MS-6, its first label line
+//! reading the label-1 span of 302 against its
+//! standings of two, and it passes under MS-3 by
+//! design, every thin set holding two atlases, so
+//! the size order stands as the earliest label
+//! order already, and under MS-5 by design, every
+//! thin section holding one label, so the earliest
+//! label only stands as the whole of each section's
+//! label lines already. The window chain pin fails
+//! under MS-4, its sections standing reversed, and
+//! under MS-6, its first label line reading the
+//! label-1 span of 120 against its standings of
+//! twenty, and it passes under MS-3 by design,
+//! every window set holding twenty atlases, and
+//! under MS-5 by design, every window section
+//! holding one label. The paired chain pin fails
+//! under MS-3, its sections standing in size order,
+//! the whole chain's set of one hundred and twenty
+//! atlases standing last against its first place,
+//! under MS-4, its three sections standing
+//! reversed, under MS-5, its second and third
+//! sections holding one label line of their two,
+//! and under MS-6, its second section's first label
+//! line reading the span of 119 against its
+//! standings of sixty. The gathering relation pin
+//! fails under MS-3, its sections standing out of
+//! their earliest labels' places on the paired
+//! chain, under MS-4, its sections standing
+//! reversed on every chain, under MS-5, the paired
+//! chain's second labels standing in no section,
+//! and under MS-6, its label lines standing as
+//! span lines wherever a label's standings gap, the
+//! harbour lights line of the winter chain among
+//! them. Under MI-1 to MI-5, MF-1 to MF-6, MC-1 to
+//! MC-6, and MO-1 to MO-6 all four pins pass, those
+//! edits standing in render_standings,
+//! render_fellows, render_company, and
+//! render_rosters, and in no function the pins
+//! call. The thirteen pins above stand unmoved.
+//!
 
 mod common;
 
@@ -710,4 +801,199 @@ fn a_label_holding_an_unpaired_surrogate_is_refused_first() {
         render_sets(&chain).expect_err("the doubly broken label names the surrogate first"),
         "an entry label holds an unpaired surrogate"
     );
+}
+
+/// A thin chain of the given length built in process,
+/// the atlas at each place holding the label of its
+/// place and the label of the next, cyclically, so
+/// each label stands in exactly two atlases.
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &[&first, &second]));
+    }
+    Lineage { atlases }
+}
+
+/// A window chain of one hundred and twenty atlases
+/// built in process over thirty labels, each atlas
+/// holding the five labels of a window turning by one
+/// label per atlas, so each label stands in twenty
+/// atlases.
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let labels: Vec<String> = (0..5)
+            .map(|j| format!("label-{}", (i + j) % 30 + 1))
+            .collect();
+        let refs: Vec<&str> = labels.iter().map(String::as_str).collect();
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &refs));
+    }
+    Lineage { atlases }
+}
+
+/// A paired chain of one hundred and twenty atlases
+/// built in process over five labels, its odd atlases
+/// holding label-2, label-1, and label-4 in that member
+/// order and its even atlases holding label-3, label-5,
+/// and label-2, so the chain holds three sets, the
+/// whole chain, its odd atlases, and its even atlases.
+fn paired_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120 {
+        let title = format!("atlas-{}", i + 1);
+        if i % 2 == 0 {
+            atlases.push(atlas(&title, &["label-2", "label-1", "label-4"]));
+        } else {
+            atlases.push(atlas(&title, &["label-3", "label-5", "label-2"]));
+        }
+    }
+    Lineage { atlases }
+}
+
+#[test]
+fn the_thin_chain_sets_stand_as_counted() {
+    let lines = render_sets(&thin_chain(302)).expect("the chain reads");
+    assert_eq!(lines.len(), 907);
+    assert_eq!(
+        lines.last().expect("a closing line"),
+        "sets counts, sets 302, entries 302, atlases 302"
+    );
+    let sections = sets_sections(&lines);
+    assert_eq!(sections.len(), 302);
+    assert!(sections
+        .iter()
+        .all(|(atlases, entries)| atlases.len() == 2 && entries.len() == 1));
+    assert_eq!(sections[0].0, vec![1, 302]);
+    assert_eq!(
+        sections[0].1,
+        strings(&[
+            "entry label-1, first stood at atlas 1, last stood at atlas 302, stands in 2 atlases, stands at the close",
+        ])
+    );
+    assert_eq!(sections[151].0, vec![151, 152]);
+    assert_eq!(
+        sections[151].1,
+        strings(&[
+            "entry label-152, first stood at atlas 151, last stood at atlas 152, stands in 2 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(sections[301].0, vec![301, 302]);
+    assert_eq!(
+        sections[301].1,
+        strings(&[
+            "entry label-302, first stood at atlas 301, last stood at atlas 302, stands in 2 atlases, stands at the close",
+        ])
+    );
+}
+
+#[test]
+fn the_window_chain_sets_stand_as_counted() {
+    let lines = render_sets(&window_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 631);
+    assert_eq!(
+        lines.last().expect("a closing line"),
+        "sets counts, sets 30, entries 30, atlases 120"
+    );
+    let sections = sets_sections(&lines);
+    assert_eq!(sections.len(), 30);
+    assert!(sections
+        .iter()
+        .all(|(atlases, entries)| atlases.len() == 20 && entries.len() == 1));
+    assert_eq!(
+        sections[0].0,
+        vec![1, 27, 28, 29, 30, 31, 57, 58, 59, 60, 61, 87, 88, 89, 90, 91, 117, 118, 119, 120]
+    );
+    assert_eq!(
+        sections[0].1,
+        strings(&[
+            "entry label-1, first stood at atlas 1, last stood at atlas 120, stands in 20 atlases, stands at the close",
+        ])
+    );
+    assert_eq!(
+        sections[15].0,
+        vec![12, 13, 14, 15, 16, 42, 43, 44, 45, 46, 72, 73, 74, 75, 76, 102, 103, 104, 105, 106]
+    );
+    assert_eq!(
+        sections[15].1,
+        strings(&[
+            "entry label-16, first stood at atlas 12, last stood at atlas 106, stands in 20 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        sections[29].0,
+        vec![26, 27, 28, 29, 30, 56, 57, 58, 59, 60, 86, 87, 88, 89, 90, 116, 117, 118, 119, 120]
+    );
+    assert_eq!(
+        sections[29].1,
+        strings(&[
+            "entry label-30, first stood at atlas 26, last stood at atlas 120, stands in 20 atlases, stands at the close",
+        ])
+    );
+}
+
+#[test]
+fn the_paired_chain_sets_stand_as_counted() {
+    let lines = render_sets(&paired_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 246);
+    assert_eq!(
+        lines.last().expect("a closing line"),
+        "sets counts, sets 3, entries 5, atlases 120"
+    );
+    let sections = sets_sections(&lines);
+    assert_eq!(sections.len(), 3);
+    assert_eq!(sections[0].0, (1..=120).collect::<Vec<usize>>());
+    assert_eq!(
+        sections[0].1,
+        strings(&[
+            "entry label-2, first stood at atlas 1, last stood at atlas 120, stands in 120 atlases, stands at the close",
+        ])
+    );
+    assert_eq!(sections[1].0, (1..=119).step_by(2).collect::<Vec<usize>>());
+    assert_eq!(
+        sections[1].1,
+        strings(&[
+            "entry label-1, first stood at atlas 1, last stood at atlas 119, stands in 60 atlases, does not stand at the close",
+            "entry label-4, first stood at atlas 1, last stood at atlas 119, stands in 60 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(sections[2].0, (2..=120).step_by(2).collect::<Vec<usize>>());
+    assert_eq!(
+        sections[2].1,
+        strings(&[
+            "entry label-3, first stood at atlas 2, last stood at atlas 120, stands in 60 atlases, stands at the close",
+            "entry label-5, first stood at atlas 2, last stood at atlas 120, stands in 60 atlases, stands at the close",
+        ])
+    );
+}
+
+#[test]
+fn the_sets_gathering_relation_holds_at_every_shape() {
+    let mut chains: Vec<Lineage> = CHAINS.iter().map(|name| load(name)).collect();
+    chains.push(load("generated-chain-lineage.json"));
+    chains.push(thin_chain(302));
+    chains.push(window_chain());
+    chains.push(paired_chain());
+    for chain in &chains {
+        let lines = render_sets(chain).expect("the sets read");
+        let sections = sets_sections(&lines);
+        let standings = render_standings(chain).expect("the standings read");
+        let by_label = standings_sections(&standings);
+        let mut expected: Vec<(Vec<usize>, Vec<String>)> = Vec::new();
+        for (heading, atlases) in &by_label {
+            match expected.iter_mut().find(|(held, _)| held == atlases) {
+                Some((_, entries)) => entries.push(heading.clone()),
+                None => expected.push((atlases.clone(), vec![heading.clone()])),
+            }
+        }
+        assert_eq!(sections, expected);
+        let closing = lines.last().expect("a closing line");
+        assert_eq!(figure(closing, "sets counts, sets ", ","), expected.len());
+        assert_eq!(figure(closing, ", entries ", ","), by_label.len());
+        assert_eq!(figure_last(closing, ", atlases "), chain.atlases.len());
+    }
 }
