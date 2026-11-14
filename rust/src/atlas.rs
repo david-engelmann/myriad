@@ -1331,16 +1331,19 @@ pub fn render_sets(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// holds.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, and the atlases are
-/// gathered by their rosters in one walk over the chain,
-/// each atlas appended to its roster's gathering as the
-/// pass is consumed, and one section stands for each
-/// distinct roster in the order of the earliest atlas
-/// holding it, each section opening with the standing
-/// line of each entry of its roster through the one
-/// standing line helper, in the order of first standing,
-/// and holding one line for each atlas holding the
-/// roster in chain order. The reading closes with the
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain
+/// before anything is stated, holding for each label
+/// the atlases it stands in, in chain order, and the
+/// atlases are gathered by their rosters in one walk
+/// over the chain, each atlas appended to its roster's
+/// gathering as the pass is consumed, and one section
+/// stands for each distinct roster in the order of the
+/// earliest atlas holding it, each section opening with
+/// the standing line of each entry of its roster formed
+/// from the inversion itself, in the order of first
+/// standing, and holding one line for each atlas holding
+/// the roster in chain order. The reading closes with the
 /// rosters counts line. A hand-built lineage holding
 /// fewer than two atlases draws the refusal MY-13
 /// states, and a label holding an unpaired surrogate
@@ -1352,23 +1355,48 @@ pub fn render_rosters(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut gatherings: Vec<(Vec<&PText>, Vec<usize>)> = Vec::new();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
     for (index, labels) in presence.iter().enumerate() {
-        let mut roster: Vec<&PText> = Vec::new();
-        for label in &order {
-            if labels.contains(label) {
-                roster.push(label);
-            }
-        }
-        match gatherings.iter_mut().find(|(held, _)| *held == roster) {
-            Some((_, atlases)) => atlases.push(index + 1),
-            None => gatherings.push((roster, vec![index + 1])),
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
         }
     }
+    let mut gatherings: Vec<(Vec<usize>, Vec<usize>)> = Vec::new();
+    let mut gathered: HashMap<Vec<usize>, usize> = HashMap::new();
+    for (index, labels) in presence.iter().enumerate() {
+        let mut roster: Vec<usize> = labels.iter().map(|label| positions[label]).collect();
+        roster.sort_unstable();
+        match gathered.get(&roster) {
+            Some(&slot) => gatherings[slot].1.push(index + 1),
+            None => {
+                gathered.insert(roster.clone(), gatherings.len());
+                gatherings.push((roster, vec![index + 1]));
+            }
+        }
+    }
+    let line_of = |label: &PText, atlases: &[usize]| -> String {
+        format!(
+            "entry {}, first stood at atlas {}, last stood at atlas {}, \
+             stands in {} atlases, {}",
+            label,
+            atlases[0],
+            atlases[atlases.len() - 1],
+            atlases.len(),
+            if atlases[atlases.len() - 1] == total {
+                "stands at the close"
+            } else {
+                "does not stand at the close"
+            }
+        )
+    };
     let mut lines: Vec<String> = Vec::new();
     for (roster, atlases) in &gatherings {
-        for label in roster {
-            lines.push(standing_line(&presence, label, total));
+        for &slot in roster {
+            lines.push(line_of(order[slot], &inverted[slot]));
         }
         for atlas_no in atlases {
             lines.push(format!("atlas {atlas_no}"));
