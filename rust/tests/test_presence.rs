@@ -494,3 +494,245 @@ fn a_label_holding_a_line_break_is_refused() {
         "an entry label holds a newline or a carriage return"
     );
 }
+
+/// A thin chain of n atlases built in process, atlas i
+/// holding labels i and i plus one cyclically, so each
+/// of the chain's labels stands in exactly two atlases.
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &[&first, &second]));
+    }
+    Lineage { atlases }
+}
+
+/// A window chain of one hundred and twenty atlases
+/// built in process over thirty labels, each atlas
+/// holding the five labels of a window turning by one
+/// label per atlas, so each label stands in twenty
+/// atlases.
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let labels: Vec<String> = (0..5)
+            .map(|j| format!("label-{}", (i + j) % 30 + 1))
+            .collect();
+        let refs: Vec<&str> = labels.iter().map(String::as_str).collect();
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &refs));
+    }
+    Lineage { atlases }
+}
+
+/// A paired chain of one hundred and twenty atlases
+/// built in process over five labels, its odd atlases
+/// holding label-2, label-1, and label-4 in that member
+/// order and its even atlases holding label-3, label-5,
+/// and label-2, so label-2 stands in every atlas and
+/// each other label in sixty.
+fn paired_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120 {
+        let title = format!("atlas-{}", i + 1);
+        if i % 2 == 0 {
+            atlases.push(atlas(&title, &["label-2", "label-1", "label-4"]));
+        } else {
+            atlases.push(atlas(&title, &["label-3", "label-5", "label-2"]));
+        }
+    }
+    Lineage { atlases }
+}
+
+#[test]
+fn the_thin_chain_presence_stands_as_counted() {
+    let lines = render_presence(&thin_chain(302)).expect("the chain reads");
+    assert_eq!(lines.len(), 907);
+    let secs = sections(&lines);
+    assert_eq!(secs.len(), 302);
+    assert_eq!(
+        secs[0],
+        strings(&[
+            "entry label-1, first stood at atlas 1, last stood at atlas 302, \
+             stands in 2 atlases, stands at the close",
+            "entry label-2, first stood at atlas 1, last stood at atlas 2, \
+             stands in 2 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        secs[151],
+        strings(&[
+            "entry label-152, first stood at atlas 151, last stood at atlas 152, \
+             stands in 2 atlases, does not stand at the close",
+            "entry label-153, first stood at atlas 152, last stood at atlas 153, \
+             stands in 2 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        secs[301],
+        strings(&[
+            "entry label-302, first stood at atlas 301, last stood at atlas 302, \
+             stands in 2 atlases, stands at the close",
+            "entry label-1, first stood at atlas 1, last stood at atlas 302, \
+             stands in 2 atlases, stands at the close",
+        ])
+    );
+    let mut closing = String::from("presence counts");
+    for i in 1..=302 {
+        closing.push_str(&format!(", atlas {i} standing 2"));
+    }
+    closing.push_str(", entries 302, atlases 302");
+    assert_eq!(lines[906], closing);
+}
+
+#[test]
+fn the_window_chain_presence_stands_as_counted() {
+    let lines = render_presence(&window_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 721);
+    let secs = sections(&lines);
+    assert_eq!(secs.len(), 120);
+    assert_eq!(
+        secs[0],
+        strings(&[
+            "entry label-1, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-2, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-3, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-4, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-5, first stood at atlas 1, last stood at atlas 95, \
+             stands in 20 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        secs[15],
+        strings(&[
+            "entry label-16, first stood at atlas 12, last stood at atlas 106, \
+             stands in 20 atlases, does not stand at the close",
+            "entry label-17, first stood at atlas 13, last stood at atlas 107, \
+             stands in 20 atlases, does not stand at the close",
+            "entry label-18, first stood at atlas 14, last stood at atlas 108, \
+             stands in 20 atlases, does not stand at the close",
+            "entry label-19, first stood at atlas 15, last stood at atlas 109, \
+             stands in 20 atlases, does not stand at the close",
+            "entry label-20, first stood at atlas 16, last stood at atlas 110, \
+             stands in 20 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        secs[119],
+        strings(&[
+            "entry label-30, first stood at atlas 26, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-1, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-2, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-3, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+            "entry label-4, first stood at atlas 1, last stood at atlas 120, \
+             stands in 20 atlases, stands at the close",
+        ])
+    );
+    let mut closing = String::from("presence counts");
+    for i in 1..=120 {
+        closing.push_str(&format!(", atlas {i} standing 5"));
+    }
+    closing.push_str(", entries 30, atlases 120");
+    assert_eq!(lines[720], closing);
+}
+
+#[test]
+fn the_paired_chain_presence_stands_as_counted() {
+    let lines = render_presence(&paired_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 481);
+    let secs = sections(&lines);
+    assert_eq!(secs.len(), 120);
+    assert_eq!(
+        secs[0],
+        strings(&[
+            "entry label-2, first stood at atlas 1, last stood at atlas 120, \
+             stands in 120 atlases, stands at the close",
+            "entry label-1, first stood at atlas 1, last stood at atlas 119, \
+             stands in 60 atlases, does not stand at the close",
+            "entry label-4, first stood at atlas 1, last stood at atlas 119, \
+             stands in 60 atlases, does not stand at the close",
+        ])
+    );
+    assert_eq!(
+        secs[1],
+        strings(&[
+            "entry label-3, first stood at atlas 2, last stood at atlas 120, \
+             stands in 60 atlases, stands at the close",
+            "entry label-5, first stood at atlas 2, last stood at atlas 120, \
+             stands in 60 atlases, stands at the close",
+            "entry label-2, first stood at atlas 1, last stood at atlas 120, \
+             stands in 120 atlases, stands at the close",
+        ])
+    );
+    assert_eq!(secs[119], secs[1]);
+    let mut closing = String::from("presence counts");
+    for i in 1..=120 {
+        closing.push_str(&format!(", atlas {i} standing 3"));
+    }
+    closing.push_str(", entries 5, atlases 120");
+    assert_eq!(lines[480], closing);
+}
+
+#[test]
+fn the_sections_hold_the_standing_lines_in_entry_order() {
+    let mut chains = vec![
+        load("winter-spring-summer-lineage.json"),
+        load("radio-investigation-lineage.json"),
+        load("constructed-departures-lineage.json"),
+        load("generated-chain-lineage.json"),
+    ];
+    chains.push(thin_chain(302));
+    chains.push(window_chain());
+    chains.push(paired_chain());
+    for chain in &chains {
+        let standing = render_standing(chain).expect("the chain reads");
+        let mut by_label: std::collections::HashMap<String, String> =
+            std::collections::HashMap::new();
+        for line in &standing[..standing.len() - 1] {
+            by_label.insert(label_of(line), line.clone());
+        }
+        let lines = render_presence(chain).expect("the chain reads");
+        let secs = sections(&lines);
+        assert_eq!(secs.len(), chain.atlases.len());
+        let mut entry_lines = 0usize;
+        for (index, atlas) in chain.atlases.iter().enumerate() {
+            let mut expected: Vec<String> = Vec::new();
+            let mut seen: Vec<String> = Vec::new();
+            for entry in &atlas.entries {
+                let label = entry.label.to_string();
+                if !seen.contains(&label) {
+                    seen.push(label.clone());
+                    expected.push(
+                        by_label
+                            .get(&label)
+                            .expect("every standing label holds a standing line")
+                            .clone(),
+                    );
+                }
+            }
+            assert_eq!(secs[index], expected);
+            entry_lines += secs[index].len();
+        }
+        let counted: usize = standing[..standing.len() - 1]
+            .iter()
+            .map(|line| figure(line, "stands in ", " atlases"))
+            .sum();
+        assert_eq!(entry_lines, counted);
+        let closing = lines.last().expect("a closing stands");
+        assert_eq!(figure(closing, ", entries ", ", atlases"), by_label.len());
+        for (index, section) in secs.iter().enumerate() {
+            let head = format!(", atlas {} standing ", index + 1);
+            assert_eq!(figure(closing, &head, ","), section.len());
+        }
+    }
+}

@@ -844,10 +844,10 @@ fn standing_line_of(label: &PText, atlases: &[usize], total: usize) -> String {
 ///
 /// The arrivals reading states the same line inside the
 /// section of the atlas the label arrives at, and the
-/// departures, matched, and presence readings state it
-/// in their sections, so the helper stands shared by
-/// those readings, and its line stands formed through
-/// the one standing line construction.
+/// departures and matched readings state it in their
+/// sections, so the helper stands shared by those
+/// readings, and its line stands formed through the
+/// one standing line construction.
 fn standing_line(presence: &[HashSet<&PText>], label: &PText, total: usize) -> String {
     let mut atlases: Vec<usize> = Vec::new();
     for (index, labels) in presence.iter().enumerate() {
@@ -1094,16 +1094,31 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// each holding the standing lines of the entries standing in
 /// that atlas, plus a closing line counting the standings per
 /// atlas, the distinct labels, and the atlases. An empty atlas
-/// leaves its section as its opening line alone. The reading
-/// reads the presence pass once and states every line from it;
-/// a label held twice in one atlas stands once in its section,
-/// the posture FIX-MY-17 settled. The refusals are the presence
-/// pass's own, in chain order, each label read for an unpaired
-/// surrogate first and then for a line break.
+/// leaves its section as its opening line alone. Presence is
+/// read once over the whole chain, and the pass is inverted
+/// in one walk over the atlases of the chain before anything
+/// is stated, holding for each label the atlases it stands
+/// in, in chain order, and every standing line of the reading
+/// is formed through the one standing line construction from
+/// that inversion; a label held twice in one atlas stands
+/// once in its section, the posture FIX-MY-17 settled. The
+/// refusals are the presence pass's own, in chain order, each
+/// label read for an unpaired surrogate first and then for a
+/// line break.
 pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let entries = first_standing_order(lineage).len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
         lines.push(format!("atlas {}", index + 1));
@@ -1112,14 +1127,18 @@ pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
             if !seen.insert(&entry.label) {
                 continue;
             }
-            lines.push(standing_line(&presence, &entry.label, total));
+            lines.push(standing_line_of(
+                &entry.label,
+                &inverted[positions[&entry.label]],
+                total,
+            ));
         }
     }
     let mut closing = String::from("presence counts");
     for (index, set) in presence.iter().enumerate() {
         closing.push_str(&format!(", atlas {} standing {}", index + 1, set.len()));
     }
-    closing.push_str(&format!(", entries {}, atlases {}", entries, total));
+    closing.push_str(&format!(", entries {}, atlases {}", order.len(), total));
     lines.push(closing);
     Ok(lines)
 }
