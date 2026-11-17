@@ -1204,7 +1204,7 @@ fn readme_reports_the_round_twenty_six_status() {
 #[test]
 fn readme_reports_the_round_twenty_seven_status() {
     let text = read("README.md");
-    let standing = "Contract, MY-55 and MY-56 met. They stand in full form \
+    let standing = "- Contract, MY-55 and MY-56 met. They stand in full form \
         in CONTRACT.md, and Round 27 closed on the merged slice 28 after \
         three reviews, with the departures fold of MY-55 confirmed \
         behaviour-identical and the large shape pins and the fold record of \
