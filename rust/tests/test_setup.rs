@@ -999,9 +999,14 @@ fn readme_reports_the_round_twenty_two_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 22
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1049,9 +1054,14 @@ fn readme_reports_the_round_twenty_three_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 23
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1101,9 +1111,14 @@ fn readme_reports_the_round_twenty_four_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 24
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1169,9 +1184,14 @@ fn readme_reports_the_round_twenty_five_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 25
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1240,9 +1260,14 @@ fn readme_reports_the_round_twenty_six_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 26
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1328,9 +1353,14 @@ fn readme_reports_the_round_twenty_seven_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 27
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
@@ -1430,9 +1460,14 @@ fn readme_reports_the_round_twenty_eight_status() {
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 28
     // section records no repair amendment for the other.
+    // The number FIX-MY-24 stands spent from Round 29,
+    // its amendment standing in the Round 29 section as
+    // that round's repair, so the negative below stands
+    // restated to the section's presence as the named
+    // mechanical consequence of that spending.
     let contract = read("CONTRACT.md");
     assert!(!contract.contains("### FIX-MY-18"));
-    assert!(!contract.contains("### FIX-MY-24"));
+    assert!(contract.contains("### FIX-MY-24"));
 }
 
 #[test]
