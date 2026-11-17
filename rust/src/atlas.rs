@@ -842,12 +842,10 @@ fn standing_line_of(label: &PText, atlases: &[usize], total: usize) -> String {
 /// in the form MY-18 states, read from the presence of
 /// a chain in one scan of the pass for that label.
 ///
-/// The arrivals reading states the same line inside the
-/// section of the atlas the label arrives at, and the
-/// matched reading states it in its sections, so the
-/// helper stands shared by those readings, and its
-/// line stands formed through the one standing line
-/// construction.
+/// The matched reading states the same line in its
+/// sections, so the helper stands as that reading's
+/// alone, and its line stands formed through the one
+/// standing line construction.
 fn standing_line(presence: &[HashSet<&PText>], label: &PText, total: usize) -> String {
     let mut atlases: Vec<usize> = Vec::new();
     for (index, labels) in presence.iter().enumerate() {
@@ -915,47 +913,66 @@ pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// Render the arrivals of a chain of atlases, the
 /// entries that first stand at each atlas of the chain.
 ///
-/// Presence is read once over the whole chain in the
-/// one pass of FIX-MY-13, and one section stands for
-/// each atlas of the chain in chain order, opening with
-/// the number of the atlas and holding one line for
-/// each entry that arrives at that atlas, in the order
-/// the entries stand in that atlas, the line the
-/// standing reading states for that entry. A section
-/// in which no entry arrives stands as its opening line
-/// alone, and the reading closes with the arrivals
-/// counts line, the arrivals at each atlas and the
-/// count of entries and of atlases in the chain. A
-/// hand-built lineage holding fewer than two atlases
-/// draws the refusal MY-13 states, and a label holding
-/// an unpaired surrogate draws the refusal PORT-11
-/// names for that field, and a label holding a line
-/// break draws the refusal FIX-MY-13 names for that
-/// field, the labels read in chain order, atlas order
-/// then entry order.
+/// Presence is read once over the whole chain, and the
+/// pass is inverted in one walk over the atlases of the
+/// chain before anything is stated, holding for each
+/// label the atlases it stands in, in chain order, and
+/// one section stands for each atlas of the chain in
+/// chain order, opening with the number of the atlas
+/// and holding one line for each entry that arrives at
+/// that atlas, in the order the entries stand in that
+/// atlas, a label held more than once in one atlas
+/// read once, at its first standing in it, under
+/// FIX-MY-17, the line of an arriving entry formed
+/// through the one standing line construction from
+/// that inversion. A section in which no entry arrives
+/// stands as its opening line alone, and the reading
+/// closes with the arrivals counts line, the arrivals
+/// at each atlas and the count of entries and of
+/// atlases in the chain. A hand-built lineage holding
+/// fewer than two atlases draws the refusal MY-13
+/// states, and a label holding an unpaired surrogate
+/// draws the refusal PORT-11 names for that field, and
+/// a label holding a line break draws the refusal
+/// FIX-MY-13 names for that field, the labels read in
+/// chain order, atlas order then entry order.
 pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
-    let mut arrived: HashSet<&PText> = HashSet::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
         lines.push(format!("atlas {}", index + 1));
         let mut count = 0usize;
+        let mut seen: HashSet<&PText> = HashSet::new();
         for entry in &atlas.entries {
-            if arrived.insert(&entry.label) {
-                lines.push(standing_line(&presence, &entry.label, total));
+            if !seen.insert(&entry.label) {
+                continue;
+            }
+            let atlases = &inverted[positions[&entry.label]];
+            if atlases[0] == index + 1 {
+                lines.push(standing_line_of(&entry.label, atlases, total));
                 count += 1;
             }
         }
         counts.push(count);
     }
-    let entries: usize = counts.iter().sum();
     let mut closing = "arrivals counts".to_string();
     for (index, count) in counts.iter().enumerate() {
         closing.push_str(&format!(", atlas {} arrivals {}", index + 1, count));
     }
-    closing.push_str(&format!(", entries {entries}, atlases {total}"));
+    closing.push_str(&format!(", entries {}, atlases {total}", order.len()));
     lines.push(closing);
     Ok(lines)
 }
