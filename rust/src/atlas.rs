@@ -844,10 +844,10 @@ fn standing_line_of(label: &PText, atlases: &[usize], total: usize) -> String {
 ///
 /// The arrivals reading states the same line inside the
 /// section of the atlas the label arrives at, and the
-/// departures and matched readings state it in their
-/// sections, so the helper stands shared by those
-/// readings, and its line stands formed through the
-/// one standing line construction.
+/// matched reading states it in its sections, so the
+/// helper stands shared by those readings, and its
+/// line stands formed through the one standing line
+/// construction.
 fn standing_line(presence: &[HashSet<&PText>], label: &PText, total: usize) -> String {
     let mut atlases: Vec<usize> = Vec::new();
     for (index, labels) in presence.iter().enumerate() {
@@ -964,15 +964,19 @@ pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// entries that stand in no later atlas, read by last
 /// appearance.
 ///
-/// Presence is read once over the whole chain in the
-/// one pass of FIX-MY-13, and one section stands for
-/// each atlas of the chain in chain order, opening with
-/// the number of the atlas and holding one line for
-/// each entry departing after that atlas, in the order
-/// the entries stand in that atlas, a label held more
-/// than once in that atlas read once, at its first
-/// standing in it, under FIX-MY-17, the line the
-/// standing reading states for that entry. The last
+/// Presence is read once over the whole chain, and the
+/// pass is inverted in one walk over the atlases of the
+/// chain before anything is stated, holding for each
+/// label the atlases it stands in, in chain order, and
+/// one section stands for each atlas of the chain in
+/// chain order, opening with the number of the atlas
+/// and holding one line for each entry departing after
+/// that atlas, in the order the entries stand in that
+/// atlas, a label held more than once in that atlas
+/// read once, at its first standing in it, under
+/// FIX-MY-17, the line of a departing entry formed
+/// through the one standing line construction from
+/// that inversion. The last
 /// atlas's section always stands in its empty form,
 /// and the reading closes with the departures counts
 /// line, the departures after each atlas, the count of
@@ -987,7 +991,18 @@ pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// then entry order.
 pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
@@ -999,11 +1014,9 @@ pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
                 if !seen.insert(&entry.label) {
                     continue;
                 }
-                let stands_later = presence[index + 1..]
-                    .iter()
-                    .any(|labels| labels.contains(&entry.label));
-                if !stands_later {
-                    lines.push(standing_line(&presence, &entry.label, total));
+                let atlases = &inverted[positions[&entry.label]];
+                if atlases[atlases.len() - 1] == index + 1 {
+                    lines.push(standing_line_of(&entry.label, atlases, total));
                     count += 1;
                 }
             }
@@ -1011,13 +1024,13 @@ pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
         counts.push(count);
     }
     let departed: usize = counts.iter().sum();
-    let entries = first_standing_order(lineage).len();
     let mut closing = "departures counts".to_string();
     for (index, count) in counts.iter().enumerate() {
         closing.push_str(&format!(", atlas {} departures {}", index + 1, count));
     }
     closing.push_str(&format!(
-        ", entries departed {departed}, entries {entries}, atlases {total}"
+        ", entries departed {departed}, entries {}, atlases {total}",
+        order.len()
     ));
     lines.push(closing);
     Ok(lines)
