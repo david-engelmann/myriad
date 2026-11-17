@@ -320,7 +320,7 @@ fn agents_carries_the_canonical_marker() {
 #[test]
 fn readme_states_the_closed_round_count() {
     let text = read("README.md");
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -578,16 +578,16 @@ fn readme_reports_the_slice_five_standing() {
     // landed slice 29 and the count returned to zero.
     // It stands at one again as the named mechanical
     // consequence of the slice 30 status
-    // line, which reads built and in review while
+    // line, which read built and in review while
     // Round 29 is built, until the Round 29 closure
-    // lands slice 30 and the count returns to zero.
-    assert_eq!(text.matches("built and in review").count(), 1);
-    // The count stands at thirty, not twenty nine, as a mechanical
-    // consequence of the Round 28 closure. The slice 29 line
+    // landed slice 30 and the count returned to zero.
+    assert_eq!(text.matches("built and in review").count(), 0);
+    // The count stands at thirty one, not thirty, as a mechanical
+    // consequence of the Round 29 closure. The slice 30 line
     // now also reads has landed, beside the port status
     // line below, where it read built and in review while
     // the slice stood unmerged.
-    assert_eq!(text.matches("has landed").count(), 30);
+    assert_eq!(text.matches("has landed").count(), 31);
 }
 
 #[test]
@@ -603,7 +603,7 @@ fn readme_reports_the_round_six_status() {
         of its steps, with the winter atlas, its spring successor, and \
         the summer successor and their golden lineage under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -652,7 +652,7 @@ fn readme_reports_the_round_eight_status() {
         golden standing of the winter, spring, and summer chain \
         under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -673,7 +673,7 @@ fn readme_reports_the_round_nine_status() {
         quickstart that run and the standing reading of the example \
         chain standing as the captured output of its first screen.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -694,7 +694,7 @@ fn readme_reports_the_round_ten_status() {
         framing of the first screen and this status in the scoped terms \
         of MY-22.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -717,7 +717,7 @@ fn readme_reports_the_round_eleven_status() {
         and summer chain and of the radio investigation chain under \
         examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -741,7 +741,7 @@ fn readme_reports_the_round_twelve_status() {
         family, one chain of eight loggings at the stated shapes with \
         the goldens of its five chain readings under examples.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -763,7 +763,7 @@ fn readme_reports_the_round_thirteen_status() {
         fixture family extended with the matched golden and the two \
         measured bands at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -784,7 +784,7 @@ fn readme_reports_the_round_fourteen_status() {
         doc head, and the generated fixture family extended with the \
         runs golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -805,7 +805,7 @@ fn readme_reports_the_round_fifteen_status() {
         readings, and the generated fixture family extended with the \
         presence golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
 }
 
 #[test]
@@ -826,7 +826,7 @@ fn readme_reports_the_round_sixteen_status() {
         readings, and the generated fixture family extended with the \
         standings golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 16
     // ratification holds, the version 2 amendment deferred.
@@ -853,7 +853,7 @@ fn readme_reports_the_round_seventeen_status() {
         with the company golden and its relations at the stated \
         shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 17
     // ratification holds, the version 2 amendment deferred.
@@ -881,7 +881,7 @@ fn readme_reports_the_round_eighteen_status() {
         family extended with the sets golden and its relations at \
         the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 18
     // ratification holds, the version 2 amendment deferred.
@@ -909,7 +909,7 @@ fn readme_reports_the_round_nineteen_status() {
         extended with the rosters golden and its relations at the \
         stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 19
     // ratification holds, the version 2 amendment deferred.
@@ -932,7 +932,7 @@ fn readme_reports_the_round_twenty_status() {
         readings, and the generated fixture family extended with the \
         fellows golden and its relations at the stated shapes.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 20
     // ratification holds, the version 2 amendment deferred.
@@ -961,7 +961,7 @@ fn readme_reports_the_round_twenty_one_status() {
         the fellows section of the Usage, and no new command and no \
         new reading stands in the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records and the Round 21
     // ratification holds, the version 2 amendment deferred.
@@ -994,7 +994,7 @@ fn readme_reports_the_round_twenty_two_status() {
         record, and no new command and no new reading and no repair \
         amendment stands in the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 22
@@ -1049,7 +1049,7 @@ fn readme_reports_the_round_twenty_three_status() {
         command and no new reading and no repair amendment stands in \
         the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 23
@@ -1106,7 +1106,7 @@ fn readme_reports_the_round_twenty_four_status() {
         MY-50, and no new command and no new reading and no repair \
         amendment stands in the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 24
@@ -1179,7 +1179,7 @@ fn readme_reports_the_round_twenty_five_status() {
         record of MY-52, and no new command and no new reading and no \
         repair amendment stands in the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 25
@@ -1255,7 +1255,7 @@ fn readme_reports_the_round_twenty_six_status() {
         command and no new reading and no repair amendment stands in \
         the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 26
@@ -1348,7 +1348,7 @@ fn readme_reports_the_round_twenty_seven_status() {
         command and no new reading and no repair amendment stands in \
         the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 27
@@ -1455,7 +1455,7 @@ fn readme_reports_the_round_twenty_eight_status() {
         MY-58, and no new command and no new reading and no repair \
         amendment stands in the slice.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent and the number
     // FIX-MY-24 stands untaken, as the Round 13 section of
     // the contract records for the one and the Round 28
@@ -1473,11 +1473,117 @@ fn readme_reports_the_round_twenty_eight_status() {
 #[test]
 fn readme_reports_the_round_twenty_nine_status() {
     let text = read("README.md");
-    let standing = "- Contract, MY-59 and MY-60 stand in full form in \
-        CONTRACT.md. Their standing is not claimed here, as Round 29 \
-        has not closed.";
+    let standing = "- Contract, MY-59 and MY-60 met. They stand in full form \
+        in CONTRACT.md, and Round 29 closed on the merged slice 30 after \
+        three reviews, with the matched fold of MY-59 confirmed \
+        behaviour-identical at the red team's desk and through the binary \
+        and the large shape pins and the fold record of MY-60 standing \
+        beside it, the spec review approving with findings at one Minor and \
+        two Observations, the standards review approving with findings at \
+        one Observation, and the red team approving with no findings, \
+        CodeRabbit's review on the slice standing read from its actual \
+        comments by the three reviews at one inline comment and one nitpick, \
+        each dismissed with its reason recorded, the head gate standing \
+        failed on the slice's own authorship in two parts and each part \
+        standing cured in a further commit in the family's form, the first \
+        restating the two range loops the two clippy toolchains flagged, in \
+        the folded render_matched and in the relation pin, in the enumerate \
+        form the lint proposes with no semantics moving, the second \
+        restating the seven standing status pins of Rounds 22 to 28 whose \
+        negative the slice's own spending of FIX-MY-24 falsified, the \
+        negative restated to the section's presence and each comment chain \
+        extended with the named mechanical consequence, the FIX-MY-18 \
+        negative standing untouched at every seat, the warm-up family \
+        standing in part executed and in part carried under the round's \
+        stopping rule, the carried Round 28 family standing first in its \
+        order, the base tree gate and the form tree gate standing executed \
+        at the red team at 839 passed and 0 failed each at their computed \
+        seats, the fmt leg standing executed there at exactly two diff \
+        sites, the two whitespace carries the Round 28 record names, each \
+        standing cured at that round's slice head, the fold record's \
+        differential and golden legs standing executed there at the binary \
+        level at fifty six comparisons with no parting, the folded build's \
+        arrivals output standing byte equal to the three arrivals goldens \
+        and its matched output standing byte equal to the four matched \
+        goldens, the base pins gate standing partially executed there at 704 \
+        passed with its assertion failure set empty, its seven falls at the \
+        scan target standing as fault failures beside the set and never \
+        inside it, the window having closed mid run with the later binaries \
+        unrun, the form pins gate standing carried at its computed seat of \
+        844 passed and 0 failed and the base pins gate's re-run standing \
+        carried beside its partial execution, the clippy legs standing \
+        carried as local legs with the hosted clippy legs on the exact head \
+        standing executed in their place, the timing leg standing unexecuted \
+        in any form, the MA family standing carried at the suite level with \
+        its splits standing desk-run name for name at the Round 28 red team \
+        over the five pins of MY-58, this round's own legs standing carried \
+        whole, the fold record legs of MY-60's first part with their golden \
+        substance standing executed at the red team's desk and through the \
+        shipped form's binary and the restated tree's own runs standing \
+        owed, the pins legs of its second part at their computed 850 each \
+        with the head gate at 852 standing executed only in its hosted form, \
+        the form tree's clippy leg, and the MM family against the whole \
+        suite with its splits standing desk-executed at the design and \
+        reproduced name for name at the red team over the transliterated \
+        pins, the build's warm-up standing carried whole before them at ten \
+        counted attempts per leg across its twenty five legs with no leg \
+        running on the write fault, the red team's first pass standing \
+        refused at seventeen leg copies before its window opened and its \
+        fifteen further probes standing refused after it closed, this \
+        closure's own hunt standing refused at the first file of every leg \
+        it attempted, the stopping rule standing never fired, no executed \
+        set parting from its computed set and no mutation computed as \
+        falling passing whole anywhere a set stood executed, the hosted gate \
+        and gate-stable on the slice head standing completed at success as \
+        the verdict of record for the suite, the design's deviation standing \
+        in the open, the four pins of MY-60, the round carrying four where \
+        the arrivals fold carried five, the dedup seat standing witnessed \
+        already by the shipped pin \
+        a_label_held_twice_in_one_atlas_is_matched_once, the spec review's \
+        Minor standing as the round's records item against the design \
+        record, its section 3 sweep standing charged for the new pin alone \
+        and not for the standing negative the spending falsified at seven \
+        seats, its two Observations standing beside it, the note's section 3 \
+        prose describing pins 5 and 6 fuller than their literal assertions \
+        and the design's recorded form and pins appendix carrying a clippy \
+        posture at two loop seats its discrimination record did not price, \
+        the standards review's Observation standing at the same section 3 \
+        statement with every fact it names standing true at the head, the \
+        build's two instrument cures standing taken against the design's \
+        named measures before any posting and named in its own report, the \
+        contract carrying six colons in its Rounds 16 to 20 sections, five \
+        in the quoted usage lines and one in Round 20 prose, standing \
+        counted firsthand at the same seats and untouched, the Round 29 \
+        section itself standing at zero colons and zero semicolons and no \
+        repair of the six standing charged, the Round 27 design note's \
+        section 6 sentence standing carried in the errata queue as that \
+        round's records item, the Round 26 design report's counting span \
+        figures standing carried, its 8,401 for the whole section, 3,722 for \
+        MY-53, and 3,421 for MY-54 standing against the 8,501, 3,757, and \
+        3,455 its build measured, the discrepancy standing in that report's \
+        counting span and in no text, the Round 26 design report's statement \
+        that its candidate pins file stands rustfmt clean standing carried \
+        as refuted by its build's execution at one wrap in the window \
+        builder's labels chain, the Round 25 spec review's Observation on \
+        MY-51's five call sites sentence standing carried forward as a \
+        records item, this round's texts counting the standing line helper's \
+        call sites at their true numbers of one at the base and none at the \
+        head and the one construction's count at eleven at the base and at \
+        the head, the Round 25 standards review's relation pin Observation \
+        standing carried as recorded against MY-52's pin, MY-60's relation \
+        pin standing in the ordered per-section form at this seat by design, \
+        the census standing at 852 at the slice head and at this closure, \
+        the slice standing merged as pull request 69 with main's tree \
+        verified equal to the slice tree, the closed count's places standing \
+        at twenty three in the setup file as the design counted them at the \
+        base, the twenty four places as built recounted at this closure with \
+        the slice's own status pin carrying the added place, and one place \
+        in the README, the two empty steps of the slice standing as empty \
+        commits in the family's form, and the repair amendment FIX-MY-24 \
+        standing carried in the round as its repair, FIX-MY-18 standing \
+        unspent.";
     assert!(carries_line(&text, standing));
-    let expected = "- Slice 30 is built and in review. It carries the \
+    let expected = "- Slice 30 has landed. It carries the \
         matched fold of MY-59 that reads the matched entries of a \
         chain from the one presence pass inverted in one walk with \
         every matched line of the reading formed through the one \
@@ -1485,7 +1591,7 @@ fn readme_reports_the_round_twenty_nine_status() {
         fold record of MY-60, and the repair amendment FIX-MY-24, \
         and no new command and no new reading.";
     assert!(carries_line(&text, expected));
-    assert!(text.contains("Closed perfection rounds, 28 of 100"));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
     // The number FIX-MY-18 stands unspent, as the Round 13
     // section of the contract records, and the amendment
     // FIX-MY-24 stands carried in the Round 29 section as
