@@ -643,7 +643,7 @@ fn the_sections_hold_the_matched_lines_in_entry_order() {
         assert_eq!(secs.len(), total - 1);
         let mut entry_lines = 0usize;
         let mut named: Vec<String> = Vec::new();
-        for step in 0..total - 1 {
+        for (step, section) in secs.iter().enumerate() {
             let later: Vec<String> = chain.atlases[step + 1]
                 .entries
                 .iter()
@@ -668,8 +668,8 @@ fn the_sections_hold_the_matched_lines_in_entry_order() {
                     }
                 }
             }
-            assert_eq!(secs[step], expected);
-            entry_lines += secs[step].len() - 1;
+            assert_eq!(section, &expected);
+            entry_lines += section.len() - 1;
         }
         assert_eq!(lines.len(), total - 1 + entry_lines + 1);
         let closing = lines.last().expect("a closing stands");

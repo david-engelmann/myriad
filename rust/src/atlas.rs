@@ -1080,11 +1080,11 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
     }
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
-    for step in 0..total - 1 {
+    for (step, atlas) in lineage.atlases.iter().take(total - 1).enumerate() {
         lines.push(format!("step {}", step + 1));
         let mut count = 0usize;
         let mut seen: HashSet<&PText> = HashSet::new();
-        for entry in &lineage.atlases[step].entries {
+        for entry in &atlas.entries {
             if !seen.insert(&entry.label) {
                 continue;
             }
