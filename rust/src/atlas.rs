@@ -815,11 +815,9 @@ fn first_standing_order(lineage: &Lineage) -> Vec<&PText> {
 /// Every reading that states a standing line states it
 /// through this construction, the standing reading and
 /// the folded readings from the inversion of the pass,
-/// and the standing line helper from the one scan of
-/// the pass it stands on, so the form stands in one
-/// home. A label standing in no atlas of the chain
-/// reads its first and last atlases as zero, as the
-/// standing figures read them.
+/// so the form stands in one home. A label standing in
+/// no atlas of the chain reads its first and last
+/// atlases as zero, as the standing figures read them.
 fn standing_line_of(label: &PText, atlases: &[usize], total: usize) -> String {
     let first = atlases.first().copied().unwrap_or(0);
     let last = atlases.last().copied().unwrap_or(0);
@@ -836,24 +834,6 @@ fn standing_line_of(label: &PText, atlases: &[usize], total: usize) -> String {
             "does not stand at the close"
         }
     )
-}
-
-/// The line the standing reading states for one label,
-/// in the form MY-18 states, read from the presence of
-/// a chain in one scan of the pass for that label.
-///
-/// The matched reading states the same line in its
-/// sections, so the helper stands as that reading's
-/// alone, and its line stands formed through the one
-/// standing line construction.
-fn standing_line(presence: &[HashSet<&PText>], label: &PText, total: usize) -> String {
-    let mut atlases: Vec<usize> = Vec::new();
-    for (index, labels) in presence.iter().enumerate() {
-        if labels.contains(label) {
-            atlases.push(index + 1);
-        }
-    }
-    standing_line_of(label, &atlases, total)
 }
 
 /// Render the standing of a chain of atlases, where in
@@ -1056,39 +1036,50 @@ pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// Render the matched of a chain of atlases, the entries
 /// standing on both sides of each step of the chain.
 ///
-/// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, in the one pass
-/// MY-18 states, and one section stands for each step of
-/// the chain in chain order, opening with the line step
-/// and the number of the step. Inside a section, one line
-/// stands for each entry matched at that step, standing in
-/// the atlas the step leads from and in the atlas it leads
+/// Presence is read once over the whole chain, and the
+/// pass is inverted in one walk over the atlases of the
+/// chain before anything is stated, holding for each
+/// label the atlases it stands in, in chain order, and
+/// one section stands for each step of the chain in
+/// chain order, opening with the line step and the
+/// number of the step. Inside a section, one line stands
+/// for each entry matched at that step, standing in the
+/// atlas the step leads from and in the atlas it leads
 /// to, in the order the entries stand in the atlas the
-/// step leads from, and the line of a matched entry is the
-/// standing line of that entry, through the one standing
-/// line helper. Section membership is read from the pass's
-/// per-atlas label sets and each atlas is walked with a
-/// seen set beside it, so a label held more than once in
-/// one atlas is read once, at its first standing in that
-/// atlas, the posture FIX-MY-17 settled for the departures
-/// and returns readings, held here from the reading's first
-/// standing. A section in which no entry is matched stands
-/// as its opening line alone. The reading closes with the
+/// step leads from, a label held more than once in one
+/// atlas read once, at its first standing in it, under
+/// FIX-MY-17, the line of a matched entry formed through
+/// the one standing line construction from that
+/// inversion, its matched standing read from the entry's
+/// own list of atlases, holding the atlas the step leads
+/// to. A section in which no entry is matched stands as
+/// its opening line alone. The reading closes with the
 /// matched counts line, its head standing on that line
-/// alone, so no entry label can render a line equal to it.
-/// A hand-built lineage holding fewer than two atlases
-/// draws the refusal MY-13 states, and a label holding an
-/// unpaired surrogate draws the refusal PORT-11 names for
-/// that field, and a label holding a line break draws the
-/// refusal FIX-MY-13 names for that field, each label read
-/// for an unpaired surrogate first and then for a line
-/// break, as the presence pass reads them.
+/// alone, so no entry label can render a line equal to
+/// it. A hand-built lineage holding fewer than two
+/// atlases draws the refusal MY-13 states, and a label
+/// holding an unpaired surrogate draws the refusal
+/// PORT-11 names for that field, and a label holding a
+/// line break draws the refusal FIX-MY-13 names for that
+/// field, each label read for an unpaired surrogate
+/// first and then for a line break, as the presence pass
+/// reads them.
 pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
-    let mut matched_any: HashSet<&PText> = HashSet::new();
     for step in 0..total - 1 {
         lines.push(format!("step {}", step + 1));
         let mut count = 0usize;
@@ -1097,23 +1088,27 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
             if !seen.insert(&entry.label) {
                 continue;
             }
-            if presence[step + 1].contains(&entry.label) {
-                lines.push(standing_line(&presence, &entry.label, total));
-                matched_any.insert(&entry.label);
+            let atlases = &inverted[positions[&entry.label]];
+            if atlases.contains(&(step + 2)) {
+                lines.push(standing_line_of(&entry.label, atlases, total));
                 count += 1;
             }
         }
         counts.push(count);
     }
-    let entries = first_standing_order(lineage).len();
-    let mut closing = String::from("matched counts");
+    let mut matched = 0usize;
+    for atlases in &inverted {
+        if atlases.windows(2).any(|pair| pair[1] == pair[0] + 1) {
+            matched += 1;
+        }
+    }
+    let mut closing = "matched counts".to_string();
     for (index, count) in counts.iter().enumerate() {
         closing.push_str(&format!(", step {} matched {}", index + 1, count));
     }
     closing.push_str(&format!(
-        ", entries matched {}, entries {}, steps {}",
-        matched_any.len(),
-        entries,
+        ", entries matched {matched}, entries {}, steps {}",
+        order.len(),
         total - 1
     ));
     lines.push(closing);
