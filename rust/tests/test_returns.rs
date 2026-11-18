@@ -431,3 +431,268 @@ fn a_label_held_twice_in_the_atlas_it_returns_in_returns_once() {
         ])
     );
 }
+
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, vec![plain(&first), plain(&second)]));
+    }
+    Lineage { atlases }
+}
+
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let labels: Vec<String> = (0..5)
+            .map(|j| format!("label-{}", (i + j) % 30 + 1))
+            .collect();
+        let entries: Vec<AtlasEntry> = labels.iter().map(|label| plain(label)).collect();
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, entries));
+    }
+    Lineage { atlases }
+}
+
+fn paired_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120 {
+        let title = format!("atlas-{}", i + 1);
+        if i % 2 == 0 {
+            atlases.push(atlas(
+                &title,
+                vec![plain("label-2"), plain("label-1"), plain("label-4")],
+            ));
+        } else {
+            atlases.push(atlas(
+                &title,
+                vec![plain("label-3"), plain("label-5"), plain("label-2")],
+            ));
+        }
+    }
+    Lineage { atlases }
+}
+
+fn load(name: &str) -> Lineage {
+    let path = repo_root().join("examples").join(name);
+    let text = std::fs::read_to_string(&path).expect("a shipped example reads");
+    let (lineage, defects) = load_lineage_text(&text);
+    assert!(
+        defects.is_empty(),
+        "a shipped lineage loads clean: {defects:?}"
+    );
+    lineage.expect("a shipped lineage value stands")
+}
+
+/// The label an entry line names.
+fn label_of(line: &str) -> String {
+    line.strip_prefix("entry ")
+        .expect("an entry line opens with the word entry")
+        .split(',')
+        .next()
+        .expect("a label stands")
+        .to_string()
+}
+
+/// The sections of a presence reading, each the entry
+/// lines standing under its opening line.
+fn presence_sections(lines: &[String]) -> Vec<Vec<String>> {
+    let mut out: Vec<Vec<String>> = Vec::new();
+    for line in lines {
+        if line.starts_with("atlas ") && !line.contains("standing") {
+            out.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            out.last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line.clone());
+        }
+    }
+    out
+}
+
+/// The returns reading over the thin chain states one
+/// return, the label standing in the first and last
+/// atlases of the chain returning at the last step
+/// after the whole chain's absence, the counts of the
+/// closing standing as the count of the return lines
+/// and of the labels that return.
+#[test]
+fn the_thin_chain_returns_stand_as_counted() {
+    let lines = render_returns(&thin_chain(302)).expect("the chain reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "entry label-1, returned at step 301, absent 300 atlases",
+            "returns counts, returns 1, entries returned 1",
+        ])
+    );
+}
+
+/// The returns reading over the window chain states
+/// one return at the head of each later run of a
+/// label's standings as the window turns over thirty
+/// labels, every absence standing at twenty-five
+/// atlases, the counts of the closing standing as the
+/// count of the return lines and of the labels that
+/// return.
+#[test]
+fn the_window_chain_returns_stand_as_counted() {
+    let lines = render_returns(&window_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 95);
+    assert_eq!(
+        lines.last().expect("a closing line stands"),
+        "returns counts, returns 94, entries returned 30"
+    );
+    let returns = &lines[..lines.len() - 1];
+    assert!(returns
+        .iter()
+        .all(|line| line.ends_with("absent 25 atlases")));
+    assert_eq!(
+        returns[0],
+        "entry label-1, returned at step 26, absent 25 atlases"
+    );
+    assert_eq!(
+        returns[1],
+        "entry label-2, returned at step 27, absent 25 atlases"
+    );
+    assert_eq!(
+        returns[2],
+        "entry label-3, returned at step 28, absent 25 atlases"
+    );
+    assert_eq!(
+        returns[93],
+        "entry label-4, returned at step 119, absent 25 atlases"
+    );
+}
+
+/// The returns reading over the paired chain states
+/// two returns at every step from the second, the
+/// labels of the roster the step leads to that stand
+/// in every second atlas, the one label standing in
+/// every atlas never returning, the counts of the
+/// closing standing as the count of the return lines
+/// and of the labels that return.
+#[test]
+fn the_paired_chain_returns_stand_as_counted() {
+    let lines = render_returns(&paired_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 237);
+    assert_eq!(
+        lines.last().expect("a closing line stands"),
+        "returns counts, returns 236, entries returned 4"
+    );
+    let returns = &lines[..lines.len() - 1];
+    assert!(returns
+        .iter()
+        .all(|line| line.ends_with("absent 1 atlases")));
+    for step in 2..=119usize {
+        let mark = format!(", returned at step {step},");
+        assert_eq!(
+            returns.iter().filter(|line| line.contains(&mark)).count(),
+            2
+        );
+    }
+    assert_eq!(
+        returns[0],
+        "entry label-1, returned at step 2, absent 1 atlases"
+    );
+    assert_eq!(
+        returns[1],
+        "entry label-4, returned at step 2, absent 1 atlases"
+    );
+    assert_eq!(
+        returns[234],
+        "entry label-3, returned at step 119, absent 1 atlases"
+    );
+    assert_eq!(
+        returns[235],
+        "entry label-5, returned at step 119, absent 1 atlases"
+    );
+}
+
+/// The returns of a chain stand bound to the presence
+/// reading's sections over the same chain, a return
+/// standing at a step exactly when the entry stands
+/// in the atlas the step leads to, does not stand in
+/// the atlas the step leads from, and stands in an
+/// earlier atlas, its absence standing as the count
+/// of the atlases in a row ending at the atlas the
+/// step leads from that the entry does not stand in,
+/// the closing's returns standing as the count of the
+/// return lines and its entries returned as the count
+/// of the labels holding one.
+#[test]
+fn the_returns_stand_bound_to_the_presence_sections() {
+    let chains = vec![
+        load("winter-spring-summer-lineage.json"),
+        load("radio-investigation-lineage.json"),
+        load("constructed-departures-lineage.json"),
+        load("generated-chain-lineage.json"),
+        thin_chain(302),
+        window_chain(),
+        paired_chain(),
+    ];
+    for chain in &chains {
+        let lines = render_returns(chain).expect("the chain reads");
+        let presence = myriad::atlas::render_presence(chain).expect("the chain reads");
+        let named = presence_sections(&presence);
+        assert_eq!(named.len(), chain.atlases.len());
+        let mut order: Vec<String> = Vec::new();
+        let mut standings: Vec<Vec<usize>> = Vec::new();
+        for (index, section) in named.iter().enumerate() {
+            for line in section {
+                let label = label_of(line);
+                match order.iter().position(|held| held == &label) {
+                    Some(at) => standings[at].push(index + 1),
+                    None => {
+                        order.push(label);
+                        standings.push(vec![index + 1]);
+                    }
+                }
+            }
+        }
+        let mut expected: Vec<String> = Vec::new();
+        let mut returned: Vec<String> = Vec::new();
+        for step in 1..chain.atlases.len() {
+            let mut seen: Vec<String> = Vec::new();
+            for entry in &chain.atlases[step].entries {
+                let label = entry.label.to_string();
+                if seen.contains(&label) {
+                    continue;
+                }
+                seen.push(label.clone());
+                let at = order
+                    .iter()
+                    .position(|held| held == &label)
+                    .expect("the presence sections name every label");
+                let list = &standings[at];
+                if !list.contains(&(step + 1)) || list.contains(&step) {
+                    continue;
+                }
+                let mut previous = 0usize;
+                for &standing in list {
+                    if standing < step {
+                        previous = standing;
+                    }
+                }
+                if previous == 0 {
+                    continue;
+                }
+                expected.push(format!(
+                    "entry {label}, returned at step {step}, absent {} atlases",
+                    step - previous
+                ));
+                if !returned.contains(&label) {
+                    returned.push(label);
+                }
+            }
+        }
+        expected.push(format!(
+            "returns counts, returns {}, entries returned {}",
+            expected.len(),
+            returned.len()
+        ));
+        assert_eq!(lines, expected);
+    }
+}
