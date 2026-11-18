@@ -730,7 +730,12 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 /// that stand again after an absence.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in. An entry returns at a
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain,
+/// each label holding the atlases it stands in in chain
+/// order, and the earlier standing of each return and
+/// its absence count are read from the lists of the
+/// inversion. An entry returns at a
 /// step when it stands in the atlas the step leads to,
 /// does not stand in the atlas the step leads from, and
 /// stands in at least one atlas earlier than the atlas the
@@ -748,30 +753,37 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 /// then entry order.
 pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
+    let order = first_standing_order(lineage);
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut returns = 0usize;
     let mut returned: HashSet<&PText> = HashSet::new();
-    for target in 1..lineage.atlases.len() {
+    for (target, atlas) in lineage.atlases.iter().enumerate().skip(1) {
         let mut seen: HashSet<&PText> = HashSet::new();
-        for entry in &lineage.atlases[target].entries {
+        for entry in &atlas.entries {
             if !seen.insert(&entry.label) {
                 continue;
             }
-            if presence[target - 1].contains(&entry.label) {
+            let atlases = &inverted[positions[&entry.label]];
+            if atlases.contains(&target) {
                 continue;
             }
-            let stood_earlier = presence[..target - 1]
-                .iter()
-                .any(|labels| labels.contains(&entry.label));
-            if !stood_earlier {
+            let Some(place) = atlases.iter().position(|&atlas| atlas == target + 1) else {
+                continue;
+            };
+            if place == 0 {
                 continue;
             }
-            let mut absent = 0usize;
-            let mut at = target - 1;
-            while !presence[at].contains(&entry.label) {
-                absent += 1;
-                at -= 1;
-            }
+            let absent = target - atlases[place - 1];
             lines.push(format!(
                 "entry {}, returned at step {}, absent {} atlases",
                 entry.label, target, absent
