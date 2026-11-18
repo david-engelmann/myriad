@@ -754,7 +754,6 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
-    let total = lineage.atlases.len();
     let mut positions: HashMap<&PText, usize> = HashMap::new();
     for (index, label) in order.iter().enumerate() {
         positions.insert(*label, index);
@@ -768,9 +767,9 @@ pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let mut lines: Vec<String> = Vec::new();
     let mut returns = 0usize;
     let mut returned: HashSet<&PText> = HashSet::new();
-    for target in 1..total {
+    for (target, atlas) in lineage.atlases.iter().enumerate().skip(1) {
         let mut seen: HashSet<&PText> = HashSet::new();
-        for entry in &lineage.atlases[target].entries {
+        for entry in &atlas.entries {
             if !seen.insert(&entry.label) {
                 continue;
             }
