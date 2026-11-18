@@ -280,6 +280,22 @@
 //! this round. No pin added here passes on that
 //! tree by design.
 //!
+//! Round 30 adds two pins to this file, and their
+//! discrimination split stands as follows. The
+//! round thirty status pin and the round thirty
+//! obligations pin fail on the tree before this
+//! slice by assertion, because the README carries
+//! no round thirty standing or slice line and the
+//! contract carries no MY-61 or MY-62 there. The
+//! built and in review count moves to one as the
+//! named mechanical consequence of the slice 31
+//! status line, restated inside the slice five
+//! standing pin whose comment chain names it. The
+//! count pin stands unmoved through the slice, the
+//! round not closing in its own slice, and no doc
+//! head restatement stands in this round. No pin
+//! added here passes on that tree by design.
+//!
 //! Round 13 adds four pins to this file and alters a
 //! fifth, and their discrimination split stands as
 //! follows. The departures
@@ -581,7 +597,12 @@ fn readme_reports_the_slice_five_standing() {
     // line, which read built and in review while
     // Round 29 is built, until the Round 29 closure
     // landed slice 30 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one again as the named mechanical
+    // consequence of the slice 31 status
+    // line, which reads built and in review while
+    // Round 30 is built, until the Round 30 closure
+    // lands slice 31 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at thirty one, not thirty, as a mechanical
     // consequence of the Round 29 closure. The slice 30 line
     // now also reads has landed, beside the port status
@@ -1601,6 +1622,30 @@ fn readme_reports_the_round_twenty_nine_status() {
 }
 
 #[test]
+fn readme_reports_the_round_thirty_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-61 and MY-62 stand in full form in \
+        CONTRACT.md. Their standing is not claimed here, as Round 30 \
+        has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 31 is built and in review. It carries the \
+        fellows fold of MY-61 that reads the fellows of a chain from \
+        the one presence pass inverted in one walk with the gathering \
+        of each atlas taken from the lists of the inversion, the large \
+        shape pins and the fold record of MY-62, and no new command \
+        and no new reading and no repair amendment stands in the slice.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 29 of 100"));
+    // The number FIX-MY-18 stands unspent, as the Round 13
+    // section of the contract records. No repair amendment
+    // stands in the Round 30 section, and no negative stands
+    // for the free number FIX-MY-25, which a later round may
+    // spend, as the Round 29 slice's second repair taught.
+    let contract = read("CONTRACT.md");
+    assert!(!contract.contains("### FIX-MY-18"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -1873,6 +1918,14 @@ fn contract_carries_the_round_twenty_eight_obligations() {
 fn contract_carries_the_round_twenty_nine_obligations() {
     let text = read("CONTRACT.md");
     for oid in ["MY-59", "MY-60"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn contract_carries_the_round_thirty_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-61", "MY-62"] {
         assert!(text.contains(oid), "{oid}");
     }
 }

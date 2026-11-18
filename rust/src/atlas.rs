@@ -1446,10 +1446,12 @@ pub fn render_rosters(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// standing with each atlas of the chain.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, and the atlases
-/// standing with each atlas are gathered from the one
-/// pass in one walk over the pass, each entry standing
-/// its atlases with each other as the pass is consumed,
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain,
+/// each label holding the atlases it stands in in chain
+/// order, and the atlases standing with each atlas are
+/// gathered from the inversion, each entry standing
+/// its atlases with each other from its list,
 /// and one section stands for each atlas of the chain
 /// in chain order, each section opening with the bare
 /// atlas line of its own atlas and holding one bare
@@ -1469,18 +1471,22 @@ pub fn render_fellows(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); total];
-    for label in &order {
-        let mut holders: Vec<usize> = Vec::new();
-        for (index, labels) in presence.iter().enumerate() {
-            if labels.contains(label) {
-                holders.push(index);
-            }
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
         }
-        for &holder in &holders {
-            for &other in &holders {
-                if other != holder && !gatherings[holder].contains(&other) {
-                    gatherings[holder].push(other);
+    }
+    let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); total];
+    for holders in &inverted {
+        for &holder in holders {
+            for &other in holders {
+                if other != holder && !gatherings[holder - 1].contains(&other) {
+                    gatherings[holder - 1].push(other);
                 }
             }
         }
@@ -1490,7 +1496,7 @@ pub fn render_fellows(lineage: &Lineage) -> Result<Vec<String>, String> {
     for (index, gathering) in gatherings.iter().enumerate() {
         lines.push(format!("atlas {}", index + 1));
         for other in 0..total {
-            if gathering.contains(&other) {
+            if gathering.contains(&(other + 1)) {
                 lines.push(format!("atlas {}", other + 1));
                 fellows += 1;
             }
