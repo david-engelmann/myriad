@@ -654,9 +654,9 @@ fn the_returns_stand_bound_to_the_presence_sections() {
         }
         let mut expected: Vec<String> = Vec::new();
         let mut returned: Vec<String> = Vec::new();
-        for step in 1..chain.atlases.len() {
+        for (step, atlas) in chain.atlases.iter().enumerate().skip(1) {
             let mut seen: Vec<String> = Vec::new();
-            for entry in &chain.atlases[step].entries {
+            for entry in &atlas.entries {
                 let label = entry.label.to_string();
                 if seen.contains(&label) {
                     continue;
