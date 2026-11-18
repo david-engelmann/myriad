@@ -818,3 +818,199 @@ fn the_empty_atlas_holds_a_section_of_its_heading_alone() {
         ])
     );
 }
+
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &[&first, &second]));
+    }
+    Lineage { atlases }
+}
+
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let labels: Vec<String> = (0..5)
+            .map(|j| format!("label-{}", (i + j) % 30 + 1))
+            .collect();
+        let refs: Vec<&str> = labels.iter().map(String::as_str).collect();
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, &refs));
+    }
+    Lineage { atlases }
+}
+
+fn paired_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120 {
+        let title = format!("atlas-{}", i + 1);
+        if i % 2 == 0 {
+            atlases.push(atlas(&title, &["label-2", "label-1", "label-4"]));
+        } else {
+            atlases.push(atlas(&title, &["label-3", "label-5", "label-2"]));
+        }
+    }
+    Lineage { atlases }
+}
+
+/// The fellows reading over the thin chain states one
+/// section for each atlas of the chain, the fellows of
+/// a section standing as the two atlases its two
+/// entries stand in beside its own, the neighbour
+/// before and the neighbour after in chain order, the
+/// counts of the closing standing as the count of the
+/// fellows lines over the sections.
+#[test]
+fn the_thin_chain_fellows_stand_as_counted() {
+    let lines = render_fellows(&thin_chain(302)).expect("the chain reads");
+    assert_eq!(lines.len(), 907);
+    assert_eq!(
+        lines.last().expect("a closing line stands"),
+        "fellows counts, fellows 604, atlases 302, entries 302"
+    );
+    let sections = fellows_sections(&lines[..lines.len() - 1], 302);
+    assert!(sections.iter().all(|section| section.len() == 2));
+    assert_eq!(sections[0], vec![2, 302]);
+    assert_eq!(sections[1], vec![1, 3]);
+    assert_eq!(sections[151], vec![151, 153]);
+    assert_eq!(sections[301], vec![1, 301]);
+}
+
+/// The fellows reading over the window chain states
+/// one section for each atlas of the chain, the fellows
+/// of a section standing as the atlases its five
+/// entries stand in beside its own, thirty-five
+/// atlases for every section as the window turns over
+/// thirty labels, the counts of the closing standing
+/// as the count of the fellows lines over the
+/// sections.
+#[test]
+fn the_window_chain_fellows_stand_as_counted() {
+    let lines = render_fellows(&window_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 4321);
+    assert_eq!(
+        lines.last().expect("a closing line stands"),
+        "fellows counts, fellows 4200, atlases 120, entries 30"
+    );
+    let sections = fellows_sections(&lines[..lines.len() - 1], 120);
+    assert!(sections.iter().all(|section| section.len() == 35));
+    assert_eq!(
+        sections[0],
+        vec![
+            2, 3, 4, 5, 27, 28, 29, 30, 31, 32, 33, 34, 35, 57, 58, 59, 60, 61, 62, 63, 64, 65, 87,
+            88, 89, 90, 91, 92, 93, 94, 95, 117, 118, 119, 120
+        ]
+    );
+    assert_eq!(
+        sections[30],
+        vec![
+            1, 2, 3, 4, 5, 27, 28, 29, 30, 32, 33, 34, 35, 57, 58, 59, 60, 61, 62, 63, 64, 65, 87,
+            88, 89, 90, 91, 92, 93, 94, 95, 117, 118, 119, 120
+        ]
+    );
+    assert_eq!(
+        sections[60],
+        vec![
+            1, 2, 3, 4, 5, 27, 28, 29, 30, 31, 32, 33, 34, 35, 57, 58, 59, 60, 62, 63, 64, 65, 87,
+            88, 89, 90, 91, 92, 93, 94, 95, 117, 118, 119, 120
+        ]
+    );
+    assert_eq!(
+        sections[119],
+        vec![
+            1, 2, 3, 4, 26, 27, 28, 29, 30, 31, 32, 33, 34, 56, 57, 58, 59, 60, 61, 62, 63, 64, 86,
+            87, 88, 89, 90, 91, 92, 93, 94, 116, 117, 118, 119
+        ]
+    );
+}
+
+/// The fellows reading over the paired chain states
+/// one section for each atlas of the chain, the
+/// fellows of a section standing as every other atlas
+/// of the chain in chain order, the one label standing
+/// in every atlas standing each atlas with each other,
+/// the counts of the closing standing as the count of
+/// the fellows lines over the sections.
+#[test]
+fn the_paired_chain_fellows_stand_as_counted() {
+    let lines = render_fellows(&paired_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 14401);
+    assert_eq!(
+        lines.last().expect("a closing line stands"),
+        "fellows counts, fellows 14280, atlases 120, entries 5"
+    );
+    let sections = fellows_sections(&lines[..lines.len() - 1], 120);
+    assert!(sections.iter().all(|section| section.len() == 119));
+    assert_eq!(sections[0], (2..=120).collect::<Vec<usize>>());
+    assert_eq!(
+        sections[1],
+        std::iter::once(1).chain(3..=120).collect::<Vec<usize>>()
+    );
+    assert_eq!(sections[119], (1..=119).collect::<Vec<usize>>());
+}
+
+/// The sections of the fellows reading stand bound to
+/// the presence reading's sections over the same
+/// chain, each atlas's fellows standing as the atlases
+/// whose presence sections name an entry its own
+/// presence section names, with its own atlas removed,
+/// in chain order, the closing's fellows figure
+/// standing as the count of the sections' lines taken
+/// together and as twice the count of the unordered
+/// pairs, and its entries figure standing as the count
+/// of the chain's distinct labels.
+#[test]
+fn the_sections_hold_the_fellows_of_the_presence_sections() {
+    let chains = vec![
+        load("winter-spring-summer-lineage.json"),
+        load("radio-investigation-lineage.json"),
+        load("constructed-departures-lineage.json"),
+        load("generated-chain-lineage.json"),
+        thin_chain(302),
+        window_chain(),
+        paired_chain(),
+    ];
+    for chain in &chains {
+        let lines = render_fellows(chain).expect("the chain reads");
+        let presence = render_presence(chain).expect("the chain reads");
+        let named = presence_sections(&presence);
+        let mut expected: Vec<Vec<usize>> = Vec::new();
+        for (index, section) in named.iter().enumerate() {
+            let labels: Vec<String> = section.iter().map(|line| label_of(line)).collect();
+            let mut fellows: Vec<usize> = Vec::new();
+            for (other, other_section) in named.iter().enumerate() {
+                if other != index
+                    && other_section
+                        .iter()
+                        .any(|line| labels.contains(&label_of(line)))
+                {
+                    fellows.push(other + 1);
+                }
+            }
+            expected.push(fellows);
+        }
+        let sections = fellows_sections(&lines[..lines.len() - 1], chain.atlases.len());
+        assert_eq!(sections, expected);
+        let fellows: usize = sections.iter().map(|section| section.len()).sum();
+        assert_eq!(fellows % 2, 0);
+        let mut labels: Vec<&PText> = Vec::new();
+        for atlas in &chain.atlases {
+            for entry in &atlas.entries {
+                if !labels.contains(&&entry.label) {
+                    labels.push(&entry.label);
+                }
+            }
+        }
+        assert_eq!(
+            lines.last().expect("a closing line stands"),
+            &format!(
+                "fellows counts, fellows {fellows}, atlases {}, entries {}",
+                chain.atlases.len(),
+                labels.len()
+            )
+        );
+    }
+}
