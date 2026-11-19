@@ -1593,7 +1593,13 @@ pub fn render_runs(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// atlases each entry stands absent from.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, and one line stands
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain,
+/// each label holding the atlases it stands in in chain
+/// order, and the runs of each label are read from the
+/// lists of the inversion, a run standing in the gap
+/// between two standings of the list and in the tail
+/// after the last standing, and one line stands
 /// for each absence run of the chain in the order the
 /// labels first stand across the chain, the runs of one
 /// label in chain order. An absence run is a run of one
@@ -1614,44 +1620,46 @@ pub fn render_absence(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut runs = 0usize;
     let mut with_absences = 0usize;
     let mut absent_at_close = 0usize;
-    for label in &order {
+    for (slot, label) in order.iter().enumerate() {
+        let atlases = &inverted[slot];
         let mut label_runs = 0usize;
-        let mut stood_before = false;
-        let mut index = 0usize;
-        while index < total {
-            if presence[index].contains(label) {
-                stood_before = true;
-                index += 1;
-                continue;
+        for pair in atlases.windows(2) {
+            let gap = pair[1] - pair[0];
+            if gap > 1 {
+                runs += 1;
+                label_runs += 1;
+                lines.push(format!(
+                    "entry {}, absent from atlas {}, for {} atlases",
+                    label,
+                    pair[0] + 1,
+                    gap - 1
+                ));
             }
-            if !stood_before {
-                index += 1;
-                continue;
-            }
-            let start = index;
-            while index < total && !presence[index].contains(label) {
-                index += 1;
-            }
-            runs += 1;
-            label_runs += 1;
-            if index == total {
+        }
+        if let Some(&last) = atlases.last() {
+            if last < total {
+                runs += 1;
+                label_runs += 1;
                 absent_at_close += 1;
                 lines.push(format!(
                     "entry {}, absent from atlas {}, for {} atlases, to the close",
                     label,
-                    start + 1,
-                    index - start
-                ));
-            } else {
-                lines.push(format!(
-                    "entry {}, absent from atlas {}, for {} atlases",
-                    label,
-                    start + 1,
-                    index - start
+                    last + 1,
+                    total - last
                 ));
             }
         }
