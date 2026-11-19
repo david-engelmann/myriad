@@ -598,3 +598,309 @@ fn a_hand_built_surrogate_label_in_the_last_atlas_still_refuses() {
         "an entry label holds an unpaired surrogate"
     );
 }
+
+fn thin_chain(n: usize) -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..n {
+        let first = format!("label-{}", i + 1);
+        let second = format!("label-{}", (i + 1) % n + 1);
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, vec![plain(&first), plain(&second)]));
+    }
+    Lineage { atlases }
+}
+
+fn window_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120usize {
+        let labels: Vec<String> = (0..5)
+            .map(|j| format!("label-{}", (i + j) % 30 + 1))
+            .collect();
+        let entries: Vec<AtlasEntry> = labels.iter().map(|label| plain(label)).collect();
+        let title = format!("atlas-{}", i + 1);
+        atlases.push(atlas(&title, entries));
+    }
+    Lineage { atlases }
+}
+
+fn paired_chain() -> Lineage {
+    let mut atlases = Vec::new();
+    for i in 0..120 {
+        let title = format!("atlas-{}", i + 1);
+        if i % 2 == 0 {
+            atlases.push(atlas(
+                &title,
+                vec![plain("label-2"), plain("label-1"), plain("label-4")],
+            ));
+        } else {
+            atlases.push(atlas(
+                &title,
+                vec![plain("label-3"), plain("label-5"), plain("label-2")],
+            ));
+        }
+    }
+    Lineage { atlases }
+}
+
+fn load(name: &str) -> Lineage {
+    let path = repo_root().join("examples").join(name);
+    let text = std::fs::read_to_string(&path).expect("a shipped example reads");
+    let (lineage, defects) = load_lineage_text(&text);
+    assert!(
+        defects.is_empty(),
+        "a shipped lineage loads clean: {defects:?}"
+    );
+    lineage.expect("a shipped lineage value stands")
+}
+
+/// The label an entry line names.
+fn label_of(line: &str) -> String {
+    line.strip_prefix("entry ")
+        .expect("an entry line opens with the word entry")
+        .split(',')
+        .next()
+        .expect("a label stands")
+        .to_string()
+}
+
+/// The sections of a presence reading, each the entry
+/// lines standing under its opening line.
+fn presence_sections(lines: &[String]) -> Vec<Vec<String>> {
+    let mut out: Vec<Vec<String>> = Vec::new();
+    for line in lines {
+        if line.starts_with("atlas ") && !line.contains("standing") {
+            out.push(Vec::new());
+        } else if line.starts_with("entry ") {
+            out.last_mut()
+                .expect("an entry line stands inside a section")
+                .push(line.clone());
+        }
+    }
+    out
+}
+
+/// The absence of the thin chain states one run for
+/// every label but the label standing at the close,
+/// the label standing in the first and last atlases
+/// holding the one inside run of the chain after the
+/// whole chain's absence and every other label but
+/// one holding one closing run, the counts of the
+/// closing standing as the count of the run lines,
+/// of the labels holding one, and of the labels
+/// holding a closing run.
+#[test]
+fn the_thin_chain_absence_stands_as_counted() {
+    let lines = render_absence(&thin_chain(302)).expect("the chain reads");
+    assert_eq!(lines.len(), 302);
+    assert_eq!(
+        lines[0], "entry label-1, absent from atlas 2, for 300 atlases",
+        "the one inside run of the chain"
+    );
+    assert_eq!(
+        lines[1], "entry label-2, absent from atlas 3, for 300 atlases, to the close",
+        "the first closing run of the chain"
+    );
+    assert_eq!(
+        lines[300], "entry label-301, absent from atlas 302, for 1 atlases, to the close",
+        "the last run line of the chain"
+    );
+    assert_eq!(
+        lines
+            .iter()
+            .filter(|line| line.ends_with("to the close"))
+            .count(),
+        300,
+        "every run but the inside run and the closing line reaches the close"
+    );
+    assert!(
+        !lines
+            .iter()
+            .any(|line| line.starts_with("entry label-302,")),
+        "the label standing at the close holds no run"
+    );
+    assert_eq!(
+        lines[301],
+        "absence counts, absences 301, entries with absences 301, absent at the close 300"
+    );
+}
+
+/// The absence of the window chain states one run
+/// for each gap between the runs of five standings
+/// of a label and one closing run for each label
+/// standing short of the close, every inside run
+/// standing at the twenty-five atlases of the gap,
+/// the counts of the closing standing as the count
+/// of the run lines, of the labels holding one, and
+/// of the labels holding a closing run.
+#[test]
+fn the_window_chain_absence_stands_as_counted() {
+    let lines = render_absence(&window_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 120);
+    assert_eq!(
+        lines[0], "entry label-1, absent from atlas 2, for 25 atlases",
+        "the first run of the chain"
+    );
+    assert_eq!(
+        lines[1], "entry label-1, absent from atlas 32, for 25 atlases",
+        "the second run of the chain"
+    );
+    assert_eq!(
+        lines[2], "entry label-1, absent from atlas 62, for 25 atlases",
+        "the third run of the chain"
+    );
+    assert_eq!(
+        lines[118], "entry label-30, absent from atlas 91, for 25 atlases",
+        "the last run line of the chain"
+    );
+    assert_eq!(
+        lines
+            .iter()
+            .filter(|line| line.ends_with("to the close"))
+            .count(),
+        25,
+        "the labels standing short of the close hold one closing run each"
+    );
+    assert!(
+        lines[..119]
+            .iter()
+            .filter(|line| !line.ends_with("to the close"))
+            .all(|line| line.ends_with("for 25 atlases")),
+        "every inside run stands at the gap of the window"
+    );
+    assert_eq!(
+        lines[119],
+        "absence counts, absences 119, entries with absences 30, absent at the close 25"
+    );
+}
+
+/// The absence of the paired chain states one run
+/// of one atlas for each gap between the standings
+/// of the alternating labels and one closing run
+/// for each label standing in the first roster, the
+/// label standing in every atlas holding no run, the
+/// counts of the closing standing as the count of
+/// the run lines, of the labels holding one, and of
+/// the labels holding a closing run.
+#[test]
+fn the_paired_chain_absence_stands_as_counted() {
+    let lines = render_absence(&paired_chain()).expect("the chain reads");
+    assert_eq!(lines.len(), 239);
+    assert_eq!(
+        lines[0], "entry label-1, absent from atlas 2, for 1 atlases",
+        "the first run of the chain"
+    );
+    assert_eq!(
+        lines[1], "entry label-1, absent from atlas 4, for 1 atlases",
+        "the second run of the chain"
+    );
+    assert_eq!(
+        lines[237], "entry label-5, absent from atlas 119, for 1 atlases",
+        "the last run line of the chain"
+    );
+    assert!(
+        lines[..238]
+            .iter()
+            .all(|line| line.contains(", for 1 atlases")),
+        "every run of the chain stands at one atlas"
+    );
+    assert_eq!(
+        lines
+            .iter()
+            .filter(|line| line.ends_with("to the close"))
+            .count(),
+        2,
+        "the two labels of the first roster hold the closing runs"
+    );
+    assert!(
+        !lines.iter().any(|line| line.starts_with("entry label-2,")),
+        "the label standing in every atlas holds no run"
+    );
+    assert_eq!(
+        lines[238],
+        "absence counts, absences 238, entries with absences 4, absent at the close 2"
+    );
+}
+
+/// The absence runs of a chain stand bound to the
+/// presence reading's sections over the same chain,
+/// a run standing in the gap between two standings
+/// of a label and in the tail after its last
+/// standing, its first atlas standing one past the
+/// earlier standing and its count standing as the
+/// atlases between the standings less the standing
+/// it ends at, the closing's absences standing as
+/// the count of the run lines, its entries with
+/// absences as the count of the labels holding a
+/// run, and its absent at the close as the count of
+/// the labels whose last standing stands short of
+/// the last atlas.
+#[test]
+fn the_absence_runs_stand_bound_to_the_presence_sections() {
+    let chains = vec![
+        load("winter-spring-summer-lineage.json"),
+        load("radio-investigation-lineage.json"),
+        load("constructed-departures-lineage.json"),
+        load("generated-chain-lineage.json"),
+        thin_chain(302),
+        window_chain(),
+        paired_chain(),
+    ];
+    for chain in &chains {
+        let lines = render_absence(chain).expect("the chain reads");
+        let presence = myriad::atlas::render_presence(chain).expect("the chain reads");
+        let named = presence_sections(&presence);
+        assert_eq!(named.len(), chain.atlases.len());
+        let mut order: Vec<String> = Vec::new();
+        let mut standings: Vec<Vec<usize>> = Vec::new();
+        for (index, section) in named.iter().enumerate() {
+            for line in section {
+                let label = label_of(line);
+                match order.iter().position(|held| held == &label) {
+                    Some(at) => standings[at].push(index + 1),
+                    None => {
+                        order.push(label);
+                        standings.push(vec![index + 1]);
+                    }
+                }
+            }
+        }
+        let total = chain.atlases.len();
+        let mut expected: Vec<String> = Vec::new();
+        let mut with_runs = 0usize;
+        let mut at_close = 0usize;
+        for (at, list) in standings.iter().enumerate() {
+            let label = &order[at];
+            let mut label_runs = 0usize;
+            for pair in list.windows(2) {
+                if pair[1] - pair[0] > 1 {
+                    label_runs += 1;
+                    expected.push(format!(
+                        "entry {label}, absent from atlas {}, for {} atlases",
+                        pair[0] + 1,
+                        pair[1] - pair[0] - 1
+                    ));
+                }
+            }
+            let last = list[list.len() - 1];
+            if last < total {
+                label_runs += 1;
+                at_close += 1;
+                expected.push(format!(
+                    "entry {label}, absent from atlas {}, for {} atlases, to the close",
+                    last + 1,
+                    total - last
+                ));
+            }
+            if label_runs > 0 {
+                with_runs += 1;
+            }
+        }
+        expected.push(format!(
+            "absence counts, absences {}, entries with absences {}, absent at the close {}",
+            expected.len(),
+            with_runs,
+            at_close
+        ));
+        assert_eq!(lines, expected);
+    }
+}
