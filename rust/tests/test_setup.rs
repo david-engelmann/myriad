@@ -2932,3 +2932,74 @@ fn every_path_the_contract_names_stands_in_the_tree() {
         assert!(root.join(path).exists(), "the contract names {path}");
     }
 }
+
+// Round 34, the module header enumeration. The atlas
+// module's doc head names every chain reading in the
+// enumeration of record's order, its lineage sentence
+// naming each reading with its gloss, and names the
+// module's own readings in its first paragraph, the
+// enumeration pin failing by assertion on the tree
+// before this slice, where the doc head named seven
+// of the fourteen chain readings, and the atlas
+// readings pin standing as an identity there, its
+// paragraph standing complete.
+
+#[test]
+fn the_atlas_module_header_names_every_chain_reading() {
+    let atlas = read("rust/src/atlas.rs");
+    // The pin reads the module's doc head alone, the
+    // consecutive comment lines at the file's head, as
+    // the rendered text flows, the readings' names
+    // standing elsewhere in the module at their own
+    // seats.
+    let head = atlas
+        .lines()
+        .take_while(|line| line.starts_with("//!"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let flowed = head.replace("\n//! ", " ");
+    let mut seat = 0;
+    for clause in [
+        "the changelogs of its steps composed",
+        "the returns of the chain, the entries that stand again after an absence",
+        "the standing of the chain, where in the chain each entry stands",
+        "the absence of the chain, the runs of atlases each entry stands absent from",
+        "the arrivals of the chain, the entries that first stand at each atlas",
+        "the departures of the chain, the entries that stand in no later atlas, read by last appearance",
+        "the matched of the chain, the entries that stand on both sides of each step",
+        "the runs of the chain, the runs of atlases in a row each entry stands in",
+        "the presence of the chain, the entries standing in each atlas",
+        "the standings of the chain, the atlases each entry stands in",
+        "the company of the chain, the entries each entry stands with",
+        "the sets of the chain, the entries gathered by their set of atlases",
+        "the rosters of the chain, the atlases gathered by their roster of entries",
+        "the fellows of the chain, the atlases each atlas stands with",
+    ] {
+        let found = flowed[seat..]
+            .find(clause)
+            .expect("the module header names the clause in order");
+        seat += found + clause.len();
+    }
+    assert!(
+        flowed.contains("the atlases each atlas stands with. The loader and the readings mirror"),
+        "the enumeration closes at the fellows reading"
+    );
+}
+
+#[test]
+fn the_atlas_module_header_names_the_atlas_readings() {
+    let atlas = read("rust/src/atlas.rs");
+    let head = atlas
+        .lines()
+        .take_while(|line| line.starts_with("//!"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let flowed = head.replace("\n//! ", " ");
+    for phrase in [
+        "the atlas rendering",
+        "the atlas index",
+        "the changelog of two atlases",
+    ] {
+        assert!(flowed.contains(phrase), "the module header names {phrase}");
+    }
+}
