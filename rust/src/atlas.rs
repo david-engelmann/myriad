@@ -1525,10 +1525,15 @@ pub fn render_fellows(lineage: &Lineage) -> Result<Vec<String>, String> {
 /// atlases each entry stands in.
 ///
 /// Presence is read once over the whole chain, each label
-/// against the atlases it stands in, and one line stands
-/// for each standing run of the chain in the order the
-/// labels first stand across the chain, the runs of one
-/// label in chain order. A standing run is a run of one
+/// against the atlases it stands in, and the pass is
+/// inverted in one walk over the atlases of the chain,
+/// each label holding the atlases it stands in in chain
+/// order, and the runs of each label are read from the
+/// lists of the inversion, a run standing as a stretch of
+/// atlases in a row in the list of its label, and one line
+/// stands for each standing run of the chain in the order
+/// the labels first stand across the chain, the runs of
+/// one label in chain order. A standing run is a run of one
 /// or more atlases in a row in which the label stands,
 /// where the atlas immediately before the run, when the
 /// chain holds one, is one the label does not stand in,
@@ -1545,46 +1550,63 @@ pub fn render_runs(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
     let mut runs = 0usize;
+    let mut with_runs = 0usize;
     let mut standing_at_close = 0usize;
-    for label in &order {
-        let mut index = 0usize;
-        let mut label_closes = false;
-        while index < total {
-            if !presence[index].contains(label) {
-                index += 1;
-                continue;
+    for (slot, label) in order.iter().enumerate() {
+        let atlases = &inverted[slot];
+        let mut label_runs = 0usize;
+        let mut run_start = 0usize;
+        for (index, pair) in atlases.windows(2).enumerate() {
+            if pair[1] > pair[0] + 1 {
+                runs += 1;
+                label_runs += 1;
+                lines.push(format!(
+                    "entry {}, standing from atlas {}, for {} atlases",
+                    label,
+                    atlases[run_start],
+                    pair[0] - atlases[run_start] + 1
+                ));
+                run_start = index + 1;
             }
-            let start = index;
-            while index < total && presence[index].contains(label) {
-                index += 1;
-            }
+        }
+        if let Some(&last) = atlases.last() {
             runs += 1;
-            if index == total {
-                label_closes = true;
+            label_runs += 1;
+            if last == total {
+                standing_at_close += 1;
                 lines.push(format!(
                     "entry {}, standing from atlas {}, for {} atlases, to the close",
                     label,
-                    start + 1,
-                    index - start
+                    atlases[run_start],
+                    last - atlases[run_start] + 1
                 ));
             } else {
                 lines.push(format!(
                     "entry {}, standing from atlas {}, for {} atlases",
                     label,
-                    start + 1,
-                    index - start
+                    atlases[run_start],
+                    last - atlases[run_start] + 1
                 ));
             }
         }
-        if label_closes {
-            standing_at_close += 1;
+        if label_runs > 0 {
+            with_runs += 1;
         }
     }
     lines.push(format!(
-        "runs counts, runs {runs}, entries with runs {}, standing at the close {standing_at_close}",
-        order.len()
+        "runs counts, runs {runs}, entries with runs {with_runs}, standing at the close {standing_at_close}"
     ));
     Ok(lines)
 }
