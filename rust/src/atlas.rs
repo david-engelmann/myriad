@@ -16,7 +16,16 @@
 //! departures of the chain, the entries that stand in no
 //! later atlas, read by last appearance, and the matched
 //! of the chain, the entries that stand on both sides of
-//! each step. The loader
+//! each step, and the runs of the chain, the runs of atlases
+//! in a row each entry stands in, and the presence of the
+//! chain, the entries standing in each atlas, and the
+//! standings of the chain, the atlases each entry stands in,
+//! and the company of the chain, the entries each entry
+//! stands with, and the sets of the chain, the entries
+//! gathered by their set of atlases, and the rosters of the
+//! chain, the atlases gathered by their roster of entries,
+//! and the fellows of the chain, the atlases each atlas
+//! stands with. The loader
 //! and the readings mirror the Python implementation entry for
 //! entry, defect phrase for defect phrase.
 
