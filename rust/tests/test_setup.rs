@@ -2184,18 +2184,24 @@ fn readme_reports_the_round_thirty_three_status() {
         this closure beside eight at the build and eight at the red team, \
         the Round 30 gates of the base pins and form pins trees after \
         eight each at this closure, the Round 30 form clippy leg after \
-        eight at this closure, and the fold record leg of MY-68 after \
-        eight counted attempts at this closure beside six at the build and \
-        two at the red team, its shipped copy standing at this seating at \
-        its full count of one hundred fifty seven files with every file at \
-        zero bytes under the fault's most aggressive form and no build \
-        standing raised on a poisoned copy, the leg's release timings and \
-        differentials on the real code standing unexecuted and its \
-        differentials' question standing covered in transliteration by the \
-        red team's equivalence at zero partings, the design desk's record \
-        standing as the round's timing evidence at the folded \
-        transliteration of 752.7 milliseconds against the shipped form's \
-        5,115.0 over 5,000 thin atlases, the carrying of every leg above \
+        eight at this closure, and the fold record leg of MY-68 standing \
+        executed whole at this closure on its eighth attempt after seven \
+        fault-refused attempts at the copy seat beside six at the build \
+        and two at the red team, its shipped and restated copies standing \
+        verified faithful file by file at one hundred fifty seven files \
+        each with zero hash mismatches and both release probes standing \
+        built, its differentials standing at zero partings over the fifty \
+        two readings of the four shipped chains, its restated runs output \
+        standing byte for byte against the four shipped runs goldens with \
+        the shipped runs output standing byte for byte against the same \
+        goldens as the control, and its release timings standing as single \
+        readings on a shared box, the thin shape in 6.1 milliseconds \
+        shipped against 0.5 folded over 302 atlases, in 276.0 against 37.8 \
+        over 1,250, in 1,011.2 against 3.4 over 2,500, and in 3,795.1 \
+        against 6.5 over 5,000, the window shape in 0.4 against 0.2 over \
+        120 atlases on 30 labels and in 3.3 against 1.5 over 1,200, and \
+        the paired shape in 0.1 against 0.1 over 120, the lines and chars \
+        standing identical at every shape, the carrying of every leg above \
         standing as a deviation from the spec's letter as the spec review \
         judges plainly, MY-68's own text admitting no fault exception, and \
         standing discharged on the counted fault evidence with the hosted \
