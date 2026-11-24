@@ -668,7 +668,12 @@ fn readme_reports_the_slice_five_standing() {
     // line, which read built and in review while
     // Round 33 is built, until the Round 33 closure
     // landed slice 34 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one again as the named mechanical
+    // consequence of the slice 35 status
+    // line, which reads built and in review while
+    // Round 34 is built, until the Round 34 closure
+    // lands slice 35 and the count returns to zero.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at thirty five, not thirty four, as a mechanical
     // consequence of the Round 33 closure. The slice 34 line
     // now also reads has landed, beside the port status
@@ -2262,6 +2267,30 @@ fn readme_reports_the_round_thirty_three_status() {
 }
 
 #[test]
+fn readme_reports_the_round_thirty_four_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-69 and MY-70 stand in full form in \
+        CONTRACT.md. Their standing is not claimed here, as Round 34 has \
+        not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 35 is built and in review. It carries the \
+        module header enumeration of MY-69, the atlas module's doc head \
+        standing restated to name the fourteen chain readings whole in the \
+        enumeration of record's order, the enumeration pins and the header \
+        record of MY-70, and no new command and no new reading and no \
+        repair amendment stands in the slice.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 33 of 100"));
+    // The number FIX-MY-18 stands unspent, as the Round 13
+    // section of the contract records. No repair amendment
+    // stands in the Round 34 section, and no negative stands
+    // for the free number FIX-MY-25, which a later round may
+    // spend, as the Round 29 slice's second repair taught.
+    let contract = read("CONTRACT.md");
+    assert!(!contract.contains("### FIX-MY-18"));
+}
+
+#[test]
 fn the_one_line_description_stands_identical_in_the_lede_and_the_metadata() {
     let description = "Myriad is a Rust library and command line tool that \
         reads logs of branching investigations of a question, single \
@@ -2566,6 +2595,14 @@ fn contract_carries_the_round_thirty_two_obligations() {
 fn contract_carries_the_round_thirty_three_obligations() {
     let text = read("CONTRACT.md");
     for oid in ["MY-67", "MY-68"] {
+        assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn contract_carries_the_round_thirty_four_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-69", "MY-70"] {
         assert!(text.contains(oid), "{oid}");
     }
 }
@@ -2930,5 +2967,76 @@ fn every_path_the_contract_names_stands_in_the_tree() {
     assert!(named.len() > 40, "the walk reads the contract's paths");
     for path in &named {
         assert!(root.join(path).exists(), "the contract names {path}");
+    }
+}
+
+// Round 34, the module header enumeration. The atlas
+// module's doc head names every chain reading in the
+// enumeration of record's order, its lineage sentence
+// naming each reading with its gloss, and names the
+// module's own readings in its first paragraph, the
+// enumeration pin failing by assertion on the tree
+// before this slice, where the doc head named seven
+// of the fourteen chain readings, and the atlas
+// readings pin standing as an identity there, its
+// paragraph standing complete.
+
+#[test]
+fn the_atlas_module_header_names_every_chain_reading() {
+    let atlas = read("rust/src/atlas.rs");
+    // The pin reads the module's doc head alone, the
+    // consecutive comment lines at the file's head, as
+    // the rendered text flows, the readings' names
+    // standing elsewhere in the module at their own
+    // seats.
+    let head = atlas
+        .lines()
+        .take_while(|line| line.starts_with("//!"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let flowed = head.replace("\n//! ", " ");
+    let mut seat = 0;
+    for clause in [
+        "the changelogs of its steps composed",
+        "the returns of the chain, the entries that stand again after an absence",
+        "the standing of the chain, where in the chain each entry stands",
+        "the absence of the chain, the runs of atlases each entry stands absent from",
+        "the arrivals of the chain, the entries that first stand at each atlas",
+        "the departures of the chain, the entries that stand in no later atlas, read by last appearance",
+        "the matched of the chain, the entries that stand on both sides of each step",
+        "the runs of the chain, the runs of atlases in a row each entry stands in",
+        "the presence of the chain, the entries standing in each atlas",
+        "the standings of the chain, the atlases each entry stands in",
+        "the company of the chain, the entries each entry stands with",
+        "the sets of the chain, the entries gathered by their set of atlases",
+        "the rosters of the chain, the atlases gathered by their roster of entries",
+        "the fellows of the chain, the atlases each atlas stands with",
+    ] {
+        let found = flowed[seat..]
+            .find(clause)
+            .expect("the module header names the clause in order");
+        seat += found + clause.len();
+    }
+    assert!(
+        flowed.contains("the atlases each atlas stands with. The loader and the readings mirror"),
+        "the enumeration closes at the fellows reading"
+    );
+}
+
+#[test]
+fn the_atlas_module_header_names_the_atlas_readings() {
+    let atlas = read("rust/src/atlas.rs");
+    let head = atlas
+        .lines()
+        .take_while(|line| line.starts_with("//!"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let flowed = head.replace("\n//! ", " ");
+    for phrase in [
+        "the atlas rendering",
+        "the atlas index",
+        "the changelog of two atlases",
+    ] {
+        assert!(flowed.contains(phrase), "the module header names {phrase}");
     }
 }
