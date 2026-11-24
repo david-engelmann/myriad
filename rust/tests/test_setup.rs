@@ -2334,71 +2334,77 @@ fn readme_reports_the_round_thirty_four_status() {
         form pins tree standing executed at 855 passed and 0 failed with \
         seven fault failures beside the set, and the fresh extraction gate \
         at the slice head standing executed whole at 879 passed and 0 \
-        failed over the slice head tree, and the remaining legs standing \
-        carried named on the write fault's refusal, MQ-5 after eight \
+        failed over the slice head tree, the 879 standing over the all \
+        targets invocation and the census of 880 counting beside it the \
+        one doctest of rust/src/explorations.rs standing outside that \
+        invocation, and the remaining legs standing carried named, MQ-5 on \
+        seven copy refusals and one mutate failure of substance at its \
+        re-anchored anchor against the restored Round 31 tree, after eight \
         counted attempts at this closure beside eight at the build, its \
         re-anchored mutation standing unexecuted still with the re-anchor \
-        standing accepted on the record, the Round 30 form clippy leg \
-        after eight counted attempts at this closure beside eight at the \
-        build, the base pins gate and the header pins gate of this round \
-        after eight counted attempts each at this closure beside eight at \
-        the build, the clippy legs of both candidate trees after eight \
+        standing accepted on the record and its charge passing on, and the \
+        rest standing carried named on the write fault's refusal, the \
+        Round 30 form clippy leg after eight counted attempts at this \
+        closure beside eight at the build, the base pins gate and the \
+        header pins gate of this round after eight counted attempts each \
+        at this closure beside eight at the build, the clippy legs of both \
+        candidate trees after eight counted attempts each at this closure \
+        beside eight at the build, MV-2, MV-3, MV-4, and MV-6 after eight \
         counted attempts each at this closure beside eight at the build, \
-        MV-2, MV-3, MV-4, and MV-6 after eight counted attempts each at \
-        this closure beside eight at the build, and the two status \
-        candidate legs after eight counted attempts each at this closure \
-        beside eight at the build, the carrying of every leg above \
-        standing as a deviation from the spec's letter as the spec review \
-        judges plainly, MY-70's own text admitting no fault exception, and \
-        standing discharged on the counted fault evidence with the hosted \
-        gate as the verdict of record for every carried leg, the stopping \
-        rule standing never fired at any seat, and no executed set parting \
-        from its computed seat at any seat any lane executed, the carried \
-        records items of the earlier rounds standing carried as the design \
-        note's section 7 leaves them, the Round 27 design note's section 6 \
-        sentence and the Round 26 design report's counting span figures \
-        and its rustfmt statement standing in the accumulated errata queue \
-        as the Round 31 design record carries them, the Round 25 spec \
-        review's Observation on MY-51's call sites sentence and the Round \
-        25 standards review's relation pin Observation standing in the \
-        queue as the Round 31 design record's section 7 carries them, the \
-        Round 31 design record's Major, Minor, and Observation standing as \
-        the Round 31 closure's met line leaves them, the Major answered in \
-        Round 32's build shape and the Minor answered at section 4 of this \
-        round's design note by the stable lint executed over the candidate \
-        tree at the design desk, the Round 32 design's four pin deviation \
-        standing priced in that round's record and gaining no new instance \
-        here, the fuller status pin description of the Round 33 design's \
-        section 3 standing not repeated against this round's note, the \
-        driver mode strings item of the Round 33 closure report and the \
-        rewrap Observation of the Round 33 closure red team against the \
-        repair record standing in the queue as those records name them, \
-        and this round's own records item standing as follows, the earlier \
-        notes' phrase for the header's unnamed readings, the six that \
-        landed after, not reproducing against the texts, the unnamed \
-        standing at seven, the runs, presence, standings, company, sets, \
-        rosters, and fellows readings, counted clause by clause at the \
-        design desk, the item standing charged to the errata queue in this \
-        round's name with the count the texts carry, the standing line \
-        unification guard of Round 23 carrying forward named and not \
-        fired, and the round carrying two pins and not four with no large \
-        shape pin standing charged because no behaviour moves under the \
-        round and every reading's shapes stand bound by the pins their own \
-        rounds seated, the deviation priced in the open in the note's \
-        section 1, the contract carrying six colons in its Rounds 16 to 20 \
-        sections, five in the quoted usage lines and one in Round 20 \
-        prose, standing counted firsthand at the same seats and untouched, \
-        the Round 34 section itself standing at zero colons and zero \
-        semicolons, the census standing at 880 at the slice head and at \
-        this closure, the slice standing merged as pull request 89 with \
-        main's tree verified equal to the slice tree, the closed count's \
-        places standing at twenty eight in the setup file as counted at \
-        the base, the twenty nine places as built recounted at this \
-        closure with the slice's own status pin carrying the added place, \
-        and one place in the README, the two empty steps of the slice \
-        standing as empty commits in the family's form, and no repair \
-        amendment standing in the round, the number FIX-MY-25 standing \
-        free for a later round to spend, and FIX-MY-18 standing unspent.";
+        and the two status candidate legs after eight counted attempts \
+        each at this closure beside eight at the build, the carrying of \
+        every leg above standing as a deviation from the spec's letter as \
+        the spec review judges plainly, MY-70's own text admitting no \
+        fault exception, and standing discharged on the counted fault \
+        evidence with the hosted gate as the verdict of record for every \
+        carried leg, the stopping rule standing never fired at any seat, \
+        and no executed set parting from its computed seat at any seat any \
+        lane executed, the carried records items of the earlier rounds \
+        standing carried as the design note's section 7 leaves them, the \
+        Round 27 design note's section 6 sentence and the Round 26 design \
+        report's counting span figures and its rustfmt statement standing \
+        in the accumulated errata queue as the Round 31 design record \
+        carries them, the Round 25 spec review's Observation on MY-51's \
+        call sites sentence and the Round 25 standards review's relation \
+        pin Observation standing in the queue as the Round 31 design \
+        record's section 7 carries them, the Round 31 design record's \
+        Major, Minor, and Observation standing as the Round 31 closure's \
+        met line leaves them, the Major answered in Round 32's build shape \
+        and the Minor answered at section 4 of this round's design note by \
+        the stable lint executed over the candidate tree at the design \
+        desk, the Round 32 design's four pin deviation standing priced in \
+        that round's record and gaining no new instance here, the fuller \
+        status pin description of the Round 33 design's section 3 standing \
+        not repeated against this round's note, the driver mode strings \
+        item of the Round 33 closure report and the rewrap Observation of \
+        the Round 33 closure red team against the repair record standing \
+        in the queue as those records name them, and this round's own \
+        records item standing as follows, the earlier notes' phrase for \
+        the header's unnamed readings, the six that landed after, not \
+        reproducing against the texts, the unnamed standing at seven, the \
+        runs, presence, standings, company, sets, rosters, and fellows \
+        readings, counted clause by clause at the design desk, the item \
+        standing charged to the errata queue in this round's name with the \
+        count the texts carry, the standing line unification guard of \
+        Round 23 carrying forward named and not fired, and the round \
+        carrying two pins and not four with no large shape pin standing \
+        charged because no behaviour moves under the round and every \
+        reading's shapes stand bound by the pins their own rounds seated, \
+        the deviation priced in the open in the note's section 1, the \
+        contract carrying six colons in its Rounds 16 to 20 sections, five \
+        in the quoted usage lines and one in Round 20 prose, standing \
+        counted firsthand at the same seats and untouched, the Round 34 \
+        section itself standing at zero colons and zero semicolons, the \
+        census standing at 880 at the slice head and at this closure, the \
+        slice standing merged as pull request 89 with main's tree verified \
+        equal to the slice tree, the closed count's places standing at \
+        twenty eight in the setup file as counted at the base, the twenty \
+        nine places as built recounted at this closure with the slice's \
+        own status pin carrying the added place, and one place in the \
+        README, the two empty steps of the slice standing as empty commits \
+        in the family's form, and no repair amendment standing in the \
+        round, the number FIX-MY-25 standing free for a later round to \
+        spend, and FIX-MY-18 standing unspent.";
     assert!(carries_line(&text, standing));
     let expected = "- Slice 35 has landed. It carries the module header \
         enumeration of MY-69, the atlas module's doc head standing \
