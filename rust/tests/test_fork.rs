@@ -141,3 +141,59 @@ fn unsound_inputs_raise() {
         "two prompts are the same, same"
     );
 }
+
+#[test]
+fn the_skeleton_holds_at_large_shape() {
+    let prompts: Vec<PText> = (1..=4000)
+        .map(|n| pt(&format!("branch number {n}")))
+        .collect();
+    let skeleton = fork_skeleton(&pt("q"), &prompts).expect("a sound skeleton");
+    assert_eq!(
+        count_by_state(&skeleton),
+        Counts {
+            total: 4000,
+            open: 4000,
+            taken: 0,
+            abandoned: 0,
+        }
+    );
+    assert_eq!(
+        skeleton.branches.first().expect("a first branch").id,
+        pt("b01")
+    );
+    assert_eq!(skeleton.branches[1999].id, pt("b2000"));
+    assert_eq!(skeleton.branches[1999].prompt, pt("branch number 2000"));
+    assert_eq!(
+        skeleton.branches.last().expect("a last branch").id,
+        pt("b4000")
+    );
+    let (found, defects) = load_exploration_text(&skeleton_text(&skeleton));
+    assert_eq!(defects, Vec::<String>::new());
+    assert_eq!(found.expect("a clean load"), skeleton);
+}
+
+#[test]
+fn a_duplicate_standing_at_the_tail_of_a_long_list_raises() {
+    let mut prompts: Vec<PText> = (1..=4000)
+        .map(|n| pt(&format!("branch number {n}")))
+        .collect();
+    prompts.push(pt("branch number 1"));
+    let error = fork_skeleton(&pt("q"), &prompts).expect_err("a refusal");
+    assert_eq!(error, "two prompts are the same, branch number 1");
+}
+
+#[test]
+fn the_duplicate_refusal_keeps_its_walk_order() {
+    let error = fork_skeleton(
+        &pt("q"),
+        &[pt("one"), pt("two"), pt("three"), pt("two"), pt("one")],
+    )
+    .expect_err("a refusal");
+    assert_eq!(error, "two prompts are the same, two");
+    let error = fork_skeleton(&pt("q"), &[pt("one"), pt("two"), pt("one")]).expect_err("a refusal");
+    assert_eq!(error, "two prompts are the same, one");
+    let error = fork_skeleton(&pt("q"), &[pt("one"), pt(""), pt("one")]).expect_err("a refusal");
+    assert_eq!(error, "each prompt must be a non empty string");
+    let error = fork_skeleton(&pt("q"), &[pt("one"), pt("one"), pt("")]).expect_err("a refusal");
+    assert_eq!(error, "two prompts are the same, one");
+}
