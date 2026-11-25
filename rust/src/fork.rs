@@ -7,6 +7,8 @@
 //! and the port keeps that order, so a caller sees the same
 //! first refusal the Python caller sees.
 
+use std::collections::HashSet;
+
 use crate::explorations::{Branch, Exploration, State};
 use crate::pytext::PText;
 
@@ -29,7 +31,7 @@ pub fn fork_skeleton(question: &PText, prompts: &[PText]) -> Result<Exploration,
         return Err("the question holds a newline or a carriage return".to_string());
     }
     let mut branches: Vec<Branch> = Vec::new();
-    let mut seen: Vec<&PText> = Vec::new();
+    let mut seen: HashSet<&PText> = HashSet::new();
     for (offset, prompt) in prompts.iter().enumerate() {
         if prompt.is_empty() {
             return Err("each prompt must be a non empty string".to_string());
@@ -40,10 +42,9 @@ pub fn fork_skeleton(question: &PText, prompts: &[PText]) -> Result<Exploration,
         if prompt.holds_line_break() {
             return Err("each prompt must hold no newline or carriage return".to_string());
         }
-        if seen.contains(&prompt) {
+        if !seen.insert(prompt) {
             return Err(format!("two prompts are the same, {prompt}"));
         }
-        seen.push(prompt);
         branches.push(Branch {
             id: PText::from_text(&format!("b{:02}", offset + 1)),
             parent: None,
