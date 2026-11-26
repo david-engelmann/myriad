@@ -161,7 +161,7 @@ fn the_examples_census_counts_the_chain_goldens() {
         })
         .count();
     assert_eq!(
-        count, 37,
+        count, 38,
         "the golden files of the chain readings over the four shipped chains"
     );
 }
