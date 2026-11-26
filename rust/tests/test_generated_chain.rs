@@ -133,13 +133,31 @@
 //! tree either. The standing pins of the family pass
 //! unchanged.
 
+//! Round 36 extends the family by addition again. The
+//! lineage golden of MY-73 joins the thirteen at
+//! examples/generated-chain-lineage.txt, and the two
+//! pins of MY-74 below hold the lineage reading over
+//! the generated chain, the golden pin against the
+//! golden whole and the relations pin against the
+//! changelog readings of the steps and the matched
+//! reading. The discrimination split of the two stands
+//! as follows. The golden pin fails on the tree before
+//! this slice by execution, because the golden stands
+//! nowhere on that tree, the lineage reading standing
+//! there unchanged. The relations pin passes on that
+//! tree, because the chain and its loader and every
+//! reading it reads stand unchanged there, and its
+//! failure mode stands as a drifted regeneration of
+//! the chain or a change in a reading it reads.
+
 mod common;
 
 use common::*;
 use myriad::atlas::{
-    load_lineage_text, render_absence, render_arrivals, render_company, render_departures,
-    render_fellows, render_index, render_lineage, render_matched, render_presence, render_returns,
-    render_rosters, render_runs, render_sets, render_standing, render_standings, Lineage,
+    load_lineage_text, render_absence, render_arrivals, render_changelog, render_company,
+    render_departures, render_fellows, render_index, render_lineage, render_matched,
+    render_presence, render_returns, render_rosters, render_runs, render_sets, render_standing,
+    render_standings, Lineage,
 };
 
 // ----------------------------------------------------------------
@@ -1870,4 +1888,76 @@ fn the_fellows_relations_hold_over_the_generated_chain() {
         lonely, 0,
         "the sections holding no fellows line stand at none"
     );
+}
+
+#[test]
+fn the_lineage_golden_matches_the_reading_of_the_generated_chain() {
+    let chain = shipped_chain();
+    assert_eq!(
+        render_lineage(&chain).expect("the lineage reads"),
+        golden("generated-chain-lineage.txt")
+    );
+}
+
+#[test]
+fn the_lineage_relations_hold_over_the_generated_chain() {
+    let chain = shipped_chain();
+    let lineage = render_lineage(&chain).expect("the lineage reads");
+    let closing = lineage.last().expect("a closing line");
+    let steps = chain.atlases.len() - 1;
+    assert_eq!(figure(closing, "steps ", ","), steps);
+    // The first relation: the four figures of the
+    // closing line are the sums of the same four
+    // figures over the per-step changelog counts
+    // lines of the same output.
+    let counts_lines: Vec<&String> = lineage
+        .iter()
+        .filter(|line| line.starts_with("changelog counts,"))
+        .collect();
+    assert_eq!(counts_lines.len(), steps);
+    let mut arrived = 0usize;
+    let mut departed = 0usize;
+    let mut matched = 0usize;
+    let mut changed = 0usize;
+    for line in &counts_lines {
+        arrived += figure(line, "entries arrived ", ",");
+        departed += figure(line, "departed ", ",");
+        matched += figure(line, "matched ", ",");
+        changed += figure_last(line, "branches changed ");
+    }
+    assert_eq!(arrived, figure(closing, "entries arrived ", ","));
+    assert_eq!(departed, figure(closing, "departed ", ","));
+    assert_eq!(matched, figure(closing, "matched ", ","));
+    assert_eq!(changed, figure_last(closing, "branches changed "));
+    // The second relation: the lines of each step of
+    // the output are the lines of the changelog
+    // reading of that step's pair, rendered directly.
+    let mut blocks: Vec<Vec<String>> = Vec::new();
+    for line in &lineage {
+        if line.starts_with("earlier atlas,") {
+            blocks.push(Vec::new());
+        }
+        if !line.starts_with("lineage counts,") {
+            blocks
+                .last_mut()
+                .expect("a step block stands open")
+                .push(line.clone());
+        }
+    }
+    assert_eq!(blocks.len(), steps);
+    for (step, block) in blocks.iter().enumerate() {
+        let pair = render_changelog(&chain.atlases[step], &chain.atlases[step + 1])
+            .expect("the pair reads");
+        assert_eq!(*block, pair);
+    }
+    // The third relation: the matched figure of the
+    // closing line is the sum of the per-step matched
+    // counts of the matched reading over the same
+    // chain.
+    let matched_reading = render_matched(&chain).expect("the matched reads");
+    let matched_closing = matched_reading.last().expect("a closing line");
+    let matched_sum: usize = (1..=steps)
+        .map(|step| figure(matched_closing, &format!("step {step} matched "), ","))
+        .sum();
+    assert_eq!(matched_sum, figure(closing, "matched ", ","));
 }

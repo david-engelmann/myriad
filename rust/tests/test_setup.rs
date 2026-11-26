@@ -678,7 +678,10 @@ fn readme_reports_the_slice_five_standing() {
     // line, which read built and in review while
     // Round 35 was built, until the Round 35 closure
     // landed slice 36 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one as the named mechanical
+    // consequence of the slice 37 status line, which
+    // reads built and in review while Round 36 is built.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at thirty seven, not thirty six, as a mechanical
     // consequence of the Round 35 closure. The slice 36 line
     // now also reads has landed, beside the port status
@@ -3285,5 +3288,36 @@ fn the_atlas_module_header_names_the_atlas_readings() {
         "the changelog of two atlases",
     ] {
         assert!(flowed.contains(phrase), "the module header names {phrase}");
+    }
+}
+
+#[test]
+fn readme_reports_the_round_thirty_six_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-73 and MY-74 stand in full form in \
+        CONTRACT.md. Their standing is not claimed here, as Round 36 has \
+        not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 37 is built and in review. It carries the \
+        lineage golden of the generated chain of MY-73, the fourteenth \
+        golden of the generated fixture family, the lineage record and the \
+        two pins of MY-74, and no new command and no new reading and no \
+        repair amendment stands in the slice.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 35 of 100"));
+    // The number FIX-MY-18 stands unspent, as the Round 13
+    // section of the contract records. No repair amendment
+    // stands in the Round 36 section, and no negative stands
+    // for the free number FIX-MY-25, which a later round may
+    // spend, as the Round 29 slice's second repair taught.
+    let contract = read("CONTRACT.md");
+    assert!(!contract.contains("### FIX-MY-18"));
+}
+
+#[test]
+fn contract_carries_the_round_thirty_six_obligations() {
+    let text = read("CONTRACT.md");
+    for oid in ["MY-73", "MY-74"] {
+        assert!(text.contains(oid), "{oid}");
     }
 }
