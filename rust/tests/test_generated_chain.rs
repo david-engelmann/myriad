@@ -1945,10 +1945,10 @@ fn the_lineage_relations_hold_over_the_generated_chain() {
         }
     }
     assert_eq!(blocks.len(), steps);
-    for step in 0..steps {
+    for (step, block) in blocks.iter().enumerate() {
         let pair = render_changelog(&chain.atlases[step], &chain.atlases[step + 1])
             .expect("the pair reads");
-        assert_eq!(blocks[step], pair);
+        assert_eq!(*block, pair);
     }
     // The third relation: the matched figure of the
     // closing line is the sum of the per-step matched
