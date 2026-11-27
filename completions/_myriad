@@ -1,0 +1,34 @@
+#compdef myriad
+
+_myriad() {
+  local -a subcommands
+  subcommands=(
+    'map'
+    'check'
+    'claims'
+    'census'
+    'atlas'
+    'index'
+    'changelog'
+    'lineage'
+    'returns'
+    'standing'
+    'absence'
+    'arrivals'
+    'departures'
+    'matched'
+    'runs'
+    'presence'
+    'standings'
+    'company'
+    'sets'
+    'rosters'
+    'fellows'
+  )
+  _arguments -C \
+    '(- *)'{-h,--help}'[Print help information]' \
+    '1:command:compadd -a subcommands' \
+    '*:input file:_files'
+}
+
+_myriad "$@"
