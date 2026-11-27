@@ -334,3 +334,52 @@ fn a_surrogate_question_draws_the_refusal_in_the_index() {
         "the question holds an unpaired surrogate"
     );
 }
+
+/// The mixed atlas of the fold record, twelve entries
+/// holding nought to eleven branches apiece in rising
+/// order, the first entry standing empty, the sixty-six
+/// branches standing twenty-two in each state.
+fn mixed_atlas() -> Atlas {
+    let states = ["open", "taken", "abandoned"];
+    Atlas {
+        title: pt("mixed"),
+        entries: (0..12)
+            .map(|place| {
+                entry(
+                    &format!("part {place}"),
+                    &format!("q {place}"),
+                    (0..place)
+                        .map(|j| {
+                            branch(
+                                &format!("b{place}-{j}"),
+                                None,
+                                &format!("prompt of b{place}-{j}"),
+                                states[(place + j) % 3],
+                                None,
+                                None,
+                                None,
+                            )
+                        })
+                        .collect(),
+                )
+            })
+            .collect(),
+    }
+}
+
+#[test]
+fn the_index_of_the_mixed_atlas_closes_at_the_entry_sums() {
+    let index = render_index(&mixed_atlas()).expect("a sound rendering");
+    assert_eq!(
+        index[index.len() - 1],
+        "atlas counts, entries 12, branches 66, open 22, taken 22, abandoned 22"
+    );
+    let mut totals = [0usize; 4];
+    for line in &index[1..index.len() - 1] {
+        let counts = closing_counts(line);
+        for place in 0..4 {
+            totals[place] += counts[place];
+        }
+    }
+    assert_eq!(closing_counts(&index[index.len() - 1]), totals);
+}
