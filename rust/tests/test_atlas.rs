@@ -14,7 +14,9 @@ mod common;
 
 use std::collections::BTreeMap;
 
-use myriad::atlas::{load_atlas_file, load_atlas_text, render_atlas, Atlas, AtlasEntry};
+use myriad::atlas::{
+    load_atlas_file, load_atlas_text, render_atlas, render_index, Atlas, AtlasEntry,
+};
 use myriad::explorations::{count_by_state, render_claims, render_map, Exploration};
 use myriad::fork::fork_skeleton;
 use myriad::pytext::PText;
@@ -852,4 +854,89 @@ fn a_taken_branch_holding_no_finding_draws_the_refusal_in_the_atlas() {
         render_atlas(&atlas).expect_err("a refusal"),
         "a taken branch holds no finding"
     );
+}
+
+/// One entry of the mixed atlas of the fold record,
+/// holding as many branches as its place in the atlas,
+/// their states rotating open, taken, and abandoned from
+/// the entry's own place in the rotation.
+fn mixed_entry(place: usize) -> AtlasEntry {
+    let states = ["open", "taken", "abandoned"];
+    let branches = (0..place)
+        .map(|j| {
+            let state = states[(place + j) % 3];
+            branch(
+                &format!("b{place}-{j}"),
+                None,
+                &format!("prompt of b{place}-{j}"),
+                state,
+                None,
+                if state == "taken" {
+                    Some("found")
+                } else {
+                    None
+                },
+                if state == "abandoned" {
+                    Some("left")
+                } else {
+                    None
+                },
+            )
+        })
+        .collect();
+    AtlasEntry {
+        label: pt(&format!("part {place}")),
+        exploration: Exploration {
+            question: pt(&format!("q {place}")),
+            branches,
+        },
+    }
+}
+
+/// The mixed atlas of the fold record, twelve entries
+/// holding nought to eleven branches apiece in rising
+/// order, the first entry standing empty, the sixty-six
+/// branches standing twenty-two in each state.
+fn mixed_atlas() -> Atlas {
+    Atlas {
+        title: pt("mixed"),
+        entries: (0..12).map(mixed_entry).collect(),
+    }
+}
+
+#[test]
+fn a_mixed_atlas_of_twelve_entries_renders_whole() {
+    let lines = render_atlas(&mixed_atlas()).expect("a sound rendering");
+    assert_eq!(
+        lines
+            .iter()
+            .filter(|line| line.starts_with("entry "))
+            .count(),
+        12
+    );
+    assert_eq!(
+        lines[lines.len() - 1],
+        "atlas counts, entries 12, branches 66, open 22, taken 22, abandoned 22"
+    );
+}
+
+#[test]
+fn the_closing_counts_equal_the_entry_sums_and_the_index_agrees() {
+    let atlas = mixed_atlas();
+    let mut total = myriad::explorations::Counts::default();
+    for entry in &atlas.entries {
+        let counts = count_by_state(&entry.exploration);
+        total.total += counts.total;
+        total.open += counts.open;
+        total.taken += counts.taken;
+        total.abandoned += counts.abandoned;
+    }
+    let expected = format!(
+        "atlas counts, entries 12, branches {}, open {}, taken {}, abandoned {}",
+        total.total, total.open, total.taken, total.abandoned
+    );
+    let lines = render_atlas(&atlas).expect("a sound rendering");
+    assert_eq!(lines[lines.len() - 1], expected);
+    let index = render_index(&atlas).expect("a sound rendering");
+    assert_eq!(index[index.len() - 1], expected);
 }
