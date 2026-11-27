@@ -1,10 +1,38 @@
 [package]
-name = "myriad"
+name = "myriad-atlas"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.87"
 description = "Myriad is a Rust library and command line tool that reads logs of branching investigations of a question, single investigations, sets of them, and chains of them logged over time, and prints readings over them."
+license = "MIT"
+repository = "https://github.com/david-engelmann/myriad"
+homepage = "https://github.com/david-engelmann/myriad"
+documentation = "https://docs.rs/myriad-atlas"
+readme = "README.md"
+keywords = ["cli", "investigation", "research", "decision-tree", "agents"]
+categories = ["command-line-utilities", "development-tools"]
+default-run = "myriad"
+exclude = [
+  "AGENTS.md",
+  "CONTRACT.md",
+  ".github/**",
+  "docs/**",
+  "examples/**",
+  "rust/src/bin/**",
+  "rust/tests/**",
+]
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/myriad-v{ version }-{ target }.tar.gz"
+bin-dir = "myriad-v{ version }-{ target }/{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-url = "{ repo }/releases/download/v{ version }/myriad-v{ version }-{ target }.zip"
+pkg-fmt = "zip"
 
 [lib]
+name = "myriad"
 path = "rust/src/lib.rs"
 
 [[bin]]
@@ -307,5 +335,5 @@ path = "rust/tests/test_cli_round20.rs"
 name = "test_examples_round20"
 path = "rust/tests/test_examples_round20.rs"
 
-[dependencies]
+[target.'cfg(unix)'.dependencies]
 libc = "0.2"
