@@ -33,9 +33,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 use crate::explorations::{
-    count_branches, count_by_state, format_counts, load_exploration_data,
-    refuse_exploration_fields, refuse_field, refuse_line_break, refuse_surrogate, Branch,
-    Exploration, State,
+    count_by_state, format_counts, load_exploration_data, refuse_exploration_fields, refuse_field,
+    refuse_line_break, refuse_surrogate, Branch, Counts, Exploration, State,
 };
 use crate::json::{parse_json, JsonValue};
 use crate::pytext::PText;
@@ -332,19 +331,23 @@ pub fn render_atlas(atlas: &Atlas) -> Result<Vec<String>, String> {
     refuse_atlas_fields(atlas)?;
     refuse_surrogate(&atlas.title, "the atlas title holds an unpaired surrogate")?;
     let mut lines = vec![format!("atlas, {}", atlas.title)];
-    let mut union: Vec<Branch> = Vec::new();
+    let mut counts = Counts::default();
     for entry in &atlas.entries {
         refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
         lines.push(format!("entry {}", entry.label));
         lines.extend(crate::explorations::render_map(&entry.exploration)?);
         let claims = crate::explorations::render_claims(&entry.exploration)?;
         lines.extend(claims.into_iter().skip(1));
-        union.extend(entry.exploration.branches.iter().cloned());
+        let own = count_by_state(&entry.exploration);
+        counts.total += own.total;
+        counts.open += own.open;
+        counts.taken += own.taken;
+        counts.abandoned += own.abandoned;
     }
     lines.push(format!(
         "atlas counts, entries {}, {}",
         atlas.entries.len(),
-        format_counts(&count_branches(&union))
+        format_counts(&counts)
     ));
     Ok(lines)
 }
@@ -1716,25 +1719,29 @@ pub fn render_index(atlas: &Atlas) -> Result<Vec<String>, String> {
     refuse_atlas_fields(atlas)?;
     refuse_surrogate(&atlas.title, "the atlas title holds an unpaired surrogate")?;
     let mut lines = vec![format!("atlas, {}", atlas.title)];
-    let mut union: Vec<Branch> = Vec::new();
+    let mut counts = Counts::default();
     for entry in &atlas.entries {
         refuse_surrogate(&entry.label, "an entry label holds an unpaired surrogate")?;
         refuse_surrogate(
             &entry.exploration.question,
             "the question holds an unpaired surrogate",
         )?;
+        let own = count_by_state(&entry.exploration);
         lines.push(format!(
             "entry {}, question, {}, {}",
             entry.label,
             entry.exploration.question,
-            format_counts(&count_by_state(&entry.exploration))
+            format_counts(&own)
         ));
-        union.extend(entry.exploration.branches.iter().cloned());
+        counts.total += own.total;
+        counts.open += own.open;
+        counts.taken += own.taken;
+        counts.abandoned += own.abandoned;
     }
     lines.push(format!(
         "atlas counts, entries {}, {}",
         atlas.entries.len(),
-        format_counts(&count_branches(&union))
+        format_counts(&counts)
     ));
     Ok(lines)
 }
