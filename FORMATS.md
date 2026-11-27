@@ -2,7 +2,7 @@
 
 This reference documents the three JSON file formats `myriad` reads in one place for multi-agent orchestrators, research harnesses, and external tooling. The specification of record stands in `CONTRACT.md` under the consolidated version 1 formats section (`FIX-MY-15`). Where this reference and `CONTRACT.md` differ, `CONTRACT.md` governs.
 
-Every format below stands at version 1 in `CONTRACT.md` (`FIX-MY-15`). No file carries a `"version"` field or any numeric field at version 1, and every loader ignores unknown extra fields not named by the contract. Under `PORT-3` and `FIX-MY-15`, the JSON parser enforces a container depth boundary of `9997` open containers, rejects integer literals past `4300` digits, and rejects unpaired UTF-16 surrogates and line-break characters (`\n` and `\r`) in text fields.
+Every format below stands at version 1 in `CONTRACT.md` (`FIX-MY-15`). No file carries a `"version"` field or any numeric field at version 1, and every loader ignores unknown extra fields not named by the contract. Under `PORT-3` and `FIX-MY-15`, the JSON parser enforces a container depth boundary of `9997` open containers and rejects integer literals past `4300` digits, while the exploration, atlas, and lineage loaders reject unpaired UTF-16 surrogates and line-break characters (`\n` and `\r`) on checked string fields (leaving unknown extra fields uninspected).
 
 ## Exploration format (`myriad-exploration` at version 1)
 

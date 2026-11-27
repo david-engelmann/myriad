@@ -26,4 +26,4 @@ Branching multi-agent investigation logs, `dibs` claim maps, multi-question atla
 - **Pure offline execution.** `myriad` makes zero network calls, spawns no background daemons, and mutates none of the exploration, atlas, or lineage files handed to it.
 - **Zero external math dependencies.** Branch trees, `dibs` claims, structural changelogs, and fourteen temporal chain readings compute exact integer counts and deterministic set relations using the Rust standard library alone.
 - **Whole-input defect reporting.** Malformed JSON files, dangling parent IDs, cycles, and duplicate open prompts return structured defect lists in one pass before printing any reading.
-- **Terminal injection fencing.** Every text field rejects unpaired surrogates and line breaks so untrusted strings can never forge tree or summary lines.
+- **Single-line output fencing.** Checked string fields reject unpaired UTF-16 surrogates and line breaks (`\n` and `\r`) so untrusted strings cannot forge tree or summary lines, though operators displaying untrusted text in a terminal should still sanitize raw escape sequences.

@@ -8,7 +8,10 @@ Myriad reads structured logs of branching investigations (`explorations`), colle
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/david-engelmann/myriad/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
 ```
+
+Pass `--to <DIR>` to install somewhere other than `$HOME/.local/bin`, and ensure the destination directory stands on `PATH`.
 
 ### Cargo Binstall
 
@@ -28,7 +31,7 @@ cargo install --path . --bin myriad --locked
 
 ## 60-Second Walkthrough
 
-Render an exploration tree, check its branch state counts, inspect `dibs` claim totals, summarize findings and dead ends with `census`, and trace how an atlas of investigations evolved across three seasonal checkpoints.
+From the root of a `myriad` repository checkout (`git clone https://github.com/david-engelmann/myriad.git && cd myriad`), render an exploration tree, check its branch state counts, inspect `dibs` claim totals, summarize findings and dead ends with `census`, and trace how an atlas of investigations evolved across three seasonal checkpoints.
 
 ```sh
 myriad map examples/winter-ferry.json
