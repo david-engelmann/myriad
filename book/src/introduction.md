@@ -19,7 +19,7 @@ Branching multi-agent investigation logs, `dibs` claim maps, multi-question atla
 | Document | What it covers |
 | --- | --- |
 | [GUIDE.md](guide.md) | Installation, 60-second walkthrough, categorized command matrix, and multi-agent pipeline recipes |
-| [ARCHITECTURE.md](architecture.md) | Four-stage processing pipeline, module map, exact arithmetic guarantees, and input fencing |
+| [ARCHITECTURE.md](architecture.md) | Four-stage processing pipeline, module map, deterministic set algebra, and input fencing |
 | [COMPARISON.md](comparison.md) | Spectacle Line 5-tool boundary matrix and comparison against cloud eval SaaS and scripts |
 | [PERFORMANCE.md](performance.md) | Measured release binary size, sub-100ms benchmark latencies, and parser memory bounds |
 | [FAQ.md](faq.md) | Scope boundaries, exit codes (`0`, `1`, `2`, `120`), determinism, and troubleshooting |

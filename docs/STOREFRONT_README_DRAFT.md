@@ -54,6 +54,7 @@ Install a prebuilt release binary on Linux or macOS, install the `myriad-atlas` 
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/david-engelmann/myriad/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 ```sh

@@ -12,7 +12,9 @@
     "title": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^[^\\r\\n]+$"
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
     },
     "entries": {
       "type": "array",
@@ -26,7 +28,9 @@
           "label": {
             "type": "string",
             "minLength": 1,
-            "pattern": "^[^\\r\\n]+$"
+            "not": {
+              "pattern": "[\\r\\n]"
+            }
           },
           "exploration": {
             "$ref": "exploration.schema.json"

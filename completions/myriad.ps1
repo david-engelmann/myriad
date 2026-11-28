@@ -3,13 +3,22 @@ Register-ArgumentCompleter -Native -CommandName myriad -ScriptBlock {
   param($wordToComplete, $commandAst, $cursorPosition)
   $subcommands = @('map', 'check', 'claims', 'census', 'atlas', 'index', 'changelog', 'lineage', 'returns', 'standing', 'absence', 'arrivals', 'departures', 'matched', 'runs', 'presence', 'standings', 'company', 'sets', 'rosters', 'fellows', '-h', '--help')
   $elements = $commandAst.CommandElements
-  if ($elements.Count -eq 1 -or ($elements.Count -eq 2 -and $wordToComplete.Length -gt 0)) {
+  $argIndex = 0
+  for ($i = 0; $i -lt $elements.Count; $i++) {
+    $ext = $elements[$i].Extent
+    if ($cursorPosition -le $ext.EndOffset) {
+      $argIndex = $i
+      break
+    }
+    $argIndex = $i + 1
+  }
+  if ($argIndex -eq 1) {
     $subcommands | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
       [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
     }
     return
   }
-  if ($elements.Count -ge 2 -and $wordToComplete.StartsWith('-')) {
+  if ($argIndex -ge 2 -and $wordToComplete.StartsWith('-')) {
     @('-h', '--help') | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
       [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterName', $_)
     }

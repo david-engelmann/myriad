@@ -20,7 +20,7 @@ Yes. `load_exploration_text` verifies that every non-null `parent` names an exis
 
 ## What do the exit codes mean?
 
-- **`0`** Valid exploration confirmed (`check`) or reading printed cleanly.
-- **`1`** Malformed exploration, atlas, or lineage file refused with structured defect lines on `stdout`, or a closed `stdout` pipe on large output (`>= 8192` bytes under `PORT-13`, so scripts should distinguish input validation failures by inspecting output or running `myriad check` first).
+- **`0`** Valid exploration confirmed (`check`) or reading printed cleanly (note that under `PORT-13`, if `stdout` closes during the final flush when between `4097` and `8191` bytes sit buffered, `write_stdout` returns the command's own status).
+- **`1`** Malformed exploration, atlas, or lineage file refused with structured defect lines on `stdout`, or a closed `stdout` write when `8192` or more bytes sit buffered (`PORT-13`, so scripts should distinguish input validation failures by inspecting output or running `myriad check` first).
 - **`2`** Unknown subcommand, unrecognized flags, or wrong file argument count on `stderr`.
-- **`120`** Failed `stderr` stream write, or a closed `stdout` pipe on short output (`<= 4096` bytes under `PORT-13`).
+- **`120`** Failed `stderr` stream write, or a closed `stdout` write when `4096` or fewer bytes sit buffered (`PORT-13`).

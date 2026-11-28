@@ -20,7 +20,7 @@ Measured on Apple Silicon (`cargo build --release --locked`, median wall-clock d
 | Benchmark command | `myriad lineage` | Full end-to-end CLI invocation |
 | Synthetic workload | 10-step lineage across 25 explorations (5,000 branch nodes) | Validated whole before rendering |
 | Median wall-clock time | `51.98 ms` | Median of 9 cold-process runs |
-| Sustained throughput | `96,191 branches/sec` | Includes JSON parsing and line-break fencing |
+| Median-derived rate | `96,191 branches/sec` | Derived from median of 9 cold-process runs |
 
 ## Spectacle Line Release Comparison
 
