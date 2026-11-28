@@ -688,7 +688,11 @@ fn readme_reports_the_slice_five_standing() {
     // line, which read built and in review while
     // Round 37 was built, until the Round 37 closure
     // landed slice 38 and the count returned to zero.
-    assert_eq!(text.matches("built and in review").count(), 0);
+    // It stands at one again as the named mechanical
+    // consequence of the slice 39 status
+    // line, which read built and in review while
+    // Round 38 is built.
+    assert_eq!(text.matches("built and in review").count(), 1);
     // The count stands at thirty nine, not thirty eight, as a mechanical
     // consequence of the Round 37 closure. The slice 38 line
     // now also reads has landed, beside the port status
@@ -3638,5 +3642,41 @@ fn contract_carries_the_round_thirty_seven_obligations() {
     let text = read("CONTRACT.md");
     for oid in ["MY-75", "MY-76"] {
         assert!(text.contains(oid), "{oid}");
+    }
+}
+
+#[test]
+fn readme_reports_the_round_thirty_eight_status() {
+    let text = read("README.md");
+    let standing = "- Contract, MY-77 and MY-78 stand in full \
+        form in CONTRACT.md. Their standing is not claimed \
+        here, as Round 38 has not closed.";
+    assert!(carries_line(&text, standing));
+    let expected = "- Slice 39 is built and in review. It carries the \
+        presence inversion construction fold of MY-77, the \
+        thirteen readings of the chain family standing \
+        restated on the one inversion construction of the \
+        atlas module with no line, figure, refusal, or \
+        branch of any reading moving, the inversion record \
+        and the three pins of MY-78, and no new command and \
+        no new reading and no repair amendment stands in the \
+        slice.";
+    assert!(carries_line(&text, expected));
+    assert!(text.contains("Closed perfection rounds, 37 of 100"));
+    // The number FIX-MY-18 stands unspent, as the Round 13
+    // section of the contract records. No repair amendment
+    // stands in the Round 38 section, and no negative stands
+    // for the free number FIX-MY-26, which a later round may
+    // spend, as the Round 29 slice's second repair taught.
+    let contract = read("CONTRACT.md");
+    assert!(!contract.contains("### FIX-MY-18"));
+}
+
+#[test]
+fn contract_carries_the_round_thirty_eight_obligations() {
+    let text = read("CONTRACT.md");
+    for number in 77..=78 {
+        let heading = format!("### MY-{number}");
+        assert!(text.contains(&heading), "missing {heading}");
     }
 }

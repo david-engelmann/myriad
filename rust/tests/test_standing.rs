@@ -760,3 +760,41 @@ fn the_standing_line_agreement_holds_at_every_shape() {
         }
     }
 }
+
+/// The scattered chain of the inversion record, five
+/// atlases over four labels, the standings of the
+/// labels standing scattered over the chain, alpha
+/// standing at atlases 1, 4, and 5, beta at atlases 1
+/// and 2, gamma at atlases 2 and 4, and delta at atlas
+/// 5 alone, the third atlas standing empty.
+fn scattered() -> Lineage {
+    Lineage {
+        atlases: vec![
+            atlas("First", vec![plain("alpha"), plain("beta")]),
+            atlas("Second", vec![plain("beta"), plain("gamma")]),
+            atlas("Third", vec![]),
+            atlas("Fourth", vec![plain("gamma"), plain("alpha")]),
+            atlas("Fifth", vec![plain("delta"), plain("alpha")]),
+        ],
+    }
+}
+
+#[test]
+fn a_scattered_chain_renders_its_standing_whole() {
+    let lines = render_standing(&scattered()).expect("the chain reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "entry alpha, first stood at atlas 1, last stood at atlas 5, \
+             stands in 3 atlases, stands at the close",
+            "entry beta, first stood at atlas 1, last stood at atlas 2, \
+             stands in 2 atlases, does not stand at the close",
+            "entry gamma, first stood at atlas 2, last stood at atlas 4, \
+             stands in 2 atlases, does not stand at the close",
+            "entry delta, first stood at atlas 5, last stood at atlas 5, \
+             stands in 1 atlases, stands at the close",
+            "standing counts, atlases 5, entries 4, standing at every \
+             atlas 0, standing at the close 2",
+        ])
+    );
+}
