@@ -14,6 +14,7 @@ categories = ["command-line-utilities", "development-tools"]
 default-run = "myriad"
 exclude = [
   "AGENTS.md",
+  "action.yml",
   "CONTRACT.md",
   ".github/**",
   "book/**",
