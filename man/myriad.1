@@ -1,0 +1,72 @@
+.TH MYRIAD 1 "2026-11-28" "myriad 0.2.0" "Spectacle Line Manual"
+.SH NAME
+myriad \- branching multi-agent investigation map, atlas, and temporal lineage reader
+.SH SYNOPSIS
+\fBmyriad\fR \fB-h\fR | \fB--help\fR
+.br
+\fBmyriad\fR \fICOMMAND\fR \fIFILE\fR ...
+.SH DESCRIPTION
+\fBmyriad\fR reads version 1 logs of branching investigations (explorations), multi-question collections (atlases), and chronological chains of atlases (lineages). It validates tree structure and cycle freedom, tracks open, taken, and abandoned branches alongside worker dibs claims, and prints twenty-one deterministic offline readings without ever declaring a winner.
+.SH COMMANDS
+.TP
+\fBmap <exploration.json>\fR
+Render the indented tree of open, taken, and abandoned branches.
+.TP
+\fBcheck <exploration.json>\fR
+Validate an exploration and print branch state counts or every structural defect.
+.TP
+\fBclaims | census <exploration.json>\fR
+Tally or group branches by worker dibs claim label.
+.TP
+\fBatlas | index <atlas.json>\fR
+Render a full multi-question atlas or its question summary index.
+.TP
+\fBchangelog <before_atlas.json> <after_atlas.json>\fR
+Diff structural branch and state changes between two atlases.
+.TP
+\fBlineage | returns | standing | absence | arrivals | departures | matched | runs | presence | standings | company | sets | rosters | fellows <lineage.json>\fR
+Run the fourteen longitudinal chain readings across a chronological atlas lineage.
+.SH EXIT STATUS
+.TP
+\fB0\fR
+Help text printed, or valid exploration, atlas, or lineage confirmed and printed (including when stdout closes during final flush with 4097 to 8191 bytes buffered under PORT-13).
+.TP
+\fB1\fR
+Malformed input refused with structured defect lines on stdout, or closed stdout write when 8192 or more bytes sit buffered.
+.TP
+\fB2\fR
+Unknown subcommand, unrecognized option, or wrong file argument count on stderr.
+.TP
+\fB120\fR
+Failed stderr stream write, or closed stdout write when 4096 or fewer bytes sit buffered.
+.SH EXAMPLES
+From a repository checkout containing the shipped synthetic fixtures under
+.I examples/
+.PP
+Validate an exploration log
+.nf
+.RS 4
+myriad check examples/winter-ferry.json
+.RE
+.fi
+.PP
+Render a branching investigation map
+.nf
+.RS 4
+myriad map examples/winter-ferry.json
+.RE
+.fi
+.PP
+Inspect longitudinal entry standing across a lineage
+.nf
+.RS 4
+myriad standing examples/winter-spring-summer-lineage.json
+.RE
+.fi
+.SH SEE ALSO
+Project documentation and Draft 2020-12 JSON Schemas at
+.I https://github.com/david-engelmann/myriad
+and the online operator handbook at
+.I https://david-engelmann.github.io/myriad/
+.SH AUTHORS
+David Engelmann. Released under the MIT License.

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 511" width="920" height="511" role="img"><title>myriad - branching investigation maps, atlases, and longitudinal lineages</title><style>.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }@keyframes pulseGlow { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }.live-dot { animation: pulseGlow 2.8s ease-in-out infinite; }@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }</style><rect x="1" y="1" width="918" height="509" rx="14" fill="#faf8f4" stroke="#dcd5c7" stroke-width="1.5"/>
+        <text x="36" y="44" class="sans" font-size="13" font-weight="700" fill="#575249" letter-spacing="0.8">BRANCHING EXPLORATION TREE &amp; ATLAS LINEAGE</text>
+        <circle cx="880" cy="39" r="5" fill="#c25e00" class="live-dot"/>
+        <text x="866" y="44" text-anchor="end" class="mono" font-size="11" fill="#c25e00">NO WINNER · MAP ONLY</text>
+
+        <rect x="36" y="60" width="516" height="172" rx="8" fill="#ffffff" stroke="#dcd5c7"/>
+        <text x="54" y="84" class="sans" font-size="13" font-weight="700" fill="#151411">Atlas Entry · ferry link (6 branches)</text>
+        <path d="M68 104 V196 M68 118 H92 M68 156 H92 M68 196 H92" stroke="#c25e00" stroke-width="2.2" fill="none"/>
+        <circle cx="68" cy="104" r="4" fill="#151411"/>
+        <rect x="96" y="105" width="438" height="26" rx="5" fill="#fef3c7"/>
+        <text x="106" y="122" class="mono" font-size="11.5" fill="#c25e00">berth (open) · claimed by boat crew</text>
+        <rect x="96" y="143" width="438" height="26" rx="5" fill="#d1fae5"/>
+        <text x="106" y="160" class="mono" font-size="11.5" fill="#047857">fuel (taken) · winter grade diesel from harbour tank</text>
+        <rect x="96" y="183" width="438" height="26" rx="5" fill="#f3efe7"/>
+        <text x="106" y="200" class="mono" font-size="11.5" fill="#575249">night (abandoned) · harbour bylaw settles sailing hours</text>
+
+        <rect x="570" y="60" width="314" height="172" rx="8" fill="#ffffff" stroke="#dcd5c7"/>
+        <text x="588" y="84" class="sans" font-size="13" font-weight="700" fill="#151411">Lineage · Winter -&gt; Spring -&gt; Summer</text>
+        <text x="588" y="112" class="mono" font-size="11.5" fill="#047857">ferry link      [1] [2] [3]  close</text>
+        <text x="588" y="136" class="mono" font-size="11.5" fill="#047857">lifeboat cover  [1] [2] [3]  close</text>
+        <text x="588" y="160" class="mono" font-size="11.5" fill="#c25e00">harbour lights  [1]  -  [3]  returned</text>
+        <text x="588" y="184" class="mono" font-size="11.5" fill="#575249">ice report       -  [2]  -   departed</text>
+        <text x="588" y="212" class="sans" font-size="11.5" fill="#575249">21 offline commands · tree, claims, diff, chain</text>
+        <rect x="36" y="252" width="848" height="231" rx="10" fill="#181613" stroke="#dcd5c7"/><circle cx="56" cy="272" r="5" fill="#ef4444"/><circle cx="72" cy="272" r="5" fill="#f59e0b"/><circle cx="88" cy="272" r="5" fill="#10b981"/><text x="460" y="276" text-anchor="middle" class="mono" font-size="11" fill="#9c9588">myriad - verified offline examples</text><line x1="36" y1="288" x2="884" y2="288" stroke="#2a2722"/><text x="54" y="310" class="mono" font-size="11.5" fill="#f59e0b">$ myriad standing examples/winter-spring-summer-lineage.json</text><text x="54" y="329" class="mono" font-size="11.5" fill="#34d399">entry ferry link, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close</text><text x="54" y="348" class="mono" font-size="11.5" fill="#34d399">entry lifeboat cover, first stood at atlas 1, last stood at atlas 3, stands in 3 atlases, stands at the close</text><text x="54" y="367" class="mono" font-size="11.5" fill="#f2eee6">entry harbour lights, first stood at atlas 1, last stood at atlas 3, stands in 2 atlases, stands at the close</text><text x="54" y="386" class="mono" font-size="11.5" fill="#9c9588">entry ice report, first stood at atlas 2, last stood at atlas 2, stands in 1 atlases, does not stand at the close</text><text x="54" y="405" class="mono" font-size="11.5" fill="#f59e0b">standing counts, atlases 3, entries 4, standing at every atlas 2, standing at the close 3</text><text x="54" y="424" class="mono" font-size="11.5" fill="#f59e0b">$ myriad returns examples/winter-spring-summer-lineage.json</text><text x="54" y="443" class="mono" font-size="11.5" fill="#34d399">entry harbour lights, returned at step 2, absent 1 atlases</text><text x="54" y="462" class="mono" font-size="11.5" fill="#f2eee6">returns counts, returns 1, entries returned 1</text></svg>

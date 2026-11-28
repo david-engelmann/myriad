@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/david-engelmann/myriad/main/schemas/exploration.schema.json",
+  "title": "Myriad Exploration (v1)",
+  "description": "Version 1 branching investigation tree read by map, check, claims, and census.",
+  "type": "object",
+  "required": [
+    "question",
+    "branches"
+  ],
+  "properties": {
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "branches": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/branch"
+      }
+    }
+  },
+  "$defs": {
+    "branch": {
+      "type": "object",
+      "required": [
+        "id",
+        "parent",
+        "prompt",
+        "state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "pattern": "[\\r\\n]"
+              }
+            }
+          ]
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "open",
+            "taken",
+            "abandoned"
+          ]
+        },
+        "finding": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "open"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "finding"
+                  ]
+                },
+                {
+                  "required": [
+                    "reason"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "taken"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "finding"
+            ],
+            "not": {
+              "required": [
+                "reason"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "abandoned"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "reason"
+            ],
+            "not": {
+              "required": [
+                "finding"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

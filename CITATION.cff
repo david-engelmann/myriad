@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use Myriad in research or engineering benchmarks, please cite this software."
+type: software
+title: "Myriad"
+abstract: "Myriad is a Rust library and command line tool that maps branching multi agent investigations across explorations, atlases, and temporal lineages."
+authors:
+  - family-names: "Engelmann"
+    given-names: "David"
+version: "0.2.0"
+license: "MIT"
+repository-code: "https://github.com/david-engelmann/myriad"
+url: "https://github.com/david-engelmann/myriad"
+keywords:
+  - "cli"
+  - "investigation"
+  - "research"
+  - "decision-tree"
+  - "agents"

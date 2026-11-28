@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/david-engelmann/myriad/main/schemas/lineage.schema.json",
+  "title": "Myriad Lineage (v1)",
+  "description": "Version 1 chronological chain of atlases read by lineage and the thirteen chain commands.",
+  "type": "object",
+  "required": [
+    "atlases"
+  ],
+  "properties": {
+    "atlases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "atlas.schema.json"
+      }
+    }
+  }
+}

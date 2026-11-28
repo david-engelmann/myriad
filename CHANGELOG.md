@@ -1,0 +1,27 @@
+# Changelog
+
+All notable product and packaging changes to `myriad` stand recorded in this file.
+
+## 0.2.0
+
+Unreleased.
+
+The v0.1.0 tag published on 2026-11-07 is a seed tag without release binaries, and 0.2.0 is the first packaged release.
+
+### Added
+
+- Prebuilt five-target release workflow (`release.yml`) bundling shell completions, JSON Schemas, and manual pages into Linux, macOS, and Windows archives alongside a `SHA256SUMS` verification installer (`install.sh`).
+- Crate packaging and `cargo-binstall` metadata in `Cargo.toml`, excluding internal gate binaries and handbook build sources so published `.crate` archives stay compact, plus `deny.toml` license and advisory checks.
+- Draft 2020-12 JSON Schemas under `schemas/`, static tab-completion scripts under `completions/` (`bash`, `zsh`, `fish`, `PowerShell`), offline `man/myriad.1` manual page, and root composite GitHub Action (`action.yml`).
+- Searchable `mdBook` operator handbook under `book/` paired with GitHub Pages CI (`docs.yml`), clean-room installer verification (`clean-install.yml`), and three-OS matrix validation (`cross-platform.yml`).
+- Documentation and visual media suite under `docs/` and `docs/media/` covering the operator guide, five-tool pipeline cookbook, pipeline architecture, Spectacle Line comparison, measured Apple Silicon release benchmarks, social preview cards, animated CLI showcase, and pinned-compatible storefront README draft.
+
+## 0.1.0
+
+### Added
+
+- Pure Rust loaders and defect validators for version 1 exploration logs, multi question atlases, and chronological atlas lineages.
+- Map, check, claims, and census readings over branching investigations with open, taken, and abandoned branch states plus dibs claim tracking.
+- Three atlas readings covering full atlas rendering, question index summaries, and two atlas structural changelogs.
+- Fourteen temporal chain readings tracking lineage changelogs, returns, standing, absence, arrivals, departures, matched steps, runs, presence, standings, company, sets, rosters, and fellows.
+- Cross platform binary surface supporting Linux, macOS, and Windows with terminal width aware help formatting and newline injection fencing.
