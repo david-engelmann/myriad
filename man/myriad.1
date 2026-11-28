@@ -2,7 +2,9 @@
 .SH NAME
 myriad \- branching multi-agent investigation map, atlas, and temporal lineage reader
 .SH SYNOPSIS
-\fBmyriad\fR [\fB-h\fR | \fB--help\fR] \fICOMMAND\fR \fIFILE\fR ...
+\fBmyriad\fR \fB-h\fR | \fB--help\fR
+.br
+\fBmyriad\fR \fICOMMAND\fR \fIFILE\fR ...
 .SH DESCRIPTION
 \fBmyriad\fR reads version 1 logs of branching investigations (explorations), multi-question collections (atlases), and chronological chains of atlases (lineages). It validates tree structure and cycle freedom, tracks open, taken, and abandoned branches alongside worker dibs claims, and prints twenty-one deterministic offline readings without ever declaring a winner.
 .SH COMMANDS
@@ -27,7 +29,7 @@ Run the fourteen longitudinal chain readings across a chronological atlas lineag
 .SH EXIT STATUS
 .TP
 \fB0\fR
-Valid exploration, atlas, or lineage confirmed and printed cleanly.
+Help text printed, or valid exploration, atlas, or lineage confirmed and printed (including when stdout closes during final flush with 4097 to 8191 bytes buffered under PORT-13).
 .TP
 \fB1\fR
 Malformed input refused with structured defect lines on stdout, or closed stdout write when 8192 or more bytes sit buffered.
@@ -38,6 +40,9 @@ Unknown subcommand, unrecognized option, or wrong file argument count on stderr.
 \fB120\fR
 Failed stderr stream write, or closed stdout write when 4096 or fewer bytes sit buffered.
 .SH EXAMPLES
+From a repository checkout containing the shipped synthetic fixtures under
+.I examples/
+.PP
 Validate an exploration log
 .nf
 .RS 4
