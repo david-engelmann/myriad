@@ -696,3 +696,34 @@ fn the_returns_stand_bound_to_the_presence_sections() {
         assert_eq!(lines, expected);
     }
 }
+
+/// The scattered chain of the inversion record, five
+/// atlases over four labels, the standings of the
+/// labels standing scattered over the chain, alpha
+/// standing at atlases 1, 4, and 5, beta at atlases 1
+/// and 2, gamma at atlases 2 and 4, and delta at atlas
+/// 5 alone, the third atlas standing empty.
+fn scattered() -> Lineage {
+    Lineage {
+        atlases: vec![
+            atlas("First", vec![plain("alpha"), plain("beta")]),
+            atlas("Second", vec![plain("beta"), plain("gamma")]),
+            atlas("Third", vec![]),
+            atlas("Fourth", vec![plain("gamma"), plain("alpha")]),
+            atlas("Fifth", vec![plain("delta"), plain("alpha")]),
+        ],
+    }
+}
+
+#[test]
+fn a_scattered_chain_renders_its_returns_whole() {
+    let lines = render_returns(&scattered()).expect("the chain reads");
+    assert_eq!(
+        lines,
+        strings(&[
+            "entry gamma, returned at step 3, absent 1 atlases",
+            "entry alpha, returned at step 3, absent 2 atlases",
+            "returns counts, returns 2, entries returned 2",
+        ])
+    );
+}
