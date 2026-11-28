@@ -7,7 +7,7 @@ branding:
 
 inputs:
   version:
-    description: "Release tag such as v0.1.0, latest, or source to build from Cargo"
+    description: "Release tag such as v0.2.0, latest, or source to build from Cargo"
     required: false
     default: "latest"
   command:
@@ -63,7 +63,14 @@ runs:
           ACT_MIXED="$ACTION_DIR"
         fi
         mkdir -p "$DEST_DIR"
-        CRATE_VER="0.1.0"
+        sed -n 's/^version = "\(.*\)"/\1/p' "${ACT_MIXED}/Cargo.toml" > "${DEST_DIR}/crate-version.txt"
+        read -r CRATE_VER < "${DEST_DIR}/crate-version.txt"
+        case "$CRATE_VER" in
+          ''|*[!0-9A-Za-z._-]*)
+            echo "error invalid crate version $CRATE_VER" >&2
+            exit 2
+            ;;
+        esac
         INSTALLED=""
         if [ "$INPUT_VERSION" != "source" ] && [ "${RUNNER_OS}" != "Windows" ]; then
           LOG_FILE="${DEST_DIR}/install.log"

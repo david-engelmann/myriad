@@ -2,7 +2,11 @@
 
 All notable product and packaging changes to `myriad` stand recorded in this file.
 
-## Unreleased
+## 0.2.0
+
+Unreleased.
+
+The v0.1.0 tag published on 2026-11-07 is a seed tag without release binaries, and 0.2.0 is the first packaged release.
 
 ### Added
 

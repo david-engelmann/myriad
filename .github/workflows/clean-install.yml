@@ -33,8 +33,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml > "${RUNNER_TEMP}/pkg-version.txt"
+          read -r VERSION < "${RUNNER_TEMP}/pkg-version.txt"
+          test -n "$VERSION"
           cargo package --locked
-          CRATE_FILE="target/package/myriad-atlas-0.1.0.crate"
+          CRATE_FILE="target/package/myriad-atlas-${VERSION}.crate"
           test -f "$CRATE_FILE"
           SIZE_BYTES="$(wc -c < "$CRATE_FILE" | tr -d ' ')"
           echo "packaged $CRATE_FILE ($SIZE_BYTES bytes)"
@@ -66,7 +69,10 @@ jobs:
               TARGET="x86_64-apple-darwin"
             fi
           fi
-          STEM="myriad-v0.1.0-${TARGET}"
+          sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml > "${WORK_DIR}/pkg-version.txt"
+          read -r VERSION < "${WORK_DIR}/pkg-version.txt"
+          test -n "$VERSION"
+          STEM="myriad-v${VERSION}-${TARGET}"
           REL_DIR="$WORK_DIR/releases"
           SHIM_DIR="$WORK_DIR/shim"
           DEST_DIR="$WORK_DIR/installed"
@@ -100,13 +106,13 @@ jobs:
           EOF
           chmod 0755 "$SHIM_DIR/curl"
           sh ./install.sh --help >/dev/null
-          PATH="$SHIM_DIR:$PATH" sh ./install.sh --version v0.1.0 --to "$DEST_DIR"
+          PATH="$SHIM_DIR:$PATH" sh ./install.sh --version "v${VERSION}" --to "$DEST_DIR"
           INSTALLED="$DEST_DIR/myriad"
           test -x "$INSTALLED"
           "$INSTALLED" map examples/winter-ferry.json > "$WORK_DIR/out.txt"; grep -q "(open)" "$WORK_DIR/out.txt"
           cp "$REL_DIR/SHA256SUMS" "$REL_DIR/SHA256SUMS.good"
           printf '0000000000000000000000000000000000000000000000000000000000000000  %s.tar.gz\n' "$STEM" > "$REL_DIR/SHA256SUMS"
-          if PATH="$SHIM_DIR:$PATH" sh ./install.sh --version v0.1.0 --to "$WORK_DIR/bad" >/dev/null 2>&1; then
+          if PATH="$SHIM_DIR:$PATH" sh ./install.sh --version "v${VERSION}" --to "$WORK_DIR/bad" >/dev/null 2>&1; then
             echo "error tampered SHA256SUMS unexpectedly succeeded" >&2
             exit 1
           fi
@@ -122,7 +128,7 @@ jobs:
           else
             (cd "$REL_DIR" && shasum -a 256 "${STEM}.tar.gz" > SHA256SUMS)
           fi
-          if PATH="$SHIM_DIR:$PATH" sh ./install.sh --version v0.1.0 --to "$WORK_DIR/existing" >/dev/null 2>&1; then
+          if PATH="$SHIM_DIR:$PATH" sh ./install.sh --version "v${VERSION}" --to "$WORK_DIR/existing" >/dev/null 2>&1; then
             echo "error failing candidate binary unexpectedly replaced existing target" >&2
             exit 1
           fi

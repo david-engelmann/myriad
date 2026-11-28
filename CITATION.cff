@@ -6,7 +6,7 @@ abstract: "Myriad is a Rust library and command line tool that maps branching mu
 authors:
   - family-names: "Engelmann"
     given-names: "David"
-version: "0.1.0"
+version: "0.2.0"
 license: "MIT"
 repository-code: "https://github.com/david-engelmann/myriad"
 url: "https://github.com/david-engelmann/myriad"

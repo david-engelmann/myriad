@@ -55,3 +55,37 @@ jobs:
         run: |
           $bin = "target/release/myriad.exe"
           $out = & $bin map examples/winter-ferry.json; if ($LASTEXITCODE -ne 0) { exit 1 }; if (-not ($out -join "`n").Contains("(open)")) { exit 1 }; exit 0
+
+  msrv:
+    name: msrv (1.87)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: "1.87"
+      - name: Check MSRV build
+        run: cargo check --locked --all-targets
+
+  supply-chain:
+    name: supply-chain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check bans, licenses, and sources
+        uses: EmbarkStudios/cargo-deny-action@bb119f768ea239e765aeaef5769558d4f21213aa # v2.1.5
+        with:
+          command: check
+          command-arguments: "bans licenses sources"
+
+  advisories:
+    name: advisories
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check RustSec advisories
+        uses: EmbarkStudios/cargo-deny-action@bb119f768ea239e765aeaef5769558d4f21213aa # v2.1.5
+        with:
+          command: check
+          command-arguments: "advisories"

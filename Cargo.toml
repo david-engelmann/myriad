@@ -1,6 +1,6 @@
 [package]
 name = "myriad-atlas"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.87"
 description = "Myriad is a Rust library and command line tool that reads logs of branching investigations of a question, single investigations, sets of them, and chains of them logged over time, and prints readings over them."

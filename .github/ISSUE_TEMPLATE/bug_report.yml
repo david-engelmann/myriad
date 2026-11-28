@@ -12,7 +12,7 @@ body:
     attributes:
       label: Version or commit SHA
       description: Release tag or git commit SHA where you observed the issue
-      placeholder: "v0.1.0"
+      placeholder: "v0.2.0"
     validations:
       required: true
   - type: input

@@ -269,7 +269,7 @@ finish, actual usage 18400 against a last projection of 779294.117647, inside th
 `myriad` ships a root composite `action.yml` so any workflow can install `myriad` onto `PATH` and run a check or reading in two lines of YAML.
 
 ```yaml
-- uses: david-engelmann/myriad@v0.1.0
+- uses: david-engelmann/myriad@v0.2.0
   with:
     command: check
     target-path: examples/winter-ferry.json

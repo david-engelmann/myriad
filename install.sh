@@ -16,7 +16,7 @@ usage() {
 Install a prebuilt release binary from GitHub Releases.
 
 Options
-  --version <TAG>    Release tag such as v0.1.0 (default latest)
+  --version <TAG>    Release tag such as v0.2.0 (default latest)
   --to <DIR>         Destination directory (default $HOME/.local/bin)
   --target <TRIPLE>  Override target triple detection
   -h, --help         Print this help text
