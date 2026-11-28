@@ -766,16 +766,7 @@ fn presence_of(lineage: &Lineage) -> Result<Vec<HashSet<&PText>>, String> {
 pub fn render_returns(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut returns = 0usize;
     let mut returned: HashSet<&PText> = HashSet::new();
@@ -832,6 +823,34 @@ fn first_standing_order(lineage: &Lineage) -> Vec<&PText> {
     order
 }
 
+/// Invert the presence pass of a chain in one walk,
+/// holding for each label of the chain the atlases it
+/// stands in, in chain order, beside the place of each
+/// label in the order of first standing.
+///
+/// Every reading of the chain family that reads its
+/// lines from the inversion of the pass reads that
+/// inversion through this one construction, so the
+/// walk over the atlases of the chain, the numbering
+/// of the atlases from one, and the place of each
+/// label stand in one home.
+fn invert_presence<'a>(
+    presence: &[HashSet<&'a PText>],
+    order: &[&'a PText],
+) -> (HashMap<&'a PText, usize>, Vec<Vec<usize>>) {
+    let mut positions: HashMap<&PText, usize> = HashMap::new();
+    for (index, label) in order.iter().enumerate() {
+        positions.insert(*label, index);
+    }
+    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
+    for (index, labels) in presence.iter().enumerate() {
+        for label in labels {
+            inverted[positions[label]].push(index + 1);
+        }
+    }
+    (positions, inverted)
+}
+
 /// The one standing line construction, in the form
 /// MY-18 states, formed from the atlases one label
 /// stands in, in chain order.
@@ -884,16 +903,7 @@ pub fn render_standing(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut at_every = 0usize;
     let mut at_close = 0usize;
@@ -944,16 +954,7 @@ pub fn render_arrivals(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
@@ -1014,16 +1015,7 @@ pub fn render_departures(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
@@ -1092,16 +1084,7 @@ pub fn render_matched(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut counts: Vec<usize> = Vec::new();
     for (step, atlas) in lineage.atlases.iter().take(total - 1).enumerate() {
@@ -1158,16 +1141,7 @@ pub fn render_presence(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     for (index, atlas) in lineage.atlases.iter().enumerate() {
         lines.push(format!("atlas {}", index + 1));
@@ -1221,16 +1195,7 @@ pub fn render_standings(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut standings = 0usize;
     for (label, atlases) in order.iter().zip(inverted.iter()) {
@@ -1281,16 +1246,7 @@ pub fn render_company(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
     let mut membership: Vec<HashSet<usize>> = vec![HashSet::new(); order.len()];
     for atlas in &lineage.atlases {
@@ -1357,16 +1313,7 @@ pub fn render_sets(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut gatherings: Vec<(Vec<usize>, Vec<usize>)> = Vec::new();
     let mut gathered: HashMap<Vec<usize>, usize> = HashMap::new();
     for (index, _) in order.iter().enumerate() {
@@ -1426,16 +1373,7 @@ pub fn render_rosters(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (positions, inverted) = invert_presence(&presence, &order);
     let mut gatherings: Vec<(Vec<usize>, Vec<usize>)> = Vec::new();
     let mut gathered: HashMap<Vec<usize>, usize> = HashMap::new();
     for (index, labels) in presence.iter().enumerate() {
@@ -1495,16 +1433,7 @@ pub fn render_fellows(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut gatherings: Vec<Vec<usize>> = vec![Vec::new(); total];
     for holders in &inverted {
         for &holder in holders {
@@ -1562,16 +1491,7 @@ pub fn render_runs(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut runs = 0usize;
     let mut with_runs = 0usize;
@@ -1654,16 +1574,7 @@ pub fn render_absence(lineage: &Lineage) -> Result<Vec<String>, String> {
     let presence = presence_of(lineage)?;
     let order = first_standing_order(lineage);
     let total = lineage.atlases.len();
-    let mut positions: HashMap<&PText, usize> = HashMap::new();
-    for (index, label) in order.iter().enumerate() {
-        positions.insert(*label, index);
-    }
-    let mut inverted: Vec<Vec<usize>> = vec![Vec::new(); order.len()];
-    for (index, labels) in presence.iter().enumerate() {
-        for label in labels {
-            inverted[positions[label]].push(index + 1);
-        }
-    }
+    let (_, inverted) = invert_presence(&presence, &order);
     let mut lines: Vec<String> = Vec::new();
     let mut runs = 0usize;
     let mut with_absences = 0usize;
